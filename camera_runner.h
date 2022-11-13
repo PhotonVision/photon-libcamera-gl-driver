@@ -18,6 +18,7 @@
 struct MatPair {
     std::unique_ptr<cv::Mat> color;
     std::unique_ptr<cv::Mat> processed;
+    long captureTimestamp; // In libcamera time units, hopefully uS?
 
     MatPair() = default;
     explicit MatPair(int width, int height)

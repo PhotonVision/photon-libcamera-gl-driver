@@ -77,8 +77,6 @@ Java_org_photonvision_raspi_LibCameraJNI_setBrightness(JNIEnv *, jclass, jdouble
  */
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *, jclass, jdouble);
-JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setDigitalGain(JNIEnv *, jclass, jdouble);
 
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
     JNIEnv *, jclass, jdouble red, jdouble blue);
@@ -99,6 +97,9 @@ Java_org_photonvision_raspi_LibCameraJNI_setRotation(JNIEnv *, jclass, jint);
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getFrameLatency(JNIEnv *, jclass);
 
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *, jclass);
+
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    grabFrame
@@ -108,14 +109,13 @@ JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *, jclass);
 
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getColorFrame(JNIEnv *, jclass);
+Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *, jclass);
 
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getGPUoutput(JNIEnv *, jclass);
+Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *, jclass);
 
-// True if greyscale, else binary threshold output
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setShouldGreyscale(JNIEnv *, jclass, jboolean);
+Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *, jclass, jint);
 
 #ifdef __cplusplus
 }

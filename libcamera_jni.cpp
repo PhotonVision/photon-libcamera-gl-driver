@@ -150,17 +150,6 @@ Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *env, jclass,
     return true;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setDigitalGain(JNIEnv *env, jclass,
-                                                        jdouble digital) {
-    if (!runner) {
-        return false;
-    }
-
-    // runner->cameraGrabber().cameraSettings().digitalGain = digital;
-    return true;
-}
-
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
     JNIEnv *env, jclass, jint rotationOrdinal) {
     if (!runner) {
@@ -172,12 +161,19 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
     return true;
 }
 
+static MatPair pair = {0};
+
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getFrameLatency(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env, jclass) {
+    return pair.captureTimestamp;
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env, jclass) {
+    // TODO return the current libcamera timestamp in uS
     return 0;
 }
 
-static MatPair pair;
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass) {
@@ -212,8 +208,8 @@ Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setShouldGreyscale(JNIEnv *env, jclass,
-                                                            jboolean) {
+Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
+                                                            jint) {
     if (!runner) {
         return false;
     }
