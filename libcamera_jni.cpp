@@ -221,8 +221,8 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
 
 JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
-    // TODO
-    return 0;
+    // TODO -- since we hard code HSV right now, return 2
+    return 2;
 }
 
 } // extern "C"
