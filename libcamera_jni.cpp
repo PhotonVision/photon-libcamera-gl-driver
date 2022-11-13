@@ -38,7 +38,8 @@ JNIEXPORT jstring Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
 }
 
 JNIEXPORT jboolean
-Java_org_photonvision_raspi_LibCameraJNI_isSupported(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *env, jclass) {
+    // TODO
     return true;
 }
 
@@ -214,6 +215,13 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
         return false;
     }
 
+    // TODO
+    return true;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
+    // TODO
     return 0;
 }
 

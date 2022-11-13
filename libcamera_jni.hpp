@@ -22,7 +22,7 @@ Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(JNIEnv *, jclass);
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_isSupported(JNIEnv *, jclass);
+Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *, jclass);
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
@@ -113,6 +113,9 @@ Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *, jclass);
 
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *, jclass);
+
+JNIEXPORT jint JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass);
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *, jclass, jint);
