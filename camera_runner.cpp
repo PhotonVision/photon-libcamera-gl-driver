@@ -13,7 +13,6 @@ using latch = std::latch;
 using latch = Latch;
 #endif
 
-#include <opencv2/core.hpp>
 #include <sys/mman.h>
 #include <unistd.h>
 
@@ -51,10 +50,6 @@ CameraRunner::CameraRunner(int width, int height, int fps,
     fds = {allocer.alloc_buf_fd(m_width * m_height * 4),
            allocer.alloc_buf_fd(m_width * m_height * 4),
            allocer.alloc_buf_fd(m_width * m_height * 4)};
-
-    for (int i = 0; i < 5; i++) {
-        m_buffered.push(std::make_unique<uint8_t[]>(m_width * m_height * 4));
-    }
 }
 
 CameraRunner::~CameraRunner() {
@@ -142,25 +137,10 @@ void CameraRunner::start() {
                 break;
             }
 
-            auto mat_pair = m_buffered.try_pop();
+            auto mat_pair = MatPair(m_width, m_height);
 
-            // If we have no more of our own buffers, try stealing the user
-            // buffers. Hopefully we don't steal the last buffer that the user
-            // was waiting on due to a race, but we really should have enough
-            // buffers that this isn't an issue.
-            if (!mat_pair) {
-                mat_pair = outgoing.try_pop();
-            }
-
-            if (!mat_pair) {
-                std::cout << "No more buffers left! Creating new buffer, this "
-                             "may lead to OOM conditions."
-                          << std::endl;
-                mat_pair = std::make_unique<uint8_t[]>(m_width * m_height * 4);
-            }
-
-            uint8_t *threshold_out_buf = mat_pair.value().get();
-            uint8_t *color_out_buf = mat_pair.value().get() + (m_width * m_height);
+            uint8_t *processed_out_buf = mat_pair.processed->data;
+            uint8_t *color_out_buf = mat_pair.color->data;
 
             auto begin_time = steady_clock::now();
             auto input_ptr = mmaped.at(fd);
@@ -168,11 +148,11 @@ void CameraRunner::start() {
 
             for (int i = 0; i < bound; i++) {
                 std::memcpy(color_out_buf + i * 3, input_ptr + i * 4, 3);
-                threshold_out_buf[i] = input_ptr[i * 4 + 3];
+                processed_out_buf[i] = input_ptr[i * 4 + 3];
             }
 
             m_thresholder.returnBuffer(fd);
-            outgoing.push(std::move(mat_pair.value()));
+            outgoing.set(std::move(mat_pair));
 
             std::chrono::duration<double, std::milli> elapsedMillis =
                 steady_clock::now() - begin_time;
@@ -223,5 +203,3 @@ void CameraRunner::stop() {
     gpu_queue.push(-1);
     display.join();
 }
-
-void CameraRunner::requeue_mat(std::unique_ptr<uint8_t[]> mat) { m_buffered.push(std::move(mat)); }

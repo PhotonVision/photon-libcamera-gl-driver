@@ -68,7 +68,7 @@ Java_org_photonvision_raspi_LibCameraJNI_startCamera(JNIEnv *, jclass) {
     if (!runner) {
         return false;
     }
-    
+
     runner->start();
     return true;
 }
@@ -78,7 +78,7 @@ Java_org_photonvision_raspi_LibCameraJNI_stopCamera(JNIEnv *, jclass) {
     if (!runner) {
         return false;
     }
-    
+
     runner->stop();
     return true;
 }
@@ -145,7 +145,7 @@ Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *env, jclass,
     if (!runner) {
         return false;
     }
-    
+
     runner->cameraGrabber().cameraSettings().analogGain = analog;
     return true;
 }
@@ -177,27 +177,38 @@ Java_org_photonvision_raspi_LibCameraJNI_getFrameLatency(JNIEnv *env, jclass) {
     return 0;
 }
 
-JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass) {
-    if (!runner) {
-        // NULL
-        return 0;
-    }
-
-    auto ptr = runner->outgoing.pop();
-    return reinterpret_cast<jlong>(ptr.release());
-}
+static MatPair pair;
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_returnFrame(JNIEnv *env, jclass, jlong frame) {
+Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass) {
     if (!runner) {
         // NULL
         return false;
     }
 
-    auto ptr = std::unique_ptr<uint8_t[]>(reinterpret_cast<uint8_t*>(frame));
-    runner->requeue_mat(std::move(ptr));
+    pair = runner->outgoing.take();
     return true;
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *env, jclass) {
+    if (!runner) {
+        // NULL
+        return 0;
+    }
+
+    return reinterpret_cast<jlong>(pair.color.release());
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
+                                                            jclass) {
+    if (!runner) {
+        // NULL
+        return 0;
+    }
+
+    return reinterpret_cast<jlong>(pair.processed.release());
 }
 
 JNIEXPORT jboolean JNICALL
@@ -206,7 +217,7 @@ Java_org_photonvision_raspi_LibCameraJNI_setShouldGreyscale(JNIEnv *env, jclass,
     if (!runner) {
         return false;
     }
-    
+
     return 0;
 }
 

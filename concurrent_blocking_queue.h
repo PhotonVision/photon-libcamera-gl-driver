@@ -1,5 +1,4 @@
-#ifndef LIBCAMERA_MEME_CONCURRENT_BLOCKING_QUEUE_H
-#define LIBCAMERA_MEME_CONCURRENT_BLOCKING_QUEUE_H
+#pragma once
 
 #include <condition_variable>
 #include <mutex>
@@ -9,16 +8,6 @@
 template <typename T> class ConcurrentBlockingQueue {
   public:
     ConcurrentBlockingQueue() = default;
-
-    [[nodiscard]] bool empty() const {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        return m_queue.empty();
-    }
-
-    typename std::queue<T>::size_type size() const {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        return m_queue.size();
-    }
 
     T pop() {
         std::unique_lock<std::mutex> lock(m_mutex);
@@ -63,8 +52,6 @@ template <typename T> class ConcurrentBlockingQueue {
 
   private:
     std::queue<T> m_queue;
-    mutable std::mutex m_mutex;
+    std::mutex m_mutex;
     std::condition_variable m_cond;
 };
-
-#endif // LIBCAMERA_MEME_CONCURRENT_BLOCKING_QUEUE_H
