@@ -307,6 +307,7 @@ int GlHsvThresholder::testFrame(
                         range,
                         EGL_NONE};
 
+    EGLERROR();
     auto image = eglCreateImageKHR(m_display, EGL_NO_CONTEXT,
                                    EGL_LINUX_DMA_BUF_EXT, nullptr, attribs);
     EGLERROR();
