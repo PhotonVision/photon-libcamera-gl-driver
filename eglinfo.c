@@ -21,7 +21,7 @@ static EGLint const context_attribute_list[] = {
 
 struct gl_limit {
     GLint name;
-    char *string;
+    const char *string;
     int num_args;
 };
 #define EXPAND(x) x, #x
@@ -40,18 +40,16 @@ struct gl_limit limits[] = {
     {0, NULL}
 };
 
-#include "triangle.h"
+#include "headless_opengl.h"
 
 int main(int argc, char ** argv)
 {
 
-    struct HeadlessData status;
-create(&status);
+    struct HeadlessData status = createHeadless();
     
     EGLDisplay display = status.display;
     // EGLConfig config;
     EGLContext context = status.context;
-    EGLSurface surface = status.surface;
     // EGLint num_config;
 
     // // create a pbuffer-based surface, and use it
@@ -61,7 +59,7 @@ create(&status);
     // context = eglCreateContext(display, config, EGL_NO_CONTEXT,
     //         context_attribute_list);
     // surface = eglCreatePbufferSurface(display, config, NULL);
-    eglMakeCurrent(display, surface, surface, context);
+    eglMakeCurrent(display, EGL_NO_SURFACE, EGL_NO_SURFACE, context);
 
     // query egl-specific strings
     char *egl_vendor = (char *)eglQueryString(display, EGL_VENDOR);

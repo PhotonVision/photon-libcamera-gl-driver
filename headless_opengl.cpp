@@ -5,6 +5,8 @@
 #include <gbm.h>
 #include <unistd.h>
 
+#include <vector>
+
 // The following code related to DRM/GBM was adapted from the following sources:
 // https://github.com/eyelash/tutorials/blob/master/drm-gbm.c
 // and
@@ -38,7 +40,8 @@ static const EGLint configAttribs[] = {EGL_RED_SIZE,
 static const EGLint contextAttribs[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
                                         EGL_NONE};
 
-HeadlessData createHeadless(const std::vector<std::string> &paths) {
+HeadlessData createHeadless() {
+    std::vector<std::string> paths = {"/dev/dri/card1", "/dev/dri/card0"};
     int device = -1;
     for (const auto &path : paths) {
         device = open(path.c_str(), O_RDWR | O_CLOEXEC);

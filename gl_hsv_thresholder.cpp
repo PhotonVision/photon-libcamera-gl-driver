@@ -137,7 +137,7 @@ GLuint make_program(const char *vertex_source, const char *fragment_source) {
 
 GlHsvThresholder::GlHsvThresholder(int width, int height)
     : m_width(width), m_height(height) {
-    status = createHeadless({"/dev/dri/card1", "/dev/dri/card0"});
+    status = createHeadless();
     m_context = status.context;
     m_display = status.display;
 }
