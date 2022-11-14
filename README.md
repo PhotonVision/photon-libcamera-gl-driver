@@ -8,7 +8,7 @@ We use CMake for our builds. The build should output both a shared library, `lib
 
 ```
 sudo apt-get update
-sudo apt-get install -y libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev openjdk-11-jdk
+sudo apt-get install -y default-jdk libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev openjdk-11-jdk
 
 git clone https://github.com/PhotonVision/photon-libcamera-gl-driver.git
 ```
