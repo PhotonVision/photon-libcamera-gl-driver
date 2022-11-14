@@ -143,6 +143,11 @@ GlHsvThresholder::GlHsvThresholder(int width, int height)
 }
 
 GlHsvThresholder::~GlHsvThresholder() {
+    glDeleteProgram(m_program);
+    glDeleteBuffers(1, &m_quad_vbo);
+    for (const auto [key, value]: m_framebuffers) {
+        glDeleteFramebuffers(1, &value);
+    }
     destroyHeadless(status);
 }
 

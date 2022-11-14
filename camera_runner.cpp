@@ -82,6 +82,10 @@ void CameraRunner::start() {
                               .at(grabber.streamConfiguration().stream())
                               ->planes();
 
+            for (int i = 0; i < 3; i++) {
+                std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
+            }
+
             std::array<GlHsvThresholder::DmaBufPlaneData, 3> yuv_data{{
                 {planes[0].fd.get(), static_cast<EGLint>(planes[0].offset),
                  static_cast<EGLint>(stride)},
