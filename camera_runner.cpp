@@ -67,8 +67,6 @@ void CameraRunner::start() {
         m_thresholder.start(fds);
         auto colorspace = grabber.streamConfiguration().colorSpace.value();
 
-        m_thresholder.setOnComplete([&](int fd) { gpu_queue.push(fd); });
-
         double gpuTimeAvgMs = 0;
 
         start_frame_grabber.count_down();
@@ -94,9 +92,12 @@ void CameraRunner::start() {
             }};
 
             auto begintime = steady_clock::now();
-            m_thresholder.testFrame(yuv_data,
+            int out = m_thresholder.testFrame(yuv_data,
                                     encodingFromColorspace(colorspace),
                                     rangeFromColorspace(colorspace));
+            if (out != 0) {
+                gpu_queue.push(out);
+            }
 
             std::chrono::duration<double, std::milli> elapsedMillis =
                 steady_clock::now() - begintime;
@@ -189,6 +190,7 @@ void CameraRunner::start() {
 }
 
 void CameraRunner::stop() {
+    printf("stopping all\n");
     // stop the camera
     {
         std::lock_guard<std::mutex> lock{camera_stop_mutex};
@@ -202,4 +204,6 @@ void CameraRunner::stop() {
     // push sentinel value to stop display thread
     gpu_queue.push(-1);
     display.join();
+
+    printf("stopped all\n");
 }

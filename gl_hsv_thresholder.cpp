@@ -242,7 +242,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     }
 }
 
-void GlHsvThresholder::testFrame(
+int GlHsvThresholder::testFrame(
     const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
     EGLint encoding, EGLint range) {
     static auto glEGLImageTargetTexture2DOES =
@@ -266,7 +266,7 @@ void GlHsvThresholder::testFrame(
             m_renderable.pop();
         } else {
             std::cout << "no framebuffer, skipping" << std::endl;
-            return;
+            return 0;
         }
     }
 
@@ -363,16 +363,8 @@ void GlHsvThresholder::testFrame(
     glDeleteTextures(1, &texture);
     GLERROR();
 
-    if (m_onComplete) {
-        m_onComplete->operator()(framebuffer_fd);
-    }
+    return framebuffer_fd;
 }
-
-void GlHsvThresholder::setOnComplete(std::function<void(int)> onComplete) {
-    m_onComplete = std::move(onComplete);
-}
-
-void GlHsvThresholder::resetOnComplete() { m_onComplete.reset(); }
 
 void GlHsvThresholder::returnBuffer(int fd) {
     std::scoped_lock lock(m_renderable_mutex);

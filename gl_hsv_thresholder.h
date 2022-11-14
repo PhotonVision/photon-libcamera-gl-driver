@@ -27,11 +27,9 @@ class GlHsvThresholder {
     ~GlHsvThresholder();
 
     void start(const std::vector<int> &output_buf_fds);
-    void setOnComplete(std::function<void(int)> onComplete);
-    void resetOnComplete();
 
     void returnBuffer(int fd);
-    void testFrame(
+    int testFrame(
         const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
         EGLint encoding, EGLint range);
 
@@ -51,7 +49,6 @@ class GlHsvThresholder {
   private:
     int m_width;
     int m_height;
-    std::optional<std::function<void(int)>> m_onComplete;
 
     EGLDisplay m_display;
     EGLContext m_context;
