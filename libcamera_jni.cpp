@@ -162,7 +162,7 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
     return true;
 }
 
-static MatPair pair = {0};
+static MatPair pair = {};
 
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env, jclass) {
