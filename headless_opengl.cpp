@@ -120,7 +120,9 @@ HeadlessData createHeadless(const std::vector<std::string> &paths) {
     return ret;
 }
 
+#include <iostream>
 void destroyHeadless(HeadlessData status) {
+    std::cout << "Destroying headless" << std::endl;
     eglDestroyContext(status.display, status.context);
     eglTerminate(status.display);
     gbm_device_destroy(status.gbmDevice);
