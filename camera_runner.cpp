@@ -63,7 +63,7 @@ void CameraRunner::start() {
 
     latch start_frame_grabber{2};
 
-    threshold = std::thread([&]() {
+    threshold = std::thread([&, stride]() {
         m_thresholder.start(fds);
         auto colorspace = grabber.streamConfiguration().colorSpace.value();
 
@@ -83,7 +83,8 @@ void CameraRunner::start() {
                               ->planes();
 
             for (int i = 0; i < 3; i++) {
-                std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
+                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
+                std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << " and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
             }
 
             std::array<GlHsvThresholder::DmaBufPlaneData, 3> yuv_data{{
