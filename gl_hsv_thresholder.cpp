@@ -142,7 +142,9 @@ GlHsvThresholder::GlHsvThresholder(int width, int height)
     m_display = status.display;
 }
 
-GlHsvThresholder::~GlHsvThresholder() { destroyHeadless(status); }
+GlHsvThresholder::~GlHsvThresholder() {
+    destroyHeadless(status);
+}
 
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     static auto glEGLImageTargetTexture2DOES =
@@ -263,6 +265,7 @@ int GlHsvThresholder::testFrame(
         std::scoped_lock lock(m_renderable_mutex);
         if (!m_renderable.empty()) {
             framebuffer_fd = m_renderable.front();
+            std::cout << "yes framebuffer" << std::endl;
             m_renderable.pop();
         } else {
             std::cout << "no framebuffer, skipping" << std::endl;
@@ -327,8 +330,6 @@ int GlHsvThresholder::testFrame(
     GLERROR();
     glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
     GLERROR();
-    eglDestroyImageKHR(m_display, image);
-    EGLERROR();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLERROR();
@@ -344,15 +345,15 @@ int GlHsvThresholder::testFrame(
     glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
     GLERROR();
     // TODO: refactor these
-    static auto attr_loc = glGetAttribLocation(m_program, "vertex");
+    auto attr_loc = glGetAttribLocation(m_program, "vertex");
     glEnableVertexAttribArray(attr_loc);
     GLERROR();
     glVertexAttribPointer(attr_loc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     GLERROR();
-    static auto lll = glGetUniformLocation(m_program, "lowerThresh");
+    auto lll = glGetUniformLocation(m_program, "lowerThresh");
     glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[3]);
     GLERROR();
-    static auto uuu = glGetUniformLocation(m_program, "upperThresh");
+    auto uuu = glGetUniformLocation(m_program, "upperThresh");
     glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[3]);
     GLERROR();
 
@@ -361,6 +362,9 @@ int GlHsvThresholder::testFrame(
 
     glFinish();
     GLERROR();
+
+    eglDestroyImageKHR(m_display, image);
+    EGLERROR();
     glDeleteTextures(1, &texture);
     GLERROR();
 

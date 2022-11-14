@@ -50,17 +50,16 @@ class GlHsvThresholder {
     int m_width;
     int m_height;
 
-    EGLDisplay m_display;
-    EGLContext m_context;
-
     std::unordered_map<int, GLuint> m_framebuffers; // (dma_buf fd, framebuffer)
     std::queue<int> m_renderable;
     std::mutex m_renderable_mutex;
 
-    GLuint m_quad_vbo;
-    GLuint m_program;
+    GLuint m_quad_vbo = 0;
+    GLuint m_program = 0;
 
     HeadlessData status;
+    EGLDisplay m_display;
+    EGLContext m_context;
 
     double m_hsvLower[3] = {0}; // Hue, sat, value, in [0,1]
     double m_hsvUpper[3] = {0}; // Hue, sat, value, in [0,1]
