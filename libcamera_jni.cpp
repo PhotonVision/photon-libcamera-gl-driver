@@ -99,11 +99,13 @@ JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setThresholds(JNIEnv *env, jclass,
                                                        jdouble hl, jdouble sl,
                                                        jdouble vl, jdouble hu,
-                                                       jdouble su, jdouble vu) {
+                                                       jdouble su, jdouble vu,
+                                                       jboolean hueInverted) {
     if (!runner) {
         return false;
     }
 
+    // TODO hue inversion
     runner->thresholder().setHsvThresholds(hl, sl, vl, hu, su, vu);
     return true;
 }
@@ -134,6 +136,8 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
     if (!runner) {
         return false;
     }
+    
+    printf("Setting red %f blue %f\n", (float)red, (float)blue);
 
     runner->cameraGrabber().cameraSettings().awbRedGain = red;
     runner->cameraGrabber().cameraSettings().awbBlueGain = blue;
@@ -221,8 +225,8 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
 
 JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
-    // TODO -- since we hard code HSV right now, return 2
-    return 2;
+    // TODO -- since we hard code gray right now, return 1
+    return 1;
 }
 
 } // extern "C"

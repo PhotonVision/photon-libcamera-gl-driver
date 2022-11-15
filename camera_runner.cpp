@@ -73,7 +73,7 @@ void CameraRunner::start() {
 
         start_frame_grabber.count_down();
         while (true) {
-            printf("Threshold thread!\n");
+            // printf("Threshold thread!\n");
             auto request = camera_queue.pop();
 
             if (!request) {
@@ -85,7 +85,8 @@ void CameraRunner::start() {
                               ->planes();
 
             for (int i = 0; i < 3; i++) {
-                std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << " and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
+                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
+                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << " and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
             }
 
             std::array<GlHsvThresholder::DmaBufPlaneData, 3> yuv_data{{
@@ -110,7 +111,7 @@ void CameraRunner::start() {
             if (elapsedMillis > 0.9ms) {
                 gpuTimeAvgMs =
                     approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
-                std::cout << "GLProcess: " << gpuTimeAvgMs << std::endl;
+                // std::cout << "GLProcess: " << gpuTimeAvgMs << std::endl;
             }
 
             {
@@ -138,7 +139,7 @@ void CameraRunner::start() {
         start_frame_grabber.count_down();
         auto lastTime = steady_clock::now();
         while (true) {
-            printf("Display thread!\n");
+            // printf("Display thread!\n");
             auto fd = gpu_queue.pop();
             if (fd == -1) {
                 break;
@@ -165,14 +166,14 @@ void CameraRunner::start() {
                 steady_clock::now() - begin_time;
             copyTimeAvgMs =
                 approxRollingAverage(copyTimeAvgMs, elapsedMillis.count());
-            std::cout << "Copy: " << copyTimeAvgMs << std::endl;
+            // std::cout << "Copy: " << copyTimeAvgMs << std::endl;
 
             auto now = steady_clock::now();
             std::chrono::duration<double, std::milli> elapsed =
                 (now - lastTime);
             fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs, elapsed.count());
-            printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs,
-                   1000.0 / fpsTimeAvgMs);
+            // printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs,
+            //        1000.0 / fpsTimeAvgMs);
             lastTime = now;
         }
 

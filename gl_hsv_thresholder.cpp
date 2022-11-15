@@ -164,7 +164,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     EGLERROR();
 
     {
-        auto program = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
+        auto program = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
 
         glUseProgram(program);
         GLERROR();
@@ -270,7 +270,7 @@ int GlHsvThresholder::testFrame(
         std::scoped_lock lock(m_renderable_mutex);
         if (!m_renderable.empty()) {
             framebuffer_fd = m_renderable.front();
-            std::cout << "yes framebuffer" << std::endl;
+            // std::cout << "yes framebuffer" << std::endl;
             m_renderable.pop();
         } else {
             std::cout << "no framebuffer, skipping" << std::endl;
@@ -334,6 +334,9 @@ int GlHsvThresholder::testFrame(
     glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     GLERROR();
     glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
+    GLERROR();
+
+    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
     GLERROR();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

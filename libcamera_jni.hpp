@@ -52,7 +52,7 @@ Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(JNIEnv *, jclass);
  * Signature: (DDDDDD)V
  */
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setThresholds(
-    JNIEnv *, jclass, jdouble, jdouble, jdouble, jdouble, jdouble, jdouble);
+    JNIEnv *, jclass, jdouble, jdouble, jdouble, jdouble, jdouble, jdouble, jboolean);
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
