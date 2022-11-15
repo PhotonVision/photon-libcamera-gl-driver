@@ -16,14 +16,14 @@
 #include <opencv2/core.hpp>
 
 struct MatPair {
-    std::unique_ptr<cv::Mat> color;
-    std::unique_ptr<cv::Mat> processed;
+    cv::Mat color;
+    cv::Mat processed;
     long captureTimestamp; // In libcamera time units, hopefully uS?
 
     MatPair() = default;
     explicit MatPair(int width, int height)
-        : color(std::make_unique<cv::Mat>(height, width, CV_8UC3)),
-          processed(std::make_unique<cv::Mat>(height, width, CV_8UC1)) {}
+        : color(height, width, CV_8UC3),
+          processed(height, width, CV_8UC1) {}
 };
 
 // Note: destructing this class without calling `stop` if `start` was called

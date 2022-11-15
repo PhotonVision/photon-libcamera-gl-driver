@@ -21,6 +21,8 @@ using latch = Latch;
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
+#include <opencv2/imgcodecs.hpp>
+
 static double approxRollingAverage(double avg, double new_sample) {
     avg -= avg / 50;
     avg += new_sample / 50;
@@ -83,7 +85,6 @@ void CameraRunner::start() {
                               ->planes();
 
             for (int i = 0; i < 3; i++) {
-                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
                 std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << " and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
             }
 
@@ -145,8 +146,8 @@ void CameraRunner::start() {
 
             auto mat_pair = MatPair(m_width, m_height);
 
-            uint8_t *processed_out_buf = mat_pair.processed->data;
-            uint8_t *color_out_buf = mat_pair.color->data;
+            uint8_t *processed_out_buf = mat_pair.processed.data;
+            uint8_t *color_out_buf = mat_pair.color.data;
 
             auto begin_time = steady_clock::now();
             auto input_ptr = mmaped.at(fd);
@@ -165,12 +166,6 @@ void CameraRunner::start() {
             copyTimeAvgMs =
                 approxRollingAverage(copyTimeAvgMs, elapsedMillis.count());
             std::cout << "Copy: " << copyTimeAvgMs << std::endl;
-
-            // static char arr[50];
-            // snprintf(arr,sizeof(arr),"color_%i.png", i);
-            // cv::imwrite(arr, color_mat);
-            // snprintf(arr,sizeof(arr),"thresh_%i.png", i);
-            // cv::imwrite(arr, threshold_mat);
 
             auto now = steady_clock::now();
             std::chrono::duration<double, std::milli> elapsed =

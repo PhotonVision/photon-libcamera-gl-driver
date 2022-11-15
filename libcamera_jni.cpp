@@ -194,7 +194,7 @@ Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *env, jclass) {
         return 0;
     }
 
-    return reinterpret_cast<jlong>(pair.color.release());
+    return reinterpret_cast<jlong>(new cv::Mat(std::move(pair.color)));
 }
 
 JNIEXPORT jlong JNICALL
@@ -205,7 +205,7 @@ Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
         return 0;
     }
 
-    return reinterpret_cast<jlong>(pair.processed.release());
+    return reinterpret_cast<jlong>(new cv::Mat(std::move(pair.processed)));
 }
 
 JNIEXPORT jboolean JNICALL
