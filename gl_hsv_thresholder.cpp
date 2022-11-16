@@ -335,8 +335,8 @@ int GlHsvThresholder::testFrame(
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLERROR();
 
-    // printf("shader idx %i\n", (int) m_lastShaderIdx);
-    auto program = m_programs[m_lastShaderIdx];
+    m_lastShaderIdx = shaderIdx;
+    GLuint program = m_programs[m_lastShaderIdx];
     glUseProgram(program);
     GLERROR();
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
@@ -356,10 +356,10 @@ int GlHsvThresholder::testFrame(
     glVertexAttribPointer(attr_loc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     GLERROR();
     auto lll = glGetUniformLocation(program, "lowerThresh");
-    glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[3]);
+    glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[2]);
     GLERROR();
     auto uuu = glGetUniformLocation(program, "upperThresh");
-    glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[3]);
+    glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[2]);
     GLERROR();
 
     glDrawArrays(GL_TRIANGLES, 0, 6);
