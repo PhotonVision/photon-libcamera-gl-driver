@@ -347,9 +347,6 @@ int GlHsvThresholder::testFrame(
     glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
     GLERROR();
 
-    glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-    GLERROR();
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLERROR();
 

@@ -84,27 +84,28 @@ void CameraGrabber::requeueRequest(libcamera::Request *request) {
 }
 
 void CameraGrabber::setControls(libcamera::Request *request) {
+    using namespace libcamera;
 
-    auto &controls = request->controls();
-    controls.set(libcamera::controls::AeEnable,
+    auto &controls_ = request->controls();
+    controls_.set(libcamera::controls::AeEnable,
                  false); // Auto exposure disabled
-    controls.set(libcamera::controls::AwbEnable, false); // AWB disabled
-    controls.set(libcamera::controls::ExposureTime,
+    controls_.set(libcamera::controls::AwbEnable, false); // AWB disabled
+    controls_.set(libcamera::controls::ExposureTime,
                  m_settings.exposureTimeUs); // in microseconds
-    controls.set(libcamera::controls::AnalogueGain,
+    controls_.set(libcamera::controls::AnalogueGain,
                  m_settings.analogGain); // Analog gain, min 1 max big number?
-    controls.set(libcamera::controls::ColourGains,
+    controls_.set(libcamera::controls::ColourGains,
                  libcamera::Span<const float, 2>{
                      {m_settings.awbRedGain,
                       m_settings.awbBlueGain}}); // AWB gains, red and blue,
                                                  // unknown range
-    controls.set(libcamera::controls::Brightness,
-                 m_settings.brightness); // -1 to 1, 0 means unchanged
-    controls.set(libcamera::controls::Contrast,
+    // controls_.set(libcamera::controls::Brightness,
+    //              m_settings.brightness); // -1 to 1, 0 means unchanged
+    controls_.set(libcamera::controls::Contrast,
                  m_settings.contrast); // Nominal 1
-    controls.set(libcamera::controls::Saturation,
+    controls_.set(libcamera::controls::Saturation,
                  m_settings.saturation); // Nominal 1, 0 would be greyscale
-    controls.set(
+    controls_.set(
         libcamera::controls::FrameDurationLimits,
         libcamera::Span<const int64_t, 2>{
             {m_settings.exposureTimeUs,
@@ -114,6 +115,49 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     // Additionally, we can set crop regions and stuff
     // controls.set(libcamera::controls::DigitalGain, m_settings.digitalGain);
     // // Digital gain, unknown range
+
+	// Framerate is a bit weird. If it was set programmatically, we go with that, but
+	// otherwise it applies only to preview/video modes. For stills capture we set it
+	// as long as possible so that we get whatever the exposure profile wants.
+
+	// if (!controls_.get(controls::FrameDurationLimits))
+	// {
+	// 	// if (StillStream())
+	// 	// 	controls_.set(controls::FrameDurationLimits,
+	// 	// 				  libcamera::Span<const int64_t, 2>({ INT64_C(100), INT64_C(1000000000) }));
+	// 	// else if (!options_->framerate || options_->framerate.value() > 0)
+	// 	// {
+	// 	// 	int64_t frame_time = 1000000 / options_->framerate.value_or(DEFAULT_FRAMERATE); // in us
+
+    //         auto frame_time = 10000;
+	// 		controls_.set(controls::FrameDurationLimits,
+	// 					  libcamera::Span<const int64_t, 2>({ frame_time, frame_time }));
+	// 	// }
+	// }
+
+	// if (!controls_.get(controls::ExposureTime) && options_->shutter)
+	// 	controls_.set(controls::ExposureTime, options_->shutter);
+	// if (!controls_.get(controls::AnalogueGain) && options_->gain)
+	// 	controls_.set(controls::AnalogueGain, options_->gain);
+	// if (!controls_.get(controls::AeMeteringMode))
+	// 	controls_.set(controls::AeMeteringMode, 0);
+	if (!controls_.get(controls::AeExposureMode))
+		controls_.set(controls::AeExposureMode, 0);
+	if (!controls_.get(controls::ExposureValue))
+		controls_.set(controls::ExposureValue, 0);
+	// if (!controls_.get(controls::AwbMode))
+	// 	controls_.set(controls::AwbMode, 0);
+	// if (!controls_.get(controls::ColourGains) && options_->awb_gain_r && options_->awb_gain_b)
+	// 	controls_.set(controls::ColourGains,
+	// 				  libcamera::Span<const float, 2>({ options_->awb_gain_r, options_->awb_gain_b }));
+	if (!controls_.get(controls::Brightness))
+		controls_.set(controls::Brightness, 0);
+	// if (!controls_.get(controls::Contrast))
+	// 	controls_.set(controls::Contrast, 1);
+	// if (!controls_.get(controls::Saturation))
+	// 	controls_.set(controls::Saturation, 1);
+	if (!controls_.get(controls::Sharpness))
+		controls_.set(controls::Sharpness, 1);
 }
 
 void CameraGrabber::startAndQueue() {

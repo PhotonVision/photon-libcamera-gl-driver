@@ -105,6 +105,8 @@ Java_org_photonvision_raspi_LibCameraJNI_setThresholds(JNIEnv *env, jclass,
         return false;
     }
 
+    // printf("Setting HSV to %f-%f %f-%f %f-%f\n", hl, hu, sl, su, vl, vu);
+
     // TODO hue inversion
     runner->thresholder().setHsvThresholds(hl, sl, vl, hu, su, vu);
     return true;

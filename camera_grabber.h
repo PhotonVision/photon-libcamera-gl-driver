@@ -48,7 +48,7 @@ class CameraGrabber {
 
     std::optional<std::function<void(libcamera::Request *)>> m_onData;
 
-    CameraSettings m_settings;
+    CameraSettings m_settings{};
     bool running = false;
 
     void setControls(libcamera::Request *request);
