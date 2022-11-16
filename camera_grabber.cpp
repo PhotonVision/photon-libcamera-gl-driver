@@ -112,7 +112,6 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                  m_settings.saturation); // Nominal 1, 0 would be greyscale
 
     if (m_settings.doAutoExposure) {
-        printf("Auto exposure\n");
         controls_.set(libcamera::controls::AeEnable,
                     true); // Auto exposure disabled
 
@@ -130,7 +129,6 @@ void CameraGrabber::setControls(libcamera::Request *request) {
             libcamera::Span<const int64_t, 2>{
                 {MIN_FRAME_TIME, MAX_FRAME_TIME}});
     } else {
-        printf("Manual exposure\n");
         controls_.set(libcamera::controls::AeEnable,
                     false); // Auto exposure disabled
         controls_.set(libcamera::controls::ExposureTime,
