@@ -60,6 +60,11 @@ CameraRunner::~CameraRunner() {
     }
 }
 
+void CameraRunner::requestShaderIdx(int idx) {
+    std::lock_guard<std::mutex> lock{camera_stop_mutex};
+    m_shaderIdx = idx;
+}
+
 void CameraRunner::start() {
     unsigned int stride = grabber.streamConfiguration().stride;
 
@@ -104,6 +109,7 @@ void CameraRunner::start() {
                 std::lock_guard<std::mutex> lock{camera_stop_mutex};
                 shaderIdx = m_shaderIdx;
             }
+            printf("Using idx %i\n", (int)shaderIdx);
             int out = m_thresholder.testFrame(yuv_data,
                                     encodingFromColorspace(colorspace),
                                     rangeFromColorspace(colorspace),

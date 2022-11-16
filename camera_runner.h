@@ -52,6 +52,8 @@ class CameraRunner {
     // TODO: consider making this a shared pointer to remove this footgun
     BlockingFuture<MatPair> outgoing;
 
+    void requestShaderIdx(int idx);
+
   private:
     std::thread m_threshold;
     std::shared_ptr<libcamera::Camera> m_camera;
@@ -75,6 +77,6 @@ class CameraRunner {
     int32_t m_rotation = 0;
 
     std::mutex shader_idx_mutex;
-    int m_lastUsedShaderIdx = -1, m_shaderIdx = -1;
-    inline void requestShaderIdx(int idx) { m_shaderIdx = idx; }
+    int m_lastUsedShaderIdx = 0, m_shaderIdx = 0;
+
 };

@@ -221,6 +221,7 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
         return false;
     }
 
+    printf("Requesting idx %i\n", (int)idx);
     runner->requestShaderIdx(idx);
 
     return true;

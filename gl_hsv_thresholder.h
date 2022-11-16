@@ -65,8 +65,8 @@ class GlHsvThresholder {
     double m_hsvLower[3] = {0}; // Hue, sat, value, in [0,1]
     double m_hsvUpper[3] = {0}; // Hue, sat, value, in [0,1]
 
-    int m_lastShaderIdx = -1;
+    int m_lastShaderIdx = 0;
 
     // Probably shouldn't be called while testing a frame
-    void setShaderProgramIdx(int idx);
+    inline void setShaderProgramIdx(int idx) { m_lastShaderIdx = idx; }
 };

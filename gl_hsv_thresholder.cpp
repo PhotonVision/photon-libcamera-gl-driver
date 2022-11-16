@@ -140,33 +140,18 @@ GlHsvThresholder::GlHsvThresholder(int width, int height)
     status = createHeadless();
     m_context = status.context;
     m_display = status.display;
+
 }
 
 GlHsvThresholder::~GlHsvThresholder() {
-    glDeleteProgram(m_program);
+    for (auto& program : m_programs)
+        glDeleteProgram(program);
+
     glDeleteBuffers(1, &m_quad_vbo);
     for (const auto [key, value]: m_framebuffers) {
         glDeleteFramebuffers(1, &value);
     }
     destroyHeadless(status);
-}
-
-void GlHsvThresholder::setShaderProgramIdx(int idx) {
-    if (idx != m_lastShaderIdx) {
-        printf("Setting shader to idx %i\n", idx);
-
-        m_programs[0] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
-        m_programs[1] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
-
-        auto program = m_programs[idx];
-
-        glUseProgram(program);
-        GLERROR();
-        glUniform1i(glGetUniformLocation(program, "tex"), 0);
-        GLERROR();
-
-        m_lastShaderIdx = idx;
-    }
 }
 
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
@@ -181,7 +166,9 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     }
     EGLERROR();
 
-    setShaderProgramIdx(0);
+    m_programs.reserve(2);
+    m_programs[0] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
+    m_programs[1] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
 
     for (auto fd : output_buf_fds) {
         GLuint out_tex;
@@ -287,8 +274,6 @@ int GlHsvThresholder::testFrame(
         }
     }
 
-    setShaderProgramIdx(shaderIdx);
-
     auto framebuffer = m_framebuffers.at(framebuffer_fd);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     GLERROR();
@@ -350,7 +335,11 @@ int GlHsvThresholder::testFrame(
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     GLERROR();
 
-    glUseProgram(m_program);
+    // printf("shader idx %i\n", (int) m_lastShaderIdx);
+    auto program = m_programs[m_lastShaderIdx];
+    glUseProgram(program);
+    GLERROR();
+    glUniform1i(glGetUniformLocation(program, "tex"), 0);
     GLERROR();
 
     glActiveTexture(GL_TEXTURE0);
@@ -361,15 +350,15 @@ int GlHsvThresholder::testFrame(
     glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
     GLERROR();
     // TODO: refactor these
-    auto attr_loc = glGetAttribLocation(m_program, "vertex");
+    auto attr_loc = glGetAttribLocation(program, "vertex");
     glEnableVertexAttribArray(attr_loc);
     GLERROR();
     glVertexAttribPointer(attr_loc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     GLERROR();
-    auto lll = glGetUniformLocation(m_program, "lowerThresh");
+    auto lll = glGetUniformLocation(program, "lowerThresh");
     glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[3]);
     GLERROR();
-    auto uuu = glGetUniformLocation(m_program, "upperThresh");
+    auto uuu = glGetUniformLocation(program, "upperThresh");
     glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[3]);
     GLERROR();
 
