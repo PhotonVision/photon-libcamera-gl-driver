@@ -214,19 +214,19 @@ Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
-                                                            jint) {
+                                                            jint idx) {
     if (!runner) {
         return false;
     }
 
-    // TODO
+    runner->requestShaderIdx(idx);
+
     return true;
 }
 
 JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
-    // TODO -- since we hard code gray right now, return 1
-    return 1;
+    return pair.frameProcessingType;
 }
 
 } // extern "C"

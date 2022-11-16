@@ -31,7 +31,7 @@ class GlHsvThresholder {
     void returnBuffer(int fd);
     int testFrame(
         const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-        EGLint encoding, EGLint range);
+        EGLint encoding, EGLint range, int shaderIdx);
 
     /**
      * @brief Set the Hsv Thresholds range, on [0..1]
@@ -46,6 +46,7 @@ class GlHsvThresholder {
     void setHsvThresholds(double hl, double sl, double vl, double hu, double su,
                           double vu);
 
+
   private:
     int m_width;
     int m_height;
@@ -55,7 +56,7 @@ class GlHsvThresholder {
     std::mutex m_renderable_mutex;
 
     GLuint m_quad_vbo = 0;
-    GLuint m_program = 0;
+    std::vector<GLuint> m_programs = {};
 
     HeadlessData status;
     EGLDisplay m_display;
@@ -63,4 +64,9 @@ class GlHsvThresholder {
 
     double m_hsvLower[3] = {0}; // Hue, sat, value, in [0,1]
     double m_hsvUpper[3] = {0}; // Hue, sat, value, in [0,1]
+
+    int m_lastShaderIdx = -1;
+
+    // Probably shouldn't be called while testing a frame
+    void setShaderProgramIdx(int idx);
 };

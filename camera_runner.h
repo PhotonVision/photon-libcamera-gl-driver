@@ -18,7 +18,8 @@
 struct MatPair {
     cv::Mat color;
     cv::Mat processed;
-    long captureTimestamp; // In libcamera time units, hopefully uS?
+    long captureTimestamp; // In libcamera time units, hopefully uS? TODO actually implement
+    int frameProcessingType; // enum value of shader run on the image
 
     MatPair() = default;
     explicit MatPair(int width, int height)
@@ -72,4 +73,8 @@ class CameraRunner {
 
     std::string m_model;
     int32_t m_rotation = 0;
+
+    std::mutex shader_idx_mutex;
+    int m_lastUsedShaderIdx = -1, m_shaderIdx = -1;
+    inline void requestShaderIdx(int idx) { m_shaderIdx = idx; }
 };

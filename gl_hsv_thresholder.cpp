@@ -151,6 +151,24 @@ GlHsvThresholder::~GlHsvThresholder() {
     destroyHeadless(status);
 }
 
+void GlHsvThresholder::setShaderProgramIdx(int idx) {
+    if (idx != m_lastShaderIdx) {
+        printf("Setting shader to idx %i\n", idx);
+
+        m_programs[0] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
+        m_programs[1] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
+
+        auto program = m_programs[idx];
+
+        glUseProgram(program);
+        GLERROR();
+        glUniform1i(glGetUniformLocation(program, "tex"), 0);
+        GLERROR();
+
+        m_lastShaderIdx = idx;
+    }
+}
+
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     static auto glEGLImageTargetTexture2DOES =
         (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress(
@@ -163,16 +181,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     }
     EGLERROR();
 
-    {
-        auto program = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
-
-        glUseProgram(program);
-        GLERROR();
-        glUniform1i(glGetUniformLocation(program, "tex"), 0);
-        GLERROR();
-
-        m_program = program;
-    }
+    setShaderProgramIdx(0);
 
     for (auto fd : output_buf_fds) {
         GLuint out_tex;
@@ -251,7 +260,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
 
 int GlHsvThresholder::testFrame(
     const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-    EGLint encoding, EGLint range) {
+    EGLint encoding, EGLint range, int shaderIdx) {
     static auto glEGLImageTargetTexture2DOES =
         (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress(
             "glEGLImageTargetTexture2DOES");
@@ -277,6 +286,8 @@ int GlHsvThresholder::testFrame(
             return 0;
         }
     }
+
+    setShaderProgramIdx(shaderIdx);
 
     auto framebuffer = m_framebuffers.at(framebuffer_fd);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);

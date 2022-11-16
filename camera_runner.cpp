@@ -99,9 +99,21 @@ void CameraRunner::start() {
             }};
 
             auto begintime = steady_clock::now();
+            int shaderIdx;
+            {
+                std::lock_guard<std::mutex> lock{camera_stop_mutex};
+                shaderIdx = m_shaderIdx;
+            }
             int out = m_thresholder.testFrame(yuv_data,
                                     encodingFromColorspace(colorspace),
-                                    rangeFromColorspace(colorspace));
+                                    rangeFromColorspace(colorspace),
+                                    shaderIdx);
+
+            {
+                std::lock_guard<std::mutex> lock{camera_stop_mutex};
+                m_lastUsedShaderIdx = shaderIdx;
+            }
+
             if (out != 0) {
                 gpu_queue.push(out);
             }
@@ -146,6 +158,9 @@ void CameraRunner::start() {
             }
 
             auto mat_pair = MatPair(m_width, m_height);
+
+            // Save the current shader idx
+            mat_pair.frameProcessingType = m_lastUsedShaderIdx;
 
             uint8_t *processed_out_buf = mat_pair.processed.data;
             uint8_t *color_out_buf = mat_pair.color.data;
