@@ -15,13 +15,14 @@ struct CameraSettings {
     float awbRedGain = 1.5;
     float awbBlueGain = 1.5;
     float saturation = 1;
+    bool doAutoExposure = false;
     // float digitalGain = 100;
 };
 
 class CameraGrabber {
   public:
     explicit CameraGrabber(std::shared_ptr<libcamera::Camera> camera, int width,
-                           int height);
+                           int height, int fpsActual);
     ~CameraGrabber();
 
     const libcamera::StreamConfiguration &streamConfiguration();
@@ -44,6 +45,7 @@ class CameraGrabber {
     libcamera::FrameBufferAllocator m_buf_allocator;
     std::vector<std::unique_ptr<libcamera::Request>> m_requests;
     std::shared_ptr<libcamera::Camera> m_camera;
+    int m_fps;
     std::unique_ptr<libcamera::CameraConfiguration> m_config;
 
     std::optional<std::function<void(libcamera::Request *)>> m_onData;

@@ -62,6 +62,9 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setThreshold
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setExposure(JNIEnv *, jclass, jint);
 
+JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
+    JNIEnv *env, jclass, jboolean doAutoExposure);
+
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    setBrightness

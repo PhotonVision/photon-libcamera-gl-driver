@@ -33,7 +33,7 @@ static double approxRollingAverage(double avg, double new_sample) {
 CameraRunner::CameraRunner(int width, int height, int fps,
                            std::shared_ptr<libcamera::Camera> cam)
     : m_camera(std::move(cam)), m_width(width), m_height(height), m_fps(fps),
-      grabber(m_camera, m_width, m_height), m_thresholder(m_width, m_height),
+      grabber(m_camera, m_width, m_height, m_fps), m_thresholder(m_width, m_height),
       allocer("/dev/dma_heap/linux,cma") {
 
     auto &cprp = m_camera->properties();

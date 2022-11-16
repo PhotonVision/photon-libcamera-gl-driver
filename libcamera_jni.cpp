@@ -122,6 +122,16 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setExposure(
     return true;
 }
 
+JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
+    JNIEnv *env, jclass, jboolean doAutoExposure) {
+    if (!runner) {
+        return false;
+    }
+
+    runner->cameraGrabber().cameraSettings().doAutoExposure = doAutoExposure;
+    return true;
+}
+
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setBrightness(JNIEnv *env, jclass,
                                                        jdouble brightness) {
@@ -221,7 +231,6 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
         return false;
     }
 
-    printf("Requesting idx %i\n", (int)idx);
     runner->requestShaderIdx(idx);
 
     return true;

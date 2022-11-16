@@ -6,8 +6,15 @@
 #include <libcamera/control_ids.h>
 
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
-                             int width, int height)
-    : m_buf_allocator(camera), m_camera(std::move(camera)) {
+                             int width, int height, int fps)
+    : m_buf_allocator(camera), m_camera(std::move(camera)), m_fps(fps) {
+    
+
+    if (m_fps < 1) {
+        printf("Got fps of %i???\n", m_fps);
+        m_fps = 1;
+    }
+
     if (m_camera->acquire()) {
         throw std::runtime_error("failed to acquire camera");
     }
@@ -87,11 +94,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     using namespace libcamera;
 
     auto &controls_ = request->controls();
-    controls_.set(libcamera::controls::AeEnable,
-                 false); // Auto exposure disabled
     controls_.set(libcamera::controls::AwbEnable, false); // AWB disabled
-    controls_.set(libcamera::controls::ExposureTime,
-                 m_settings.exposureTimeUs); // in microseconds
     controls_.set(libcamera::controls::AnalogueGain,
                  m_settings.analogGain); // Analog gain, min 1 max big number?
     controls_.set(libcamera::controls::ColourGains,
@@ -107,12 +110,38 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                  m_settings.contrast); // Nominal 1
     controls_.set(libcamera::controls::Saturation,
                  m_settings.saturation); // Nominal 1, 0 would be greyscale
-    controls_.set(
-        libcamera::controls::FrameDurationLimits,
-        libcamera::Span<const int64_t, 2>{
-            {m_settings.exposureTimeUs,
-             m_settings.exposureTimeUs}}); // Set default to zero, we have
-                                           // specified the exposure time
+
+    if (m_settings.doAutoExposure) {
+        printf("Auto exposure\n");
+        controls_.set(libcamera::controls::AeEnable,
+                    true); // Auto exposure disabled
+
+        if (!controls_.get(controls::AeMeteringMode))
+            controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
+        if (!controls_.get(controls::AeExposureMode))
+            controls_.set(controls::AeExposureMode, controls::ExposureShort);
+
+        // 1/fps=seconds
+        // seconds * 1e6 = uS
+        constexpr const int MIN_FRAME_TIME = 1e6 / 250;
+        constexpr const int MAX_FRAME_TIME = 1e6 / 15;
+        controls_.set(
+            libcamera::controls::FrameDurationLimits,
+            libcamera::Span<const int64_t, 2>{
+                {MIN_FRAME_TIME, MAX_FRAME_TIME}});
+    } else {
+        printf("Manual exposure\n");
+        controls_.set(libcamera::controls::AeEnable,
+                    false); // Auto exposure disabled
+        controls_.set(libcamera::controls::ExposureTime,
+                    m_settings.exposureTimeUs); // in microseconds
+        controls_.set(
+            libcamera::controls::FrameDurationLimits,
+            libcamera::Span<const int64_t, 2>{
+                {m_settings.exposureTimeUs,
+                m_settings.exposureTimeUs}}); // Set default to zero, we have
+                                            // specified the exposure time
+    }
 
 	if (!controls_.get(controls::ExposureValue))
 		controls_.set(controls::ExposureValue, 0);
