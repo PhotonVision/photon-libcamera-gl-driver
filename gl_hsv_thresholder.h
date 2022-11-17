@@ -15,6 +15,13 @@
 
 #include "headless_opengl.h"
 
+enum class ProcessType: int32_t {
+    None = 0,
+    Hsv = 1,
+    Gray = 2,
+    Adaptive = 3,
+};
+
 class GlHsvThresholder {
   public:
     struct DmaBufPlaneData {
@@ -31,7 +38,7 @@ class GlHsvThresholder {
     void returnBuffer(int fd);
     int testFrame(
         const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-        EGLint encoding, EGLint range, int shaderIdx);
+        EGLint encoding, EGLint range, ProcessType type);
 
     /**
      * @brief Set the Hsv Thresholds range, on [0..1]
@@ -58,15 +65,11 @@ class GlHsvThresholder {
     GLuint m_quad_vbo = 0;
     std::vector<GLuint> m_programs = {};
 
-    HeadlessData status;
+    HeadlessData m_status{};
     EGLDisplay m_display;
     EGLContext m_context;
 
+    std::mutex m_hsv_mutex;
     double m_hsvLower[3] = {0}; // Hue, sat, value, in [0,1]
     double m_hsvUpper[3] = {0}; // Hue, sat, value, in [0,1]
-
-    int m_lastShaderIdx = 0;
-
-    // Probably shouldn't be called while testing a frame
-    inline void setShaderProgramIdx(int idx) { m_lastShaderIdx = idx; }
 };

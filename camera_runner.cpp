@@ -21,8 +21,6 @@ using latch = Latch;
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
-#include <opencv2/imgcodecs.hpp>
-
 static double approxRollingAverage(double avg, double new_sample) {
     avg -= avg / 50;
     avg += new_sample / 50;
@@ -61,7 +59,6 @@ CameraRunner::~CameraRunner() {
 }
 
 void CameraRunner::requestShaderIdx(int idx) {
-    std::lock_guard<std::mutex> lock{camera_stop_mutex};
     m_shaderIdx = idx;
 }
 
@@ -104,23 +101,17 @@ void CameraRunner::start() {
             }};
 
             auto begintime = steady_clock::now();
-            int shaderIdx;
-            {
-                std::lock_guard<std::mutex> lock{camera_stop_mutex};
-                shaderIdx = m_shaderIdx;
-            }
+
+            auto type = static_cast<ProcessType>(m_shaderIdx.load());
+
             int out = m_thresholder.testFrame(yuv_data,
                                     encodingFromColorspace(colorspace),
                                     rangeFromColorspace(colorspace),
-                                    shaderIdx);
+                                              type);
 
-            {
-                std::lock_guard<std::mutex> lock{camera_stop_mutex};
-                m_lastUsedShaderIdx = shaderIdx;
-            }
 
             if (out != 0) {
-                gpu_queue.push(out);
+                gpu_queue.push({out, type});
             }
 
             std::chrono::duration<double, std::milli> elapsedMillis =
@@ -157,21 +148,21 @@ void CameraRunner::start() {
         auto lastTime = steady_clock::now();
         while (true) {
             // printf("Display thread!\n");
-            auto fd = gpu_queue.pop();
-            if (fd == -1) {
+            auto data = gpu_queue.pop();
+            if (data.fd == -1) {
                 break;
             }
 
             auto mat_pair = MatPair(m_width, m_height);
 
             // Save the current shader idx
-            mat_pair.frameProcessingType = m_lastUsedShaderIdx;
+            mat_pair.frameProcessingType = static_cast<int32_t>(data.type);
 
             uint8_t *processed_out_buf = mat_pair.processed.data;
             uint8_t *color_out_buf = mat_pair.color.data;
 
             auto begin_time = steady_clock::now();
-            auto input_ptr = mmaped.at(fd);
+            auto input_ptr = mmaped.at(data.fd);
             int bound = m_width * m_height;
 
             for (int i = 0; i < bound; i++) {
@@ -179,7 +170,7 @@ void CameraRunner::start() {
                 processed_out_buf[i] = input_ptr[i * 4 + 3];
             }
 
-            m_thresholder.returnBuffer(fd);
+            m_thresholder.returnBuffer(data.fd);
             outgoing.set(std::move(mat_pair));
 
             std::chrono::duration<double, std::milli> elapsedMillis =
@@ -223,7 +214,7 @@ void CameraRunner::stop() {
     threshold.join();
 
     // push sentinel value to stop display thread
-    gpu_queue.push(-1);
+    gpu_queue.push({-1, ProcessType::None});
     display.join();
 
     printf("stopped all\n");

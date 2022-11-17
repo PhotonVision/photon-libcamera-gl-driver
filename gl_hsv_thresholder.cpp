@@ -1,5 +1,6 @@
 #include "gl_hsv_thresholder.h"
 #include "glerror.h"
+#include "gl_shader_source.h"
 
 #include <EGL/eglext.h>
 #include <GLES2/gl2ext.h>
@@ -10,73 +11,6 @@
 
 #define GLERROR() glerror(__LINE__)
 #define EGLERROR() eglerror(__LINE__)
-
-static constexpr const char *VERTEX_SOURCE =
-    "#version 100\n"
-    ""
-    "attribute vec2 vertex;"
-    "varying vec2 texcoord;"
-    ""
-    "void main(void) {"
-    "   texcoord = 0.5 * (vertex + 1.0);"
-    "   gl_Position = vec4(vertex, 0.0, 1.0);"
-    "}";
-
-static constexpr const char *HSV_FRAGMENT_SOURCE =
-    "#version 100\n"
-    "#extension GL_OES_EGL_image_external : require\n"
-    ""
-    "precision lowp float;"
-    "precision lowp int;"
-    ""
-    "varying vec2 texcoord;"
-    ""
-    "uniform vec3 lowerThresh;"
-    "uniform vec3 upperThresh;"
-    "uniform samplerExternalOES tex;"
-    ""
-    "vec3 rgb2hsv(const vec3 p) {"
-    "  const vec4 H = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);"
-    // Using ternary seems to be faster than using mix and step
-    "  vec4 o = mix(vec4(p.bg, H.wz), vec4(p.gb, H.xy), step(p.b, p.g));"
-    "  vec4 t = mix(vec4(o.xyw, p.r), vec4(p.r, o.yzx), step(o.x, p.r));"
-    ""
-    "  float O = t.x - min(t.w, t.y);"
-    "  const float n = 1.0e-10;"
-    "  return vec3(abs(t.z + (t.w - t.y) / (6.0 * O + n)), O / (t.x + n), "
-    "t.x);"
-    "}"
-    ""
-    "bool inRange(vec3 hsv) {"
-    "  const float epsilon = 0.0001;"
-    "  bvec3 botBool = greaterThanEqual(hsv, lowerThresh - epsilon);"
-    "  bvec3 topBool = lessThanEqual(hsv, upperThresh + epsilon);"
-    "  return all(botBool) && all(topBool);"
-    "}"
-    ""
-    "void main(void) {"
-    "  vec3 col = texture2D(tex, texcoord).rgb;"
-    "  gl_FragColor = vec4(col.bgr, int(inRange(rgb2hsv(col))));"
-    "}";
-
-static constexpr const char *GRAY_FRAGMENT_SOURCE =
-    "#version 100\n"
-    "#extension GL_OES_EGL_image_external : require\n"
-    ""
-    "precision lowp float;"
-    "precision lowp int;"
-    ""
-    "varying vec2 texcoord;"
-    ""
-    "uniform samplerExternalOES tex;"
-    ""
-    "void main(void) {"
-    "    vec3 gammaColor = texture2D(tex, texcoord.xy).rgb;"
-    "    vec3 color = pow(gammaColor, vec3(2.0));"
-    "    float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));"
-    "    float gammaGray = sqrt(gray);"
-    "    gl_FragColor = vec4(color.bgr, gammaGray);"
-    "}";
 
 GLuint make_shader(GLenum type, const char *source) {
     auto shader = glCreateShader(type);
@@ -137,9 +71,9 @@ GLuint make_program(const char *vertex_source, const char *fragment_source) {
 
 GlHsvThresholder::GlHsvThresholder(int width, int height)
     : m_width(width), m_height(height) {
-    status = createHeadless();
-    m_context = status.context;
-    m_display = status.display;
+    m_status = createHeadless();
+    m_context = m_status.context;
+    m_display = m_status.display;
 
 }
 
@@ -151,7 +85,7 @@ GlHsvThresholder::~GlHsvThresholder() {
     for (const auto [key, value]: m_framebuffers) {
         glDeleteFramebuffers(1, &value);
     }
-    destroyHeadless(status);
+    destroyHeadless(m_status);
 }
 
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
@@ -166,9 +100,12 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     }
     EGLERROR();
 
-    m_programs.reserve(2);
-    m_programs[0] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
+    m_programs.reserve(5);
+    m_programs[0] = make_program(VERTEX_SOURCE, NONE_FRAGMENT_SOURCE);
     m_programs[1] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
+    m_programs[2] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
+    m_programs[3] = make_program(VERTEX_SOURCE, TILING_FRAGMENT_SOURCE);
+    m_programs[4] = make_program(VERTEX_SOURCE, THRESHOLDING_FRAGMENT_SOURCE);
 
     for (auto fd : output_buf_fds) {
         GLuint out_tex;
@@ -247,7 +184,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
 
 int GlHsvThresholder::testFrame(
     const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-    EGLint encoding, EGLint range, int shaderIdx) {
+    EGLint encoding, EGLint range, ProcessType type) {
     static auto glEGLImageTargetTexture2DOES =
         (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress(
             "glEGLImageTargetTexture2DOES");
@@ -274,12 +211,7 @@ int GlHsvThresholder::testFrame(
         }
     }
 
-    auto framebuffer = m_framebuffers.at(framebuffer_fd);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    GLERROR();
-
-    // Set GL Viewport size, always needed!
-    glViewport(0, 0, m_width, m_height);
+    // Begin code setup that does not change with type
 
     EGLint attribs[] = {EGL_WIDTH,
                         m_width,
@@ -311,7 +243,6 @@ int GlHsvThresholder::testFrame(
                         range,
                         EGL_NONE};
 
-    EGLERROR();
     auto image = eglCreateImageKHR(m_display, EGL_NO_CONTEXT,
                                    EGL_LINUX_DMA_BUF_EXT, nullptr, attribs);
     EGLERROR();
@@ -319,6 +250,7 @@ int GlHsvThresholder::testFrame(
         throw std::runtime_error("failed to import fd " +
                                  std::to_string(yuv_plane_data[0].fd));
     }
+
 
     GLuint texture;
     glGenTextures(1, &texture);
@@ -331,16 +263,35 @@ int GlHsvThresholder::testFrame(
     GLERROR();
     glEGLImageTargetTexture2DOES(GL_TEXTURE_EXTERNAL_OES, image);
     GLERROR();
+    eglDestroyImageKHR(m_display, image);
+    EGLERROR();
+    // End portion of code that does not change with type
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    GLuint initial_program = -1;
+
+    if (type == ProcessType::None) {
+        initial_program = m_programs[0];
+    } else if (type == ProcessType::Hsv) {
+        initial_program = m_programs[1];
+    } else if (type == ProcessType::Gray || type == ProcessType::Adaptive) {
+        initial_program = m_programs[2];
+    }
+
+    glUseProgram(initial_program);
+    GLERROR();
+    glUniform1i(glGetUniformLocation(initial_program, "tex"), 0);
     GLERROR();
 
-    m_lastShaderIdx = shaderIdx;
-    GLuint program = m_programs[m_lastShaderIdx];
-    glUseProgram(program);
-    GLERROR();
-    glUniform1i(glGetUniformLocation(program, "tex"), 0);
-    GLERROR();
+    if (type == ProcessType::Hsv) {
+        auto lll = glGetUniformLocation(initial_program, "lowerThresh");
+        auto uuu = glGetUniformLocation(initial_program, "upperThresh");
+
+        std::lock_guard lock{m_hsv_mutex};
+        glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[2]);
+        GLERROR();
+        glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[2]);
+        GLERROR();
+    }
 
     glActiveTexture(GL_TEXTURE0);
     GLERROR();
@@ -349,31 +300,159 @@ int GlHsvThresholder::testFrame(
 
     glBindBuffer(GL_ARRAY_BUFFER, m_quad_vbo);
     GLERROR();
-    // TODO: refactor these
-    auto attr_loc = glGetAttribLocation(program, "vertex");
+
+    auto attr_loc = glGetAttribLocation(initial_program, "vertex");
     glEnableVertexAttribArray(attr_loc);
     GLERROR();
     glVertexAttribPointer(attr_loc, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
     GLERROR();
-    auto lll = glGetUniformLocation(program, "lowerThresh");
-    glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[2]);
-    GLERROR();
-    auto uuu = glGetUniformLocation(program, "upperThresh");
-    glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[2]);
-    GLERROR();
 
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    GLERROR();
+    if (type != ProcessType::Adaptive) {
+        auto out_framebuffer = m_framebuffers.at(framebuffer_fd);
+        glBindFramebuffer(GL_FRAMEBUFFER, out_framebuffer);
+        GLERROR();
 
-    glFinish();
-    GLERROR();
+        glViewport(0, 0, m_width, m_height);
+        GLERROR();
+        glClear(GL_COLOR_BUFFER_BIT);
+        GLERROR();
 
-    eglDestroyImageKHR(m_display, image);
-    EGLERROR();
-    glDeleteTextures(1, &texture);
-    GLERROR();
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        GLERROR();
 
-    return framebuffer_fd;
+        glFinish();
+        GLERROR();
+
+        glDeleteTextures(1, &texture);
+        GLERROR();
+
+        return framebuffer_fd;
+    } else {
+        GLuint out_texture;
+        glGenTextures(1, &out_texture);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, out_texture);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        GLERROR();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R8_EXT, m_width, m_height, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, nullptr);
+        GLERROR();
+
+        GLuint framebuffer;
+        glGenFramebuffers(1, &framebuffer);
+        GLERROR();
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        GLERROR();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, out_texture, 0);
+        GLERROR();
+
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            throw std::runtime_error("failed to complete framebuffer");
+        }
+
+        glViewport(0, 0, m_width, m_height);
+        GLERROR();
+        glClear(GL_COLOR_BUFFER_BIT);
+        GLERROR();
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        GLERROR();
+
+        // TODO: This finish may be unneeded
+        glFinish();
+        GLERROR();
+
+        GLuint min_max_texture;
+        glGenTextures(1, &min_max_texture);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, min_max_texture);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        GLERROR();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8_EXT, m_width / 4, m_height / 4, 0, GL_RG_EXT, GL_UNSIGNED_BYTE, nullptr);
+        GLERROR();
+
+        GLuint min_max_framebuffer;
+        glGenFramebuffers(1, &min_max_framebuffer);
+        GLERROR();
+        glBindFramebuffer(GL_FRAMEBUFFER, min_max_framebuffer);
+        GLERROR();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, min_max_texture, 0);
+        GLERROR();
+
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            throw std::runtime_error("failed to complete framebuffer");
+        }
+
+        glViewport(0, 0, m_width / 4, m_height / 4);
+        GLERROR();
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLERROR();
+
+        glActiveTexture(GL_TEXTURE0);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, out_texture);
+        GLERROR();
+
+        glUseProgram(m_programs[3]);
+        GLERROR();
+
+        auto res = glGetUniformLocation(m_programs[3], "resolution_in");
+        GLERROR();
+        glUniform2f(res, m_width, m_height);
+        GLERROR();
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        GLERROR();
+
+        // TODO: This finish may be unneeded
+        glFinish();
+        GLERROR();
+
+        auto out_framebuffer = m_framebuffers.at(framebuffer_fd);
+        glBindFramebuffer(GL_FRAMEBUFFER, out_framebuffer);
+        GLERROR();
+
+        glViewport(0, 0, m_width, m_height);
+        GLERROR();
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        GLERROR();
+
+        glActiveTexture(GL_TEXTURE0);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, out_texture);
+        GLERROR();
+
+        glActiveTexture(GL_TEXTURE1);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, min_max_texture);
+        GLERROR();
+
+        glUseProgram(m_programs[4]);
+        GLERROR();
+
+        auto tile_res = glGetUniformLocation(m_programs[4], "tile_resolution");
+        GLERROR();
+        glUniform2f(tile_res, m_width / 4, m_height / 4);
+        GLERROR();
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        GLERROR();
+
+        glFinish();
+        GLERROR();
+
+        return framebuffer_fd;
+    }
 }
 
 void GlHsvThresholder::returnBuffer(int fd) {
@@ -383,6 +462,7 @@ void GlHsvThresholder::returnBuffer(int fd) {
 
 void GlHsvThresholder::setHsvThresholds(double hl, double sl, double vl,
                                         double hu, double su, double vu) {
+    std::lock_guard lock{m_hsv_mutex};
     m_hsvLower[0] = hl;
     m_hsvLower[1] = sl;
     m_hsvLower[2] = vl;
