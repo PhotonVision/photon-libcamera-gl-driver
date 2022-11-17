@@ -31,7 +31,7 @@ add_library(photonlibcamera SHARED concurrent_blocking_queue.h
         camera_runner.cpp
         headless_opengl.cpp
 )
-target_compile_definitions(photonlibcamera EGL_NO_X11=1)
+target_compile_definitions(photonlibcamera PUBLIC EGL_NO_X11=1)
 target_include_directories(photonlibcamera PUBLIC ${OPENGL_INCLUDE_DIRS} ${LIBDRM_INCLUDE_DIRS} ${LIBCAMERA_INCLUDE_DIRS}
         ${LIBGBM_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
 target_link_libraries(photonlibcamera PUBLIC OpenGL::GL OpenGL::EGL Threads::Threads ${LIBCAMERA_LINK_LIBRARIES}
