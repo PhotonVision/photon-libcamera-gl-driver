@@ -2,6 +2,10 @@
 
 #include <EGL/egl.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct HeadlessData {
     int gbmFd;
     struct gbm_device *gbmDevice;
@@ -9,10 +13,6 @@ struct HeadlessData {
     EGLDisplay display;
     EGLContext context;
 };
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct HeadlessData createHeadless();
 void destroyHeadless(struct HeadlessData status);

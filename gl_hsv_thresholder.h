@@ -17,10 +17,10 @@
 #include "headless_opengl.h"
 
 enum class ProcessType: int32_t {
-    None = 0,
-    Hsv = 1,
-    Gray = 2,
-    Adaptive = 3,
+    None,
+    Hsv,
+    Gray,
+    Adaptive,
 };
 
 class GlHsvThresholder {
