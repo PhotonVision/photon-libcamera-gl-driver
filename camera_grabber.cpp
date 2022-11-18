@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include <libcamera/control_ids.h>
+#include <libcamera/property_ids.h>
 
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
                              int width, int height, int fps)
@@ -21,6 +22,19 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
 
     auto config = m_camera->generateConfiguration(
         {libcamera::StreamRole::VideoRecording});
+    
+    // print active arrays
+    if (m_camera->properties().contains(libcamera::properties::PIXEL_ARRAY_ACTIVE_AREAS)) {
+        printf("Active areas:\n");
+        auto rects = m_camera->properties().get(libcamera::properties::PixelArrayActiveAreas);
+        if (rects.has_value()) {
+            for(const auto rect : rects.value()) {
+                std::cout << rect.toString() << std::endl;
+            }
+        }
+    } else 
+        printf("No active areas\n");
+
     config->at(0).size.width = width;
     config->at(0).size.height = height;
     config->transform = libcamera::Transform::Identity;

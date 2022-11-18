@@ -16,6 +16,7 @@
  */
 
 #include "libcamera_jni.hpp" // Generated
+#include <libcamera/property_ids.h>
 
 #include "camera_manager.h"
 #include "camera_runner.h"
@@ -31,10 +32,22 @@ static_assert(sizeof(void *) <= sizeof(jlong));
 
 JNIEXPORT jstring Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
     JNIEnv *env, jclass) {
-    if (runner)
-        return env->NewStringUTF(runner->model().c_str());
-    else
+
+    std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
+
+    // Yeet all USB cameras (I hope)
+    auto rem = std::remove_if(cameras.begin(), cameras.end(), [](auto &cam) {
+        return cam->id().find("/usb") != std::string::npos;
+    });
+    cameras.erase(rem, cameras.end());
+
+    if (cameras.empty())
         return env->NewStringUTF("");
+
+    // Grab model from the first camera in the list
+    auto cam = cameras[0];
+    auto model = cam->properties().get(libcamera::properties::Model).value();
+    return env->NewStringUTF(model.c_str());
 }
 
 JNIEXPORT jboolean
