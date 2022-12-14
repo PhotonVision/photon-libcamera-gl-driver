@@ -191,6 +191,17 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
     return true;
 }
 
+
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jboolean copyIn, jboolean copyOut) {
+    if (!runner) {
+        return false;
+    }
+
+    runner->setCopyOptions(copyIn, copyOut);
+    return true;
+}
+
 static MatPair pair = {};
 
 JNIEXPORT jlong JNICALL

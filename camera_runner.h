@@ -38,6 +38,7 @@ class CameraRunner {
     inline CameraGrabber &cameraGrabber() { return grabber; }
     inline GlHsvThresholder &thresholder() { return m_thresholder; }
     inline const std::string &model() { return m_model; }
+    void setCopyOptions(bool copyInput, bool copyOutput);
 
     // Note: all following functions must be protected by mutual exclusion.
     // Failure to do so will result in UB.
@@ -83,4 +84,6 @@ class CameraRunner {
 
     std::atomic<int> m_shaderIdx = 0;
 
+    std::atomic<bool> m_copyInput;
+    std::atomic<bool> m_copyOutput;
 };

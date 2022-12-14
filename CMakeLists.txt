@@ -22,6 +22,10 @@ if (JNI_FOUND)
     message(STATUS "JNI_INCLUDE_DIRS=${JNI_INCLUDE_DIRS}")
 endif ()
 
+SET(FAST_FLAGS "-Ofast -ftree-vectorize -fPIC")
+
+add_definitions(${FAST_FLAGS})
+
 add_library(photonlibcamera SHARED concurrent_blocking_queue.h
         camera_grabber.cpp dma_buf_alloc.cpp
         gl_hsv_thresholder.cpp

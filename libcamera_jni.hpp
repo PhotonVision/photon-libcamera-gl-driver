@@ -117,6 +117,9 @@ Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *, jclass);
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *, jclass);
 
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jboolean copyIn, jboolean copyOut);
+
 JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass);
 

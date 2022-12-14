@@ -46,12 +46,14 @@ class CameraGrabber {
     std::vector<std::unique_ptr<libcamera::Request>> m_requests;
     std::shared_ptr<libcamera::Camera> m_camera;
     int m_fps;
+    std::optional<std::array<libcamera::ControlValue, 4>> m_cameraExposureProfiles;
     std::unique_ptr<libcamera::CameraConfiguration> m_config;
 
     std::optional<std::function<void(libcamera::Request *)>> m_onData;
 
     CameraSettings m_settings{};
     bool running = false;
+
 
     void setControls(libcamera::Request *request);
 };

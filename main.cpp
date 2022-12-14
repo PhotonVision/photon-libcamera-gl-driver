@@ -7,15 +7,15 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-int main() {
+void test_res(int width, int height) {
     Java_org_photonvision_raspi_LibCameraJNI_createCamera(nullptr, nullptr,
-                                                          320, 240, 30);
+                                                          width, height, 30);
     Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 0);
     Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
     auto start = std::chrono::steady_clock::now();
 
-    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(30))  {
+    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(1))  {
         bool ready = Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(nullptr, nullptr);
         if (ready) {
             static int i = 0;
@@ -24,16 +24,33 @@ int main() {
             cv::Mat threshold_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(nullptr, nullptr);
 
             i++;
-            static char arr[50];
-            snprintf(arr,sizeof(arr),"color_%i.png", i);
-             cv::imwrite(arr, color_mat);
-             snprintf(arr,sizeof(arr),"thresh_%i.png", i);
-             cv::imwrite(arr, threshold_mat);
+            // static char arr[50];
+            // snprintf(arr,sizeof(arr),"color_%i.png", i);
+            // cv::imwrite(arr, color_mat);
+            // snprintf(arr,sizeof(arr),"thresh_%i.png", i);
+            // cv::imwrite(arr, threshold_mat);
         }
     }
 
     Java_org_photonvision_raspi_LibCameraJNI_stopCamera(nullptr, nullptr);
     Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(nullptr, nullptr);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+}
+
+int main() {
+    test_res(1920, 1080);
+    test_res(320, 240);
+    test_res(640, 480);
+    test_res(960, 720);
+    test_res(2592, 1944);
+    test_res(2592/2, 1944/2);
+    test_res(1920, 1080);
+    test_res(320, 240);
+    test_res(640, 480);
+    test_res(960, 720);
+    test_res(2592, 1944);
+    test_res(2592/2, 1944/2);
 
     std::cout << "Done" << std::endl;
 

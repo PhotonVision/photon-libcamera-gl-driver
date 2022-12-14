@@ -8,7 +8,7 @@
 
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
                              int width, int height, int fps)
-    : m_buf_allocator(camera), m_camera(std::move(camera)), m_fps(fps) {
+    : m_buf_allocator(camera), m_camera(std::move(camera)), m_fps(fps), m_cameraExposureProfiles(std::nullopt) {
     
 
     if (m_fps < 1) {
@@ -108,29 +108,34 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     using namespace libcamera;
 
     auto &controls_ = request->controls();
-    controls_.set(libcamera::controls::AwbEnable, false); // AWB disabled
-    controls_.set(libcamera::controls::AnalogueGain,
+    controls_.set(controls::AwbEnable, false); // AWB disabled
+    controls_.set(controls::AnalogueGain,
                  m_settings.analogGain); // Analog gain, min 1 max big number?
-    controls_.set(libcamera::controls::ColourGains,
+    if (!controls_.get(controls::ColourGains))
+        controls_.set(controls::ColourGains,
                  libcamera::Span<const float, 2>{
                      {m_settings.awbRedGain,
                       m_settings.awbBlueGain}}); // AWB gains, red and blue,
                                                  // unknown range
 
     // Note about brightness: -1 makes everything look deep fried, 0 is probably best for most things
-    controls_.set(libcamera::controls::Brightness,
+    if (!controls_.get(controls::Brightness))
+        controls_.set(libcamera::controls::Brightness,
                  m_settings.brightness); // -1 to 1, 0 means unchanged
-    controls_.set(libcamera::controls::Contrast,
+    if (!controls_.get(controls::Contrast))
+        controls_.set(controls::Contrast,
                  m_settings.contrast); // Nominal 1
-    controls_.set(libcamera::controls::Saturation,
+    if (!controls_.get(controls::Saturation))
+        controls_.set(controls::Saturation,
                  m_settings.saturation); // Nominal 1, 0 would be greyscale
 
     if (m_settings.doAutoExposure) {
-        controls_.set(libcamera::controls::AeEnable,
+        controls_.set(controls::AeEnable,
                     true); // Auto exposure disabled
 
         if (!controls_.get(controls::AeMeteringMode))
             controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
+
         if (!controls_.get(controls::AeExposureMode))
             controls_.set(controls::AeExposureMode, controls::ExposureShort);
 
@@ -143,9 +148,9 @@ void CameraGrabber::setControls(libcamera::Request *request) {
             libcamera::Span<const int64_t, 2>{
                 {MIN_FRAME_TIME, MAX_FRAME_TIME}});
     } else {
-        controls_.set(libcamera::controls::AeEnable,
+        controls_.set(controls::AeEnable,
                     false); // Auto exposure disabled
-        controls_.set(libcamera::controls::ExposureTime,
+        controls_.set(controls::ExposureTime,
                     m_settings.exposureTimeUs); // in microseconds
         controls_.set(
             libcamera::controls::FrameDurationLimits,

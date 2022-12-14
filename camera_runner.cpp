@@ -62,6 +62,11 @@ void CameraRunner::requestShaderIdx(int idx) {
     m_shaderIdx = idx;
 }
 
+void CameraRunner::setCopyOptions(bool copyIn, bool copyOut) {
+    m_copyInput = copyIn;
+    m_copyOutput = copyOut;
+}
+
 void CameraRunner::start() {
     unsigned int stride = grabber.streamConfiguration().stride;
 
@@ -162,12 +167,20 @@ void CameraRunner::start() {
             uint8_t *color_out_buf = mat_pair.color.data;
 
             auto begin_time = steady_clock::now();
+
             auto input_ptr = mmaped.at(data.fd);
             int bound = m_width * m_height;
 
-            for (int i = 0; i < bound; i++) {
-                std::memcpy(color_out_buf + i * 3, input_ptr + i * 4, 3);
-                processed_out_buf[i] = input_ptr[i * 4 + 3];
+            if (m_copyInput) {
+                for (int i = 0; i < bound; i++) {
+                    std::memcpy(color_out_buf + i * 3, input_ptr + i * 4, 3);
+                }
+            }
+
+            if (m_copyOutput) {
+                for (int i = 0; i < bound; i++) {
+                    processed_out_buf[i] = input_ptr[i * 4 + 3];
+                }
             }
 
             m_thresholder.returnBuffer(data.fd);
@@ -177,7 +190,7 @@ void CameraRunner::start() {
                 steady_clock::now() - begin_time;
             copyTimeAvgMs =
                 approxRollingAverage(copyTimeAvgMs, elapsedMillis.count());
-            // std::cout << "Copy: " << copyTimeAvgMs << std::endl;
+            std::cout << "Copy: " << copyTimeAvgMs << std::endl;
 
             auto now = steady_clock::now();
             std::chrono::duration<double, std::milli> elapsed =

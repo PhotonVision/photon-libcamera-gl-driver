@@ -14,6 +14,10 @@
 
 GLuint make_shader(GLenum type, const char *source) {
     auto shader = glCreateShader(type);
+
+    void *ctx = eglGetCurrentContext();
+    printf("Shader idx: %i context ptr: %lu\n", (int) shader, (size_t)ctx);
+
     if (!shader) {
         throw std::runtime_error("failed to create shader");
     }
@@ -94,6 +98,8 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
             "glEGLImageTargetTexture2DOES");
     static auto eglCreateImageKHR =
         (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+    static auto eglDestroyImageKHR =
+        (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
 
     if (!eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, m_context)) {
         throw std::runtime_error("failed to bind egl context");
@@ -141,6 +147,9 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         }
 
         glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
+        GLERROR();
+
+        eglDestroyImageKHR(m_display, image); 
         GLERROR();
 
         GLuint framebuffer;
