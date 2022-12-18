@@ -117,6 +117,7 @@ static constexpr const char *THRESHOLDING_FRAGMENT_SOURCE =
         ""
         "uniform sampler2D tex;"
         "uniform sampler2D tiles;"
+        "uniform samplerExternalOES original;"
         "varying vec2 texcoord;"
         "uniform vec2 tile_resolution;"
         ""
@@ -139,5 +140,6 @@ static constexpr const char *THRESHOLDING_FRAGMENT_SOURCE =
         "  }"
         "  float mean = (max_so_far + min_so_far) / 2.0;"
         "  float thresholded = step(mean, texture2D(tex, uv).x);"
-        "  gl_FragColor = vec4(vec3(thresholded), 1.0);"
+        "  vec3 color = texture2D(original, texcoord.xy).rgb;"
+        "  gl_FragColor = vec4(color.bgr, thresholded);"
         "}";
