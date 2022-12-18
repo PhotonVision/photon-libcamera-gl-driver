@@ -25,3 +25,8 @@ make -j4
 ```
 
 This should spit out the shared library into the build directory.
+
+## Running eglinfo
+
+Compile with `g++ -std=c++17 -o eglinfo eglinfo.c headless_opengl.cpp -lEGL -lGLESv2 -lgbm`, and then run with  `./eglinfo`
+

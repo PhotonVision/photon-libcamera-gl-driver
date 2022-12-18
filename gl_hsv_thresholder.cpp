@@ -368,7 +368,7 @@ int GlHsvThresholder::testFrame(
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         GLERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED_EXT, m_width, m_height, 0, GL_RED_EXT, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         GLERROR();
 
         GLuint framebuffer;
@@ -407,7 +407,7 @@ int GlHsvThresholder::testFrame(
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         GLERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RG_EXT, m_width / 4, m_height / 4, 0, GL_RG_EXT, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width / 4, m_height / 4, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         GLERROR();
 
         GLuint min_max_framebuffer;

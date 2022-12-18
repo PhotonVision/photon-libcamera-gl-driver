@@ -17,7 +17,7 @@
 #include "headless_opengl.h"
 
 enum class ProcessType: int32_t {
-    None,
+    None = 0,
     Hsv,
     Gray,
     Adaptive,
