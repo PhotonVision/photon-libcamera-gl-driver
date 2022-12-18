@@ -92,6 +92,13 @@ GlHsvThresholder::~GlHsvThresholder() {
     destroyHeadless(m_status);
 }
 
+static void on_gl_error(EGLenum error,const char *command,EGLint messageType,EGLLabelKHR threadLabel,EGLLabelKHR objectLabel,const char* message)
+{
+
+    printf("Error111: %s\n", message);
+
+}
+
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     static auto glEGLImageTargetTexture2DOES =
         (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress(
@@ -100,11 +107,20 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
     static auto eglDestroyImageKHR =
         (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+    static auto glDebugMessageCallbackKHR =
+            (PFNEGLDEBUGMESSAGECONTROLKHRPROC)eglGetProcAddress("glDebugMessageCallbackKHR");
 
     if (!eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, m_context)) {
         throw std::runtime_error("failed to bind egl context");
     }
     EGLERROR();
+
+    glEnable(GL_DEBUG_OUTPUT_KHR);
+    GLERROR();
+    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
+    GLERROR();
+    glDebugMessageCallbackKHR(on_gl_error, nullptr);
+    GLERROR();
 
     m_programs.reserve(5);
     m_programs[0] = make_program(VERTEX_SOURCE, NONE_FRAGMENT_SOURCE);
