@@ -132,6 +132,7 @@ void CameraRunner::start() {
                 grabber.requeueRequest(request);
             }
         }
+        m_thresholder.release();
     });
 
     display = std::thread([&]() {

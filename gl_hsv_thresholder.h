@@ -35,6 +35,7 @@ class GlHsvThresholder {
     ~GlHsvThresholder();
 
     void start(const std::vector<int> &output_buf_fds);
+    void release();
 
     void returnBuffer(int fd);
     int testFrame(

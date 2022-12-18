@@ -191,6 +191,12 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     }
 }
 
+void GlHsvThresholder::release() {
+    if (!eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+        throw std::runtime_error("failed to bind egl context");
+    }
+}
+
 int GlHsvThresholder::testFrame(
     const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
     EGLint encoding, EGLint range, ProcessType type) {
