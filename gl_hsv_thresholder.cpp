@@ -436,6 +436,9 @@ int GlHsvThresholder::testFrame(
         glUseProgram(m_programs[3]);
         GLERROR();
 
+        glUniform1i(glGetUniformLocation(m_programs[3], "tex"), 0);
+        GLERROR();
+
         auto res = glGetUniformLocation(m_programs[3], "resolution_in");
         GLERROR();
         glUniform2f(res, m_width, m_height);
@@ -458,6 +461,13 @@ int GlHsvThresholder::testFrame(
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GLERROR();
 
+        glUniform1i(glGetUniformLocation(m_programs[4], "tex"), 0);
+        GLERROR();
+        glUniform1i(glGetUniformLocation(m_programs[4], "tiles"), 1);
+        GLERROR();
+        glUniform1i(glGetUniformLocation(m_programs[4], "original"), 2);
+        GLERROR();
+
         glActiveTexture(GL_TEXTURE0);
         GLERROR();
         glBindTexture(GL_TEXTURE_2D, out_texture);
@@ -466,6 +476,11 @@ int GlHsvThresholder::testFrame(
         glActiveTexture(GL_TEXTURE1);
         GLERROR();
         glBindTexture(GL_TEXTURE_2D, min_max_texture);
+        GLERROR();
+
+        glActiveTexture(GL_TEXTURE2);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
         GLERROR();
 
         glUseProgram(m_programs[4]);
