@@ -7,11 +7,18 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
+enum class ProcessType_: int32_t {
+    None = 0,
+    Hsv,
+    Gray,
+    Adaptive,
+};
+
 void test_res(int width, int height) {
     Java_org_photonvision_raspi_LibCameraJNI_createCamera(nullptr, nullptr,
                                                           width, height, 30);
     // Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 1);
-    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 3);
+    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, (jint)ProcessType_::Adaptive);
     Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr, true, true);
     Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
