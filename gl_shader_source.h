@@ -100,7 +100,7 @@ static constexpr const char *TILING_FRAGMENT_SOURCE =
         "  for (int i = 0; i < 4; i++) {"
         "    for(int j = 0; j < 4; j++) {"
         "      vec2 offset = vec2(float(i), float(j)) / resolution_in;"
-        "      float cur = texture2D(tex, exploded + offset).x;"
+        "      float cur = texture2D(tex, exploded + offset).w;"
         "      max_so_far = max(max_so_far, cur);"
         "      min_so_far = min(min_so_far, cur);"
         "    }"
