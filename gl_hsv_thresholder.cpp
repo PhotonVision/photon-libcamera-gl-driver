@@ -462,12 +462,12 @@ int GlHsvThresholder::testFrame(
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GLERROR();
 
+        glUseProgram(m_programs[4]);
+        GLERROR();
+
         glUniform1i(glGetUniformLocation(m_programs[4], "tex"), 0);
         GLERROR();
         glUniform1i(glGetUniformLocation(m_programs[4], "tiles"), 1);
-        GLERROR();
-
-        glUseProgram(m_programs[4]);
         GLERROR();
 
         glActiveTexture(GL_TEXTURE0);
