@@ -359,10 +359,10 @@ int GlHsvThresholder::testFrame(
 
         return framebuffer_fd;
     } else {
-        GLuint out_texture;
-        glGenTextures(1, &out_texture);
+        GLuint grayscale_texture;
+        glGenTextures(1, &grayscale_texture);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, out_texture);
+        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GLERROR();
@@ -371,21 +371,21 @@ int GlHsvThresholder::testFrame(
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         GLERROR();
 
-        GLuint framebuffer;
-        glGenFramebuffers(1, &framebuffer);
+        GLuint grayscale_buffer;
+        glGenFramebuffers(1, &grayscale_buffer);
         GLERROR();
-        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, grayscale_buffer);
         GLERROR();
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, out_texture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, grayscale_texture, 0);
         GLERROR();
 
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw std::runtime_error("failed to complete framebuffer");
+            throw std::runtime_error("failed to complete grayscale_buffer");
         }
 
         glViewport(0, 0, m_width, m_height);
         GLERROR();
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         GLERROR();
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -420,7 +420,7 @@ int GlHsvThresholder::testFrame(
         GLERROR();
 
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw std::runtime_error("failed to complete framebuffer");
+            throw std::runtime_error("failed to complete grayscale_buffer");
         }
 
         glViewport(0, 0, m_width / 4, m_height / 4);
@@ -431,7 +431,7 @@ int GlHsvThresholder::testFrame(
 
         glActiveTexture(GL_TEXTURE0);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, out_texture);
+        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
         GLERROR();
 
         glUseProgram(m_programs[3]);
@@ -472,7 +472,7 @@ int GlHsvThresholder::testFrame(
 
         glActiveTexture(GL_TEXTURE0);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, out_texture);
+        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
         GLERROR();
 
         glActiveTexture(GL_TEXTURE1);
