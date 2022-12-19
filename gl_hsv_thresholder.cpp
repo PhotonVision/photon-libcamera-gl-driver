@@ -403,6 +403,7 @@ int GlHsvThresholder::testFrame(
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -465,7 +466,8 @@ int GlHsvThresholder::testFrame(
         GLERROR();
         glUniform1i(glGetUniformLocation(m_programs[4], "tiles"), 1);
         GLERROR();
-        glUniform1i(glGetUniformLocation(m_programs[4], "original"), 2);
+
+        glUseProgram(m_programs[4]);
         GLERROR();
 
         glActiveTexture(GL_TEXTURE0);
@@ -476,14 +478,6 @@ int GlHsvThresholder::testFrame(
         glActiveTexture(GL_TEXTURE1);
         GLERROR();
         glBindTexture(GL_TEXTURE_2D, min_max_texture);
-        GLERROR();
-
-        glActiveTexture(GL_TEXTURE2);
-        GLERROR();
-        glBindTexture(GL_TEXTURE_EXTERNAL_OES, texture);
-        GLERROR();
-
-        glUseProgram(m_programs[4]);
         GLERROR();
 
         auto tile_res = glGetUniformLocation(m_programs[4], "tile_resolution");
