@@ -122,9 +122,9 @@ void CameraRunner::start() {
             std::chrono::duration<double, std::milli> elapsedMillis =
                 steady_clock::now() - begintime;
             if (elapsedMillis > 0.9ms) {
-                gpuTimeAvgMs =
-                    approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
-                // std::cout << "GLProcess: " << gpuTimeAvgMs << std::endl;
+                // gpuTimeAvgMs =
+                //     approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
+                std::cout << "GLProcess: " << elapsedMillis.count() << std::endl;
             }
 
             {
