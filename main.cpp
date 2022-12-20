@@ -22,13 +22,13 @@ void test_res(int width, int height) {
     Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr, true, true);
     Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
-    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 60 * 800);
-    Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr, 0.2);
-    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 20);
+    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 20 * 800);
+    Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr, 0.0);
+    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 10);
 
     auto start = std::chrono::steady_clock::now();
 
-    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(1))  {
+    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3))  {
         bool ready = Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(nullptr, nullptr);
         if (ready) {
             static int i = 0;
