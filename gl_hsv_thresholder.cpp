@@ -205,6 +205,74 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
 
         m_quad_vbo = quad_vbo;
     }
+
+    {
+        GLuint grayscale_texture;
+        glGenTextures(1, &grayscale_texture);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        GLERROR();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        GLERROR();
+
+        m_grayscale_texture = grayscale_texture;
+    }
+
+    {
+        GLuint grayscale_buffer;
+        glGenFramebuffers(1, &grayscale_buffer);
+        GLERROR();
+        glBindFramebuffer(GL_FRAMEBUFFER, grayscale_buffer);
+        GLERROR();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_grayscale_texture, 0);
+        GLERROR();
+
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            throw std::runtime_error("failed to complete grayscale_buffer");
+        }
+
+        m_grayscale_buffer = grayscale_buffer;
+    }
+
+    {
+        GLuint min_max_texture;
+        glGenTextures(1, &min_max_texture);
+        GLERROR();
+        glBindTexture(GL_TEXTURE_2D, min_max_texture);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        GLERROR();
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+        GLERROR();
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width / 4, m_height / 4, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        GLERROR();
+
+        m_min_max_texture = min_max_texture;
+    }
+
+    {
+        GLuint min_max_framebuffer;
+        glGenFramebuffers(1, &min_max_framebuffer);
+        GLERROR();
+        glBindFramebuffer(GL_FRAMEBUFFER, min_max_framebuffer);
+        GLERROR();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_min_max_texture, 0);
+        GLERROR();
+
+        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            throw std::runtime_error("failed to complete grayscale_buffer");
+        }
+
+        m_min_max_framebuffer = min_max_framebuffer;
+    }
 }
 
 void GlHsvThresholder::release() {
@@ -359,29 +427,8 @@ int GlHsvThresholder::testFrame(
 
         return framebuffer_fd;
     } else {
-        GLuint grayscale_texture;
-        glGenTextures(1, &grayscale_texture);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_grayscale_buffer);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
-        GLERROR();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        GLERROR();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        GLERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-        GLERROR();
-
-        GLuint grayscale_buffer;
-        glGenFramebuffers(1, &grayscale_buffer);
-        GLERROR();
-        glBindFramebuffer(GL_FRAMEBUFFER, grayscale_buffer);
-        GLERROR();
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, grayscale_texture, 0);
-        GLERROR();
-
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw std::runtime_error("failed to complete grayscale_buffer");
-        }
 
         glViewport(0, 0, m_width, m_height);
         GLERROR();
@@ -391,37 +438,8 @@ int GlHsvThresholder::testFrame(
         glDrawArrays(GL_TRIANGLES, 0, 6);
         GLERROR();
 
-        // TODO: This finish may be unneeded
-        glFinish();
+        glBindFramebuffer(GL_FRAMEBUFFER, m_min_max_framebuffer);
         GLERROR();
-
-        GLuint min_max_texture;
-        glGenTextures(1, &min_max_texture);
-        GLERROR();
-        glBindTexture(GL_TEXTURE_2D, min_max_texture);
-        GLERROR();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        GLERROR();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        GLERROR();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-        GLERROR();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-        GLERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width / 4, m_height / 4, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-        GLERROR();
-
-        GLuint min_max_framebuffer;
-        glGenFramebuffers(1, &min_max_framebuffer);
-        GLERROR();
-        glBindFramebuffer(GL_FRAMEBUFFER, min_max_framebuffer);
-        GLERROR();
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, min_max_texture, 0);
-        GLERROR();
-
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            throw std::runtime_error("failed to complete grayscale_buffer");
-        }
 
         glViewport(0, 0, m_width / 4, m_height / 4);
         GLERROR();
@@ -431,7 +449,7 @@ int GlHsvThresholder::testFrame(
 
         glActiveTexture(GL_TEXTURE0);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
+        glBindTexture(GL_TEXTURE_2D, m_grayscale_texture);
         GLERROR();
 
         glUseProgram(m_programs[3]);
@@ -472,12 +490,12 @@ int GlHsvThresholder::testFrame(
 
         glActiveTexture(GL_TEXTURE0);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, grayscale_texture);
+        glBindTexture(GL_TEXTURE_2D, m_grayscale_texture);
         GLERROR();
 
         glActiveTexture(GL_TEXTURE1);
         GLERROR();
-        glBindTexture(GL_TEXTURE_2D, min_max_texture);
+        glBindTexture(GL_TEXTURE_2D, m_min_max_texture);
         GLERROR();
 
         auto tile_res = glGetUniformLocation(m_programs[4], "tile_resolution");

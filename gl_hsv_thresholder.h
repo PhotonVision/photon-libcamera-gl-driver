@@ -65,6 +65,10 @@ class GlHsvThresholder {
     std::mutex m_renderable_mutex;
 
     GLuint m_quad_vbo = 0;
+    GLuint m_grayscale_texture = 0;
+    GLuint m_grayscale_buffer = 0;
+    GLuint m_min_max_texture = 0;
+    GLuint m_min_max_framebuffer = 0;
     std::vector<GLuint> m_programs = {};
 
     HeadlessData m_status{};
