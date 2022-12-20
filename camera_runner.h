@@ -37,7 +37,7 @@ class CameraRunner {
 
     inline CameraGrabber &cameraGrabber() { return grabber; }
     inline GlHsvThresholder &thresholder() { return m_thresholder; }
-    inline const std::string &model() { return m_model; }
+    inline const CameraModel model() { return grabber.model(); }
     void setCopyOptions(bool copyInput, bool copyOutput);
 
     // Note: all following functions must be protected by mutual exclusion.
@@ -55,7 +55,9 @@ class CameraRunner {
 
     void requestShaderIdx(int idx);
 
+
   private:
+
     struct GpuQueueData {
         int fd;
         ProcessType type;
@@ -66,7 +68,6 @@ class CameraRunner {
     int m_width, m_height, m_fps;
 
     CameraGrabber grabber;
-
     ConcurrentBlockingQueue<libcamera::Request *> camera_queue{};
     ConcurrentBlockingQueue<GpuQueueData> gpu_queue{};
     GlHsvThresholder m_thresholder;
@@ -79,7 +80,6 @@ class CameraRunner {
     std::thread threshold;
     std::thread display;
 
-    std::string m_model;
     int32_t m_rotation = 0;
 
     std::atomic<int> m_shaderIdx = 0;

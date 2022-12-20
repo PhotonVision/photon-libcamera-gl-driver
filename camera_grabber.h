@@ -3,6 +3,8 @@
 #include <libcamera/camera.h>
 #include <libcamera/framebuffer_allocator.h>
 
+#include "camera_model.h"
+
 #include <functional>
 #include <memory>
 #include <optional>
@@ -29,6 +31,8 @@ class CameraGrabber {
     void setOnData(std::function<void(libcamera::Request *)> onData);
     void resetOnData();
 
+    inline const CameraModel model() { return m_model; }
+
     inline CameraSettings &cameraSettings() { return m_settings; }
 
     // Note: these 3 functions must be protected by mutual exclusion.
@@ -46,6 +50,7 @@ class CameraGrabber {
     std::vector<std::unique_ptr<libcamera::Request>> m_requests;
     std::shared_ptr<libcamera::Camera> m_camera;
     int m_fps;
+    CameraModel m_model;
     std::optional<std::array<libcamera::ControlValue, 4>> m_cameraExposureProfiles;
     std::unique_ptr<libcamera::CameraConfiguration> m_config;
 

@@ -23,7 +23,6 @@ if (JNI_FOUND)
 endif ()
 
 SET(FAST_FLAGS "-Ofast -ftree-vectorize -fPIC")
-
 add_definitions(${FAST_FLAGS})
 
 add_library(photonlibcamera SHARED concurrent_blocking_queue.h
@@ -33,6 +32,7 @@ add_library(photonlibcamera SHARED concurrent_blocking_queue.h
         libcamera_jni.cpp
         camera_manager.cpp
         camera_runner.cpp
+        camera_model.cpp
         headless_opengl.cpp
 )
 target_compile_definitions(photonlibcamera PUBLIC EGL_NO_X11=1)

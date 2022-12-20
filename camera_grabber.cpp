@@ -9,7 +9,6 @@
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
                              int width, int height, int fps)
     : m_buf_allocator(camera), m_camera(std::move(camera)), m_fps(fps), m_cameraExposureProfiles(std::nullopt) {
-    
 
     if (m_fps < 1) {
         printf("Got fps of %i???\n", m_fps);
@@ -19,6 +18,17 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
     if (m_camera->acquire()) {
         throw std::runtime_error("failed to acquire camera");
     }
+ 
+    // Determine model
+    auto &cprp = m_camera->properties();
+    auto model = cprp.get(libcamera::properties::Model);
+    if (model) {
+        m_model = stringToModel(model.value());
+    } else {
+        m_model = Unknown;
+    }
+
+    std::cout << "Model " << m_model << std::endl;   
 
     auto config = m_camera->generateConfiguration(
         {libcamera::StreamRole::VideoRecording});
@@ -111,33 +121,30 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     controls_.set(controls::AwbEnable, false); // AWB disabled
     controls_.set(controls::AnalogueGain,
                  m_settings.analogGain); // Analog gain, min 1 max big number?
-    if (!controls_.get(controls::ColourGains))
-        controls_.set(controls::ColourGains,
-                 libcamera::Span<const float, 2>{
-                     {m_settings.awbRedGain,
-                      m_settings.awbBlueGain}}); // AWB gains, red and blue,
-                                                 // unknown range
+
+    controls_.set(controls::ColourGains,
+                libcamera::Span<const float, 2>{
+                    {m_settings.awbRedGain,
+                    m_settings.awbBlueGain}}); // AWB gains, red and blue,
+                                                // unknown range
 
     // Note about brightness: -1 makes everything look deep fried, 0 is probably best for most things
-    if (!controls_.get(controls::Brightness))
-        controls_.set(libcamera::controls::Brightness,
-                 m_settings.brightness); // -1 to 1, 0 means unchanged
-    if (!controls_.get(controls::Contrast))
-        controls_.set(controls::Contrast,
-                 m_settings.contrast); // Nominal 1
-    if (!controls_.get(controls::Saturation))
+    controls_.set(libcamera::controls::Brightness,
+                m_settings.brightness); // -1 to 1, 0 means unchanged
+    controls_.set(controls::Contrast,
+                m_settings.contrast); // Nominal 1
+
+    if (m_model != OV9281) {
         controls_.set(controls::Saturation,
-                 m_settings.saturation); // Nominal 1, 0 would be greyscale
+                m_settings.saturation); // Nominal 1, 0 would be greyscale
+    }
 
     if (m_settings.doAutoExposure) {
         controls_.set(controls::AeEnable,
                     true); // Auto exposure disabled
 
-        if (!controls_.get(controls::AeMeteringMode))
-            controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
-
-        if (!controls_.get(controls::AeExposureMode))
-            controls_.set(controls::AeExposureMode, controls::ExposureShort);
+        controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
+        controls_.set(controls::AeExposureMode, controls::ExposureShort);
 
         // 1/fps=seconds
         // seconds * 1e6 = uS
@@ -160,10 +167,11 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                                             // specified the exposure time
     }
 
-	if (!controls_.get(controls::ExposureValue))
-		controls_.set(controls::ExposureValue, 0);
-	if (!controls_.get(controls::Sharpness))
-		controls_.set(controls::Sharpness, 1);
+    controls_.set(controls::ExposureValue, 0);
+ 
+    if (m_model != OV7251 && m_model != OV9281) {
+        controls_.set(controls::Sharpness, 1);
+    }
 }
 
 void CameraGrabber::startAndQueue() {
@@ -185,6 +193,7 @@ void CameraGrabber::stop() {
     running = false;
     m_camera->stop();
 }
+
 
 void CameraGrabber::setOnData(
     std::function<void(libcamera::Request *)> onData) {

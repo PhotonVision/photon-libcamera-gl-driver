@@ -13,7 +13,7 @@ extern "C" {
  * Method:    getSensorModelRaw
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL
+JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(JNIEnv *, jclass);
 
 /*

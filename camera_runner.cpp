@@ -34,15 +34,6 @@ CameraRunner::CameraRunner(int width, int height, int fps,
       grabber(m_camera, m_width, m_height, m_fps), m_thresholder(m_width, m_height),
       allocer("/dev/dma_heap/linux,cma") {
 
-    auto &cprp = m_camera->properties();
-    auto model = cprp.get(libcamera::properties::Model);
-    if (model) {
-        m_model = std::move(model.value());
-    } else {
-        m_model = "No Camera Found";
-    }
-
-    std::cout << "Model " << m_model << " rot " << m_rotation << std::endl;
 
     grabber.setOnData(
         [&](libcamera::Request *request) { camera_queue.push(request); });
@@ -124,7 +115,7 @@ void CameraRunner::start() {
             if (elapsedMillis > 0.9ms) {
                 // gpuTimeAvgMs =
                 //     approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
-                std::cout << "GLProcess: " << elapsedMillis.count() << std::endl;
+                // std::cout << "GLProcess: " << elapsedMillis.count() << std::endl;
             }
 
             {
@@ -167,7 +158,7 @@ void CameraRunner::start() {
             uint8_t *processed_out_buf = mat_pair.processed.data;
             uint8_t *color_out_buf = mat_pair.color.data;
 
-            auto begin_time = steady_clock::now();
+            // auto begin_time = steady_clock::now();
 
             auto input_ptr = mmaped.at(data.fd);
             int bound = m_width * m_height;
@@ -187,19 +178,19 @@ void CameraRunner::start() {
             m_thresholder.returnBuffer(data.fd);
             outgoing.set(std::move(mat_pair));
 
-            std::chrono::duration<double, std::milli> elapsedMillis =
-                steady_clock::now() - begin_time;
-            copyTimeAvgMs =
-                approxRollingAverage(copyTimeAvgMs, elapsedMillis.count());
-            std::cout << "Copy: " << copyTimeAvgMs << std::endl;
+            // std::chrono::duration<double, std::milli> elapsedMillis =
+            //     steady_clock::now() - begin_time;
+            // copyTimeAvgMs =
+            //     approxRollingAverage(copyTimeAvgMs, elapsedMillis.count());
+            // std::cout << "Copy: " << copyTimeAvgMs << std::endl;
 
-            auto now = steady_clock::now();
-            std::chrono::duration<double, std::milli> elapsed =
-                (now - lastTime);
-            fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs, elapsed.count());
+            // auto now = steady_clock::now();
+            // std::chrono::duration<double, std::milli> elapsed =
+                // (now - lastTime);
+            // fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs, elapsed.count());
             // printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs,
             //        1000.0 / fpsTimeAvgMs);
-            lastTime = now;
+            // lastTime = now;
         }
 
         for (const auto &[fd, pointer] : mmaped) {

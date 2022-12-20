@@ -16,7 +16,7 @@ GLuint make_shader(GLenum type, const char *source) {
     auto shader = glCreateShader(type);
 
     void *ctx = eglGetCurrentContext();
-    printf("Shader idx: %i context ptr: %lu\n", (int) shader, (size_t)ctx);
+    // printf("Shader idx: %i context ptr: %lu\n", (int) shader, (size_t)ctx);
 
     if (!shader) {
         throw std::runtime_error("failed to create shader");
@@ -115,12 +115,12 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     }
     EGLERROR();
 
-    glEnable(GL_DEBUG_OUTPUT_KHR);
-    GLERROR();
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
-    GLERROR();
-    glDebugMessageCallbackKHR(on_gl_error, nullptr);
-    GLERROR();
+    // glEnable(GL_DEBUG_OUTPUT_KHR);
+    // GLERROR();
+    // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);
+    // GLERROR();
+    // glDebugMessageCallbackKHR(on_gl_error, nullptr);
+    // GLERROR();
 
     m_programs.reserve(5);
     m_programs[0] = make_program(VERTEX_SOURCE, NONE_FRAGMENT_SOURCE);

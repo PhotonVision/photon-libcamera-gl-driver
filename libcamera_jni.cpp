@@ -30,26 +30,6 @@ extern "C" {
 // We use jlongs like pointers, so they better be large enough
 static_assert(sizeof(void *) <= sizeof(jlong));
 
-JNIEXPORT jstring Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
-    JNIEnv *env, jclass) {
-
-    std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
-
-    // Yeet all USB cameras (I hope)
-    auto rem = std::remove_if(cameras.begin(), cameras.end(), [](auto &cam) {
-        return cam->id().find("/usb") != std::string::npos;
-    });
-    cameras.erase(rem, cameras.end());
-
-    if (cameras.empty())
-        return env->NewStringUTF("");
-
-    // Grab model from the first camera in the list
-    auto cam = cameras[0];
-    auto model = cam->properties().get(libcamera::properties::Model).value();
-    return env->NewStringUTF(model.c_str());
-}
-
 JNIEXPORT jboolean
 Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *env, jclass) {
     // TODO
@@ -69,13 +49,38 @@ Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass,
     });
     cameras.erase(rem, cameras.end());
 
-    if (cameras.empty())
-        return 0;
+    if (cameras.empty()) {
+        runner = 0;
+        return false;
+    }
 
     // Otherwise, just create the first camera left
     runner = new CameraRunner(width, height, fps, cameras[0]);
     return true;
 }
+
+JNIEXPORT jint Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
+    JNIEnv *env, jclass clazz) {
+
+    bool runner_exists = runner > 0;
+    if (!runner_exists) {
+        Java_org_photonvision_raspi_LibCameraJNI_createCamera(env, clazz,
+                                                      320, 240, 30);
+    }
+
+    if (!runner) {
+        return 0;
+    }
+   
+    jint model = runner->model();
+
+    if (!runner_exists) {
+        Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(env, clazz);
+    }
+
+    return model;
+}
+
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_startCamera(JNIEnv *, jclass) {
