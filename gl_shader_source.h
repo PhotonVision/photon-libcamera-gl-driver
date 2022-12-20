@@ -107,7 +107,6 @@ static constexpr const char *TILING_FRAGMENT_SOURCE =
 
 static constexpr const char *THRESHOLDING_FRAGMENT_SOURCE =
         "#version 100\n"
-        "#extension GL_OES_EGL_image_external : require\n"
         ""
         "precision lowp float;"
         "precision lowp int;"
@@ -128,8 +127,13 @@ static constexpr const char *THRESHOLDING_FRAGMENT_SOURCE =
         "      min_so_far = min(min_so_far, cur.y);"
         "    }"
         "  }"
-        "  float mean = (max_so_far + min_so_far) / 2.0;"
-        "  float thresholded = step(mean, texture2D(tex, uv).w);"
+        ""
+        "  float gray = texture2D(tex, texcoord).w;"
         "  vec3 color = texture2D(tex, texcoord).rgb;"
+        "  float output = 0.5;"
+        "  if (max_so_far - min_so_far > 6 / 255) {"
+        "    float mean = min_so_far + (max_so_far - min_so_far) / 2.0;"
+        "    output = step(mean, gray);"
+        "  }"
         "  gl_FragColor = vec4(color.bgr, thresholded);"
         "}";
