@@ -61,6 +61,7 @@ class CameraRunner {
     struct GpuQueueData {
         int fd;
         ProcessType type;
+        uint64_t captureTimestamp;
     };
 
     std::thread m_threshold;

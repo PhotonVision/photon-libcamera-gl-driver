@@ -17,6 +17,7 @@ using latch = Latch;
 #include <unistd.h>
 
 #include <libcamera/property_ids.h>
+#include <libcamera/control_ids.h>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -74,6 +75,17 @@ void CameraRunner::start() {
             // printf("Threshold thread!\n");
             auto request = camera_queue.pop();
 
+            /*
+            From libcamera docs:
+
+            The timestamp, expressed in nanoseconds, represents a monotonically
+            increasing counter since the system boot time, as defined by the
+            Linux-specific CLOCK_BOOTTIME clock id.
+            */
+            uint64_t sensorTimestamp = static_cast<uint64_t>(request->metadata()
+                            .get(libcamera::controls::SensorTimestamp)
+                            .value_or(0));
+
             if (!request) {
                 break;
             }
@@ -107,7 +119,7 @@ void CameraRunner::start() {
 
 
             if (out != 0) {
-                gpu_queue.push({out, type});
+                gpu_queue.push({out, type, sensorTimestamp});
             }
 
             std::chrono::duration<double, std::milli> elapsedMillis =
@@ -154,6 +166,7 @@ void CameraRunner::start() {
 
             // Save the current shader idx
             mat_pair.frameProcessingType = static_cast<int32_t>(data.type);
+            mat_pair.captureTimestamp = data.captureTimestamp;
 
             uint8_t *processed_out_buf = mat_pair.processed.data;
             uint8_t *color_out_buf = mat_pair.color.data;

@@ -92,16 +92,11 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setRotation(JNIEnv *, jclass, jint);
 
-/*
- * Class:     org_photonvision_raspi_LibCameraJNI
- * Method:    getFrameLatency
- * Signature: ()J
- */
-JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getFrameLatency(JNIEnv *, jclass);
-
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *, jclass);
+
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env, jclass);
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI

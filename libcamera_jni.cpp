@@ -216,8 +216,10 @@ Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env, jclass
 
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env, jclass) {
-    // TODO return the current libcamera timestamp in uS
-    return 0;
+    timespec ts;
+    clock_gettime(CLOCK_BOOTTIME, &ts);
+    uint64_t now_nsec = (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
+    return (jlong)now_nsec;
 }
 
 

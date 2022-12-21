@@ -18,11 +18,11 @@ void test_res(int width, int height) {
     Java_org_photonvision_raspi_LibCameraJNI_createCamera(nullptr, nullptr,
                                                           width, height, 30);
     // Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 1);
-    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, (jint)ProcessType_::Adaptive);
+    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, (jint)ProcessType_::Hsv);
     Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr, true, true);
     Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
-    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 20 * 800);
+    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 5 * 800);
     Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr, 0.0);
     Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 10);
 
@@ -35,6 +35,10 @@ void test_res(int width, int height) {
 
             cv::Mat color_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(nullptr, nullptr);
             cv::Mat threshold_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(nullptr, nullptr);
+
+            uint64_t captureTime = Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(nullptr, nullptr);
+            uint64_t now = Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(nullptr, nullptr);
+            printf("now %lu capture %lu latency %f\n", now, captureTime, (double)(now - captureTime) / 1000000.0);
 
             i++;
             static char arr[50];
@@ -53,9 +57,9 @@ void test_res(int width, int height) {
 
 int main() {
     // test_res(1920, 1080);
-    // test_res(320, 240);
+    test_res(320, 240);
     // test_res(640, 480);
-    test_res(960, 720);
+    // test_res(960, 720);
     // // test_res(2592, 1944);
     // test_res(2592/2, 1944/2);
     // test_res(1920, 1080);
