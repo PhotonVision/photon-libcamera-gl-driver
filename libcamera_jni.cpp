@@ -39,7 +39,7 @@ Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *env, jclass) {
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass,
                                                       jint width, jint height,
-                                                      jint fps) {
+                                                      jint rotation) {
 
     std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
 
@@ -55,7 +55,7 @@ Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass,
     }
 
     // Otherwise, just create the first camera left
-    runner = new CameraRunner(width, height, fps, cameras[0]);
+    runner = new CameraRunner(width, height, rotation, cameras[0]);
     return true;
 }
 
@@ -126,7 +126,7 @@ Java_org_photonvision_raspi_LibCameraJNI_setThresholds(JNIEnv *env, jclass,
     // printf("Setting HSV to %f-%f %f-%f %f-%f\n", hl, hu, sl, su, vl, vu);
 
     // TODO hue inversion
-    runner->thresholder().setHsvThresholds(hl, sl, vl, hu, su, vu);
+    runner->thresholder().setHsvThresholds(hl, sl, vl, hu, su, vu, hueInverted);
     return true;
 }
 

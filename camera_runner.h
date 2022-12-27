@@ -31,7 +31,7 @@ struct MatPair {
 // is undefined behavior.
 class CameraRunner {
   public:
-    CameraRunner(int width, int height, int fps,
+    CameraRunner(int width, int height, int rotation,
                  std::shared_ptr<libcamera::Camera> cam);
     ~CameraRunner();
 
@@ -66,7 +66,7 @@ class CameraRunner {
 
     std::thread m_threshold;
     std::shared_ptr<libcamera::Camera> m_camera;
-    int m_width, m_height, m_fps;
+    int m_width, m_height;
 
     CameraGrabber grabber;
     ConcurrentBlockingQueue<libcamera::Request *> camera_queue{};
@@ -81,7 +81,6 @@ class CameraRunner {
     std::thread threshold;
     std::thread display;
 
-    int32_t m_rotation = 0;
 
     std::atomic<int> m_shaderIdx = 0;
 

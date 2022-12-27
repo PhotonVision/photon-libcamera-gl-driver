@@ -29,10 +29,10 @@ static double approxRollingAverage(double avg, double new_sample) {
     return avg;
 }
 
-CameraRunner::CameraRunner(int width, int height, int fps,
+CameraRunner::CameraRunner(int width, int height, int rotation,
                            std::shared_ptr<libcamera::Camera> cam)
-    : m_camera(std::move(cam)), m_width(width), m_height(height), m_fps(fps),
-      grabber(m_camera, m_width, m_height, m_fps), m_thresholder(m_width, m_height),
+    : m_camera(std::move(cam)), m_width(width), m_height(height),
+      grabber(m_camera, m_width, m_height, rotation), m_thresholder(m_width, m_height),
       allocer("/dev/dma_heap/linux,cma") {
 
 
@@ -75,16 +75,6 @@ void CameraRunner::start() {
             // printf("Threshold thread!\n");
             auto request = camera_queue.pop();
 
-            /*
-            From libcamera docs:
-
-            The timestamp, expressed in nanoseconds, represents a monotonically
-            increasing counter since the system boot time, as defined by the
-            Linux-specific CLOCK_BOOTTIME clock id.
-            */
-            uint64_t sensorTimestamp = static_cast<uint64_t>(request->metadata()
-                            .get(libcamera::controls::SensorTimestamp)
-                            .value_or(0));
 
             if (!request) {
                 break;
@@ -119,6 +109,17 @@ void CameraRunner::start() {
 
 
             if (out != 0) {
+                /*
+                From libcamera docs:
+
+                The timestamp, expressed in nanoseconds, represents a monotonically
+                increasing counter since the system boot time, as defined by the
+                Linux-specific CLOCK_BOOTTIME clock id.
+                */
+                uint64_t sensorTimestamp = static_cast<uint64_t>(request->metadata()
+                                .get(libcamera::controls::SensorTimestamp)
+                                .value_or(0));
+
                 gpu_queue.push({out, type, sensorTimestamp});
             }
 

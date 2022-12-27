@@ -7,13 +7,8 @@
 #include <libcamera/property_ids.h>
 
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
-                             int width, int height, int fps)
-    : m_buf_allocator(camera), m_camera(std::move(camera)), m_fps(fps), m_cameraExposureProfiles(std::nullopt) {
-
-    if (m_fps < 1) {
-        printf("Got fps of %i???\n", m_fps);
-        m_fps = 1;
-    }
+                             int width, int height, int rotation)
+    : m_buf_allocator(camera), m_camera(std::move(camera)), m_cameraExposureProfiles(std::nullopt) {
 
     if (m_camera->acquire()) {
         throw std::runtime_error("failed to acquire camera");
@@ -47,7 +42,14 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
 
     config->at(0).size.width = width;
     config->at(0).size.height = height;
-    config->transform = libcamera::Transform::Identity;
+
+    printf("Rotation = %i\n", rotation);
+    if (rotation == 180) {
+        using namespace libcamera;
+        config->transform = Transform::HFlip * Transform::VFlip * libcamera::Transform::Identity;
+    } else {
+        config->transform = libcamera::Transform::Identity;
+    }
 
     if (config->validate() == libcamera::CameraConfiguration::Invalid) {
         throw std::runtime_error("failed to validate config");

@@ -384,11 +384,14 @@ int GlHsvThresholder::testFrame(
     if (type == ProcessType::Hsv) {
         auto lll = glGetUniformLocation(initial_program, "lowerThresh");
         auto uuu = glGetUniformLocation(initial_program, "upperThresh");
+        auto invert = glGetUniformLocation(initial_program, "invertHue");
 
         std::lock_guard lock{m_hsv_mutex};
         glUniform3f(lll, m_hsvLower[0], m_hsvLower[1], m_hsvLower[2]);
         GLERROR();
         glUniform3f(uuu, m_hsvUpper[0], m_hsvUpper[1], m_hsvUpper[2]);
+        GLERROR();
+        glUniform1i(invert, m_invertHue);
         GLERROR();
     }
 
@@ -519,7 +522,8 @@ void GlHsvThresholder::returnBuffer(int fd) {
 }
 
 void GlHsvThresholder::setHsvThresholds(double hl, double sl, double vl,
-                                        double hu, double su, double vu) {
+                                        double hu, double su, double vu,
+                                        bool hueInverted) {
     std::lock_guard lock{m_hsv_mutex};
     m_hsvLower[0] = hl;
     m_hsvLower[1] = sl;
@@ -528,4 +532,5 @@ void GlHsvThresholder::setHsvThresholds(double hl, double sl, double vl,
     m_hsvUpper[0] = hu;
     m_hsvUpper[1] = su;
     m_hsvUpper[2] = vu;
+    m_invertHue = hueInverted;
 }

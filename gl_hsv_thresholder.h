@@ -51,9 +51,10 @@ class GlHsvThresholder {
      * @param hu Upper hue
      * @param su Sat Upper
      * @param vu Value Upper
+     * @param hueInverted if the range is [hl, hu] or [hu..180] | [0..hl]
      */
     void setHsvThresholds(double hl, double sl, double vl, double hu, double su,
-                          double vu);
+                          double vu, bool hueInverted);
 
 
   private:
@@ -78,4 +79,5 @@ class GlHsvThresholder {
     std::mutex m_hsv_mutex;
     double m_hsvLower[3] = {0}; // Hue, sat, value, in [0,1]
     double m_hsvUpper[3] = {0}; // Hue, sat, value, in [0,1]
+    bool m_invertHue;
 };

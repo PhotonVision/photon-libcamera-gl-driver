@@ -15,16 +15,18 @@ enum class ProcessType_: int32_t {
 };
 
 void test_res(int width, int height) {
+    int rotation = 180;
     Java_org_photonvision_raspi_LibCameraJNI_createCamera(nullptr, nullptr,
-                                                          width, height, 30);
+                                                          width, height, rotation);
     // Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 1);
     Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, (jint)ProcessType_::Hsv);
     Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr, true, true);
     Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
-    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 5 * 800);
+    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 80 * 800);
     Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr, 0.0);
-    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 10);
+    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 20);
+    Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(nullptr, nullptr, true);
 
     auto start = std::chrono::steady_clock::now();
 

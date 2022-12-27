@@ -24,7 +24,7 @@ struct CameraSettings {
 class CameraGrabber {
   public:
     explicit CameraGrabber(std::shared_ptr<libcamera::Camera> camera, int width,
-                           int height, int fpsActual);
+                           int height, int rotation);
     ~CameraGrabber();
 
     const libcamera::StreamConfiguration &streamConfiguration();
@@ -49,7 +49,6 @@ class CameraGrabber {
     libcamera::FrameBufferAllocator m_buf_allocator;
     std::vector<std::unique_ptr<libcamera::Request>> m_requests;
     std::shared_ptr<libcamera::Camera> m_camera;
-    int m_fps;
     CameraModel m_model;
     std::optional<std::array<libcamera::ControlValue, 4>> m_cameraExposureProfiles;
     std::unique_ptr<libcamera::CameraConfiguration> m_config;
