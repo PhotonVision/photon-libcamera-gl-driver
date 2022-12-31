@@ -83,7 +83,7 @@ static constexpr const char *GRAY_FRAGMENT_SOURCE =
         "    vec3 color = pow(gammaColor, vec3(2.0));"
         "    float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));"
         "    float gammaGray = sqrt(gray);"
-        "    gl_FragColor = vec4(color.rgb, gammaGray);"
+        "    gl_FragColor = vec4(color.bgr, gammaGray);"
         "}";
 
 static constexpr const char *TILING_FRAGMENT_SOURCE =
