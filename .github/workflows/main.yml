@@ -35,3 +35,22 @@ jobs:
       with:
         name: libcamera-meme
         path: build-pi/libcamera_meme
+
+      # Push to dev release
+      - uses: pyTooling/Actions/releaser@r0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: 'Dev'
+          rm: true
+          files: |
+            build-pi/*.so
+        if: github.event_name == 'push'
+
+      # Push to actual release, if tagged
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build-pi/*.so
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
