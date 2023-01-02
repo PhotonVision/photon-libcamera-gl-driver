@@ -151,9 +151,9 @@ void CameraGrabber::setControls(libcamera::Request *request) {
 
         controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
         if (m_model == OV9281) {
-            controls_.set(controls::AeExposureMode, controls::ExposureShort);
-        } else {
             controls_.set(controls::AeExposureMode, controls::ExposureNormal);
+        } else {
+            controls_.set(controls::AeExposureMode, controls::ExposureShort);
         }
 
         // 1/fps=seconds
