@@ -182,6 +182,11 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                                                // specified the exposure time
     }
 
+
+    const std::array< const ControlValue, 4 > afcontrols = libcamera::controls::AfStateValues;
+   for(const auto& s: afcontrols)
+        std::cout << s.toString() << ' ';   
+
     if (m_settings.doAutoFocus) {
         controls_.set(controls::AfMode,
                       controls::AfModeContinuous); // auto focus enable
