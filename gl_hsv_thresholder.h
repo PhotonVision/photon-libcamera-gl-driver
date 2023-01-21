@@ -16,7 +16,7 @@
 
 #include "headless_opengl.h"
 
-enum class ProcessType: int32_t {
+enum class ProcessType : int32_t {
     None = 0,
     Hsv,
     Gray,
@@ -55,7 +55,6 @@ class GlHsvThresholder {
      */
     void setHsvThresholds(double hl, double sl, double vl, double hu, double su,
                           double vu, bool hueInverted);
-
 
   private:
     int m_width;

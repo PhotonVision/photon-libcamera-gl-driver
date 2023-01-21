@@ -40,10 +40,8 @@ static const EGLint configAttribs[] = {EGL_RED_SIZE,
                                        EGL_NONE};
 
 static const EGLint contextAttribs[] = {
-    EGL_CONTEXT_CLIENT_VERSION, 2,
-    EGL_CONTEXT_FLAGS_KHR, EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR,
-    EGL_NONE
-};
+    EGL_CONTEXT_CLIENT_VERSION, 2, EGL_CONTEXT_FLAGS_KHR,
+    EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR, EGL_NONE};
 
 HeadlessData createHeadless() {
     std::vector<std::string> paths = {"/dev/dri/card1", "/dev/dri/card0"};

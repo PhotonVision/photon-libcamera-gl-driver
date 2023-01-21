@@ -18,13 +18,13 @@
 struct MatPair {
     cv::Mat color;
     cv::Mat processed;
-    long captureTimestamp; // In libcamera time units, hopefully uS? TODO actually implement
+    long captureTimestamp;       // In libcamera time units, hopefully uS? TODO
+                                 // actually implement
     int32_t frameProcessingType; // enum value of shader run on the image
 
     MatPair() = default;
     explicit MatPair(int width, int height)
-        : color(height, width, CV_8UC3),
-          processed(height, width, CV_8UC1) {}
+        : color(height, width, CV_8UC3), processed(height, width, CV_8UC1) {}
 };
 
 // Note: destructing this class without calling `stop` if `start` was called
@@ -55,9 +55,7 @@ class CameraRunner {
 
     void requestShaderIdx(int idx);
 
-
   private:
-
     struct GpuQueueData {
         int fd;
         ProcessType type;
@@ -80,7 +78,6 @@ class CameraRunner {
 
     std::thread threshold;
     std::thread display;
-
 
     std::atomic<int> m_shaderIdx = 0;
 
