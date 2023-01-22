@@ -182,12 +182,11 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                                                // specified the exposure time
     }
 
-
-    const std::array< const ControlValue, 4 > afcontrols = libcamera::controls::AfStateValues;
-   for(const auto& s: afcontrols)
-        std::cout << s.toString() << ' ';   
-
+    // TODO: Check if autofocus is supported.
+    // If there is no AF algorithm, then a fail status will be reported
+    // at that point, we can temporarily disable autofocus
     if (m_settings.doAutoFocus) {
+        printf("Enabling autofocus\n");
         controls_.set(controls::AfMode,
                       controls::AfModeContinuous); // auto focus enable
     } else {
