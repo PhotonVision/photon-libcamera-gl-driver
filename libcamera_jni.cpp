@@ -285,4 +285,14 @@ Java_org_photonvision_raspi_LibCameraJNI_setAutoFocus(JNIEnv *env, jclass,
     return true;
 }
 
+JNIEXPORT jint JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getAutofocusStatus(JNIEnv *env,
+                                                            jclass) {
+    if (!runner) {
+        return 3;
+    }
+
+    return runner->cameraGrabber().getAutofocusStatus();
+}
+
 } // extern "C"

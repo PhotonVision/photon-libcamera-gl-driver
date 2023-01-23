@@ -121,6 +121,12 @@ Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass);
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *, jclass, jint);
 
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setAutoFocus(JNIEnv *env, jclass,
+                                                      jboolean doAutoFocus); 
+JNIEXPORT jint JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getAutofocusStatus(JNIEnv *env, jclass); 
+
 #ifdef __cplusplus
 }
 #endif

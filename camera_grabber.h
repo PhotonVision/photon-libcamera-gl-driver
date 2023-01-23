@@ -35,6 +35,8 @@ class CameraGrabber {
 
     inline CameraSettings &cameraSettings() { return m_settings; }
 
+    int getAutofocusStatus();
+
     // Note: these 3 functions must be protected by mutual exclusion.
     // Failure to do so will result in UB.
     void startAndQueue();
@@ -55,6 +57,8 @@ class CameraGrabber {
     std::unique_ptr<libcamera::CameraConfiguration> m_config;
 
     std::optional<std::function<void(libcamera::Request *)>> m_onData;
+
+    int afState;
 
     CameraSettings m_settings{};
     bool running = false;

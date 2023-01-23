@@ -182,16 +182,19 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                                                // specified the exposure time
     }
 
-    // TODO: Check if autofocus is supported.
-    // If there is no AF algorithm, then a fail status will be reported
-    // at that point, we can temporarily disable autofocus
     if (m_settings.doAutoFocus) {
-        printf("Enabling autofocus\n");
+        printf("Starting autofocus...\n");
         controls_.set(controls::AfMode,
-                      controls::AfModeContinuous); // auto focus enable
+                      controls::AfModeAuto); // auto focus enable
+        controls_.set(controls::AfTrigger,
+                      controls::AfTriggerStart); // start a focus scan
+        m_settings.doAutoFocus = false;
+    }
+
+    if (auto result = controls_.get(libcamera::controls::AfState)) {
+        afState = *result;
     } else {
-        controls_.set(controls::AfMode,
-                      controls::AfModeManual); // auto focus enable
+        afState = controls::AfStateFailed;
     }
 
     controls_.set(controls::ExposureValue, 0);
@@ -200,6 +203,8 @@ void CameraGrabber::setControls(libcamera::Request *request) {
         controls_.set(controls::Sharpness, 1);
     }
 }
+
+int CameraGrabber::getAutofocusStatus() { return afState; }
 
 void CameraGrabber::startAndQueue() {
     running = true;
