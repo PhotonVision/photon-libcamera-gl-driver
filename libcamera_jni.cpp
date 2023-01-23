@@ -275,13 +275,13 @@ Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setAutoFocus(JNIEnv *env, jclass,
-                                                      jboolean doAutoFocus) {
+Java_org_photonvision_raspi_LibCameraJNI_setAutofocus(JNIEnv *env, jclass,
+                                                      jboolean doAutofocus) {
     if (!runner) {
         return false;
     }
 
-    runner->cameraGrabber().cameraSettings().doAutoFocus = doAutoFocus;
+    runner->cameraGrabber().cameraSettings().doAutofocus = doAutofocus;
     return true;
 }
 

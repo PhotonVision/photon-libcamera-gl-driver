@@ -182,13 +182,13 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                                                // specified the exposure time
     }
 
-    if (m_settings.doAutoFocus) {
+    if (m_settings.doAutofocus) {
         printf("Starting autofocus...\n");
         controls_.set(controls::AfMode,
                       controls::AfModeAuto); // auto focus enable
         controls_.set(controls::AfTrigger,
                       controls::AfTriggerStart); // start a focus scan
-        m_settings.doAutoFocus = false;
+        m_settings.doAutofocus = false;
     }
 
     if (auto result = controls_.get(libcamera::controls::AfState)) {

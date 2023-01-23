@@ -18,7 +18,7 @@ struct CameraSettings {
     float awbBlueGain = 1.5;
     float saturation = 1;
     bool doAutoExposure = false;
-    bool doAutoFocus = false;
+    bool doAutofocus = false;
 };
 
 class CameraGrabber {
