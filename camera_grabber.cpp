@@ -182,6 +182,18 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     if (m_model != OV7251 && m_model != OV9281) {
         controls_.set(controls::Sharpness, 1);
     }
+
+    auto supportedFlickers = controls_.get(controls::draft::SceneFlickerValues)
+    if (std::find(std::begin(supportedFlickers), std::end(supportedFlickers), controls::draft::SceneFlickerEnum::SceneFlicker60hz) != std::end(supportedFlickers)) {
+        // Hard-code 60hz compensation
+        controls_.set(controls::draft::SceneFlicker, controls::draft::SceneFlickerEnum::SceneFlicker60hz);
+    }
+
+    auto supportedNoise = controls_.get(controls::draft::NoiseReductionModeValues)
+    if (std::find(std::begin(supportedNoise), std::end(supportedNoise), controls::draft::NoiseReductionModeEnum::NoiseReductionModeOff) != std::end(supportedNoise)) {
+        // TODO test more noise reduction modes
+        controls_.set(controls::draft::NoiseReductionMode, controls::draft::NoiseReductionModeEnum::NoiseReductionModeOff);
+    }
 }
 
 void CameraGrabber::startAndQueue() {
