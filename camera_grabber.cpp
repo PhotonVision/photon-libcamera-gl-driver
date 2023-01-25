@@ -120,15 +120,19 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     using namespace libcamera;
 
     auto &controls_ = request->controls();
-    controls_.set(controls::AwbEnable, false); // AWB disabled
+    if (m_model != OV9281) {
+        controls_.set(controls::AwbEnable, false); // AWB disabled
+    }
     controls_.set(controls::AnalogueGain,
                  m_settings.analogGain); // Analog gain, min 1 max big number?
 
-    controls_.set(controls::ColourGains,
-                libcamera::Span<const float, 2>{
-                    {m_settings.awbRedGain,
-                    m_settings.awbBlueGain}}); // AWB gains, red and blue,
-                                                // unknown range
+    if (m_model != OV9281) {
+        controls_.set(controls::ColourGains,
+                    libcamera::Span<const float, 2>{
+                        {m_settings.awbRedGain,
+                        m_settings.awbBlueGain}}); // AWB gains, red and blue,
+                                                    // unknown range
+    }
 
     // Note about brightness: -1 makes everything look deep fried, 0 is probably best for most things
     controls_.set(libcamera::controls::Brightness,
@@ -146,7 +150,11 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                     true); // Auto exposure disabled
 
         controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
-        controls_.set(controls::AeExposureMode, controls::ExposureShort);
+        if (m_model == OV9281) {
+            controls_.set(controls::AeExposureMode, controls::ExposureNormal);
+        } else {
+            controls_.set(controls::AeExposureMode, controls::ExposureShort);
+        }
 
         // 1/fps=seconds
         // seconds * 1e6 = uS
