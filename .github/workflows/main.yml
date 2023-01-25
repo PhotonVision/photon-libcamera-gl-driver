@@ -19,7 +19,7 @@ jobs:
               image_url: raspios_lite_arm64:latest
               name: arm64
             - os: ubuntu-latest
-              image_url: raspios_lite:latest
+              image_url: raspios_lite:2022-04-04
               name: armhf
 
     runs-on: ${{ matrix.os }}
