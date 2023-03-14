@@ -21,11 +21,16 @@ jobs:
         bind_mount_repository: true
         commands: |
             apt-get update
-            apt-get install -y libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev openjdk-11-jdk
+            apt-get install -y libopencv-dev libegl1-mesa-dev cmake build-essential libdrm-dev libgbm-dev openjdk-11-jdk
+            wget https://github.com/ArduCAM/Arducam-Pivariety-V4L2-Driver/releases/download/libcamera-v0.0.5/libcamera-dev-0.0.12-bullseye-arm64.deb
+            dpkg -i libcamera-dev-0.0.12-bullseye-arm64.deb
+            apt-get -f install
             cmake -B build-pi -DCMAKE_BUILD_TYPE=Release
             cmake --build build-pi -j 4
 
     - run: find .
+    
+    - run: find / | grep -e "libcamera.so"
 
     - uses: actions/upload-artifact@master
       with:
