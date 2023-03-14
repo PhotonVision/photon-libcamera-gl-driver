@@ -62,16 +62,16 @@ Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass,
 JNIEXPORT jint Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
     JNIEnv *env, jclass clazz) {
 
-    bool runner_exists = runner > 0;
+    bool runner_exists = runner != nullptr;
     if (!runner_exists) {
-        Java_org_photonvision_raspi_LibCameraJNI_createCamera(env, clazz,
-                                                      320, 240, 30);
+        Java_org_photonvision_raspi_LibCameraJNI_createCamera(env, clazz, 320,
+                                                              240, 30);
     }
 
     if (!runner) {
         return 0;
     }
-   
+
     jint model = runner->model();
 
     if (!runner_exists) {
@@ -80,7 +80,6 @@ JNIEXPORT jint Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
 
     return model;
 }
-
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_startCamera(JNIEnv *, jclass) {
@@ -140,7 +139,8 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setExposure(
     return true;
 }
 
-JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
     JNIEnv *env, jclass, jboolean doAutoExposure) {
     if (!runner) {
         return false;
@@ -166,7 +166,7 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
     if (!runner) {
         return false;
     }
-    
+
     printf("Setting red %f blue %f\n", (float)red, (float)blue);
 
     runner->cameraGrabber().cameraSettings().awbRedGain = red;
@@ -196,9 +196,10 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
     return true;
 }
 
-
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jboolean copyIn, jboolean copyOut) {
+Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass,
+                                                         jboolean copyIn,
+                                                         jboolean copyOut) {
     if (!runner) {
         return false;
     }
@@ -210,18 +211,19 @@ Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jbool
 static MatPair pair = {};
 
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env,
+                                                             jclass) {
     return pair.captureTimestamp;
 }
 
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env,
+                                                               jclass) {
     timespec ts;
     clock_gettime(CLOCK_BOOTTIME, &ts);
     uint64_t now_nsec = (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
     return (jlong)now_nsec;
 }
-
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass) {
@@ -257,7 +259,7 @@ Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
-                                                            jint idx) {
+                                                           jint idx) {
     if (!runner) {
         return false;
     }
@@ -270,6 +272,27 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
 JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
     return pair.frameProcessingType;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setAutofocus(JNIEnv *env, jclass,
+                                                      jboolean doAutofocus) {
+    if (!runner) {
+        return false;
+    }
+
+    runner->cameraGrabber().cameraSettings().doAutofocus = doAutofocus;
+    return true;
+}
+
+JNIEXPORT jint JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getAutofocusStatus(JNIEnv *env,
+                                                            jclass) {
+    if (!runner) {
+        return 3;
+    }
+
+    return runner->cameraGrabber().getAutofocusStatus();
 }
 
 } // extern "C"

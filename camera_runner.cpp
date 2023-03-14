@@ -16,8 +16,8 @@ using latch = Latch;
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include <libcamera/property_ids.h>
 #include <libcamera/control_ids.h>
+#include <libcamera/property_ids.h>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -32,9 +32,8 @@ static double approxRollingAverage(double avg, double new_sample) {
 CameraRunner::CameraRunner(int width, int height, int rotation,
                            std::shared_ptr<libcamera::Camera> cam)
     : m_camera(std::move(cam)), m_width(width), m_height(height),
-      grabber(m_camera, m_width, m_height, rotation), m_thresholder(m_width, m_height),
-      allocer("/dev/dma_heap/linux,cma") {
-
+      grabber(m_camera, m_width, m_height, rotation),
+      m_thresholder(m_width, m_height), allocer("/dev/dma_heap/linux,cma") {
 
     grabber.setOnData(
         [&](libcamera::Request *request) { camera_queue.push(request); });
@@ -50,9 +49,7 @@ CameraRunner::~CameraRunner() {
     }
 }
 
-void CameraRunner::requestShaderIdx(int idx) {
-    m_shaderIdx = idx;
-}
+void CameraRunner::requestShaderIdx(int idx) { m_shaderIdx = idx; }
 
 void CameraRunner::setCopyOptions(bool copyIn, bool copyOut) {
     m_copyInput = copyIn;
@@ -75,7 +72,6 @@ void CameraRunner::start() {
             // printf("Threshold thread!\n");
             auto request = camera_queue.pop();
 
-
             if (!request) {
                 break;
             }
@@ -84,10 +80,13 @@ void CameraRunner::start() {
                               .at(grabber.streamConfiguration().stream())
                               ->planes();
 
-            for (int i = 0; i < 3; i++) {
-                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
-                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << " and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
-            }
+            //        for (int i = 0; i < 3; i++) {
+            // std::cout << "Plane " << (i + 1) << " has fd " <<
+            // planes[i].fd.get() << " with offset " << planes[i].offset <<
+            // std::endl; std::cout << "Plane " << (i + 1) << " has fd " <<
+            // planes[i].fd.get() << " with offset " << planes[i].offset << "
+            // and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
+            //      }
 
             std::array<GlHsvThresholder::DmaBufPlaneData, 3> yuv_data{{
                 {planes[0].fd.get(), static_cast<EGLint>(planes[0].offset),
@@ -102,23 +101,22 @@ void CameraRunner::start() {
 
             auto type = static_cast<ProcessType>(m_shaderIdx.load());
 
-            int out = m_thresholder.testFrame(yuv_data,
-                                    encodingFromColorspace(colorspace),
-                                    rangeFromColorspace(colorspace),
-                                              type);
-
+            int out = m_thresholder.testFrame(
+                yuv_data, encodingFromColorspace(colorspace),
+                rangeFromColorspace(colorspace), type);
 
             if (out != 0) {
                 /*
                 From libcamera docs:
 
-                The timestamp, expressed in nanoseconds, represents a monotonically
-                increasing counter since the system boot time, as defined by the
-                Linux-specific CLOCK_BOOTTIME clock id.
+                The timestamp, expressed in nanoseconds, represents a
+                monotonically increasing counter since the system boot time, as
+                defined by the Linux-specific CLOCK_BOOTTIME clock id.
                 */
-                uint64_t sensorTimestamp = static_cast<uint64_t>(request->metadata()
-                                .get(libcamera::controls::SensorTimestamp)
-                                .value_or(0));
+                uint64_t sensorTimestamp = static_cast<uint64_t>(
+                    request->metadata()
+                        .get(libcamera::controls::SensorTimestamp)
+                        .value_or(0));
 
                 gpu_queue.push({out, type, sensorTimestamp});
             }
@@ -127,8 +125,10 @@ void CameraRunner::start() {
                 steady_clock::now() - begintime;
             if (elapsedMillis > 0.9ms) {
                 // gpuTimeAvgMs =
-                //     approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
-                // std::cout << "GLProcess: " << elapsedMillis.count() << std::endl;
+                //     approxRollingAverage(gpuTimeAvgMs,
+                //     elapsedMillis.count());
+                // std::cout << "GLProcess: " << elapsedMillis.count() <<
+                // std::endl;
             }
 
             {
@@ -200,9 +200,9 @@ void CameraRunner::start() {
 
             // auto now = steady_clock::now();
             // std::chrono::duration<double, std::milli> elapsed =
-                // (now - lastTime);
-            // fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs, elapsed.count());
-            // printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs,
+            // (now - lastTime);
+            // fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs,
+            // elapsed.count()); printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs,
             //        1000.0 / fpsTimeAvgMs);
             // lastTime = now;
         }

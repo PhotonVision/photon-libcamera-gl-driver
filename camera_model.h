@@ -12,4 +12,4 @@ enum CameraModel {
     Unknown
 };
 
-CameraModel stringToModel(const std::string& model);
+CameraModel stringToModel(const std::string &model);

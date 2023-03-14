@@ -18,7 +18,7 @@ struct CameraSettings {
     float awbBlueGain = 1.5;
     float saturation = 1;
     bool doAutoExposure = false;
-    // float digitalGain = 100;
+    bool doAutofocus = false;
 };
 
 class CameraGrabber {
@@ -35,6 +35,8 @@ class CameraGrabber {
 
     inline CameraSettings &cameraSettings() { return m_settings; }
 
+    int getAutofocusStatus();
+
     // Note: these 3 functions must be protected by mutual exclusion.
     // Failure to do so will result in UB.
     void startAndQueue();
@@ -50,14 +52,16 @@ class CameraGrabber {
     std::vector<std::unique_ptr<libcamera::Request>> m_requests;
     std::shared_ptr<libcamera::Camera> m_camera;
     CameraModel m_model;
-    std::optional<std::array<libcamera::ControlValue, 4>> m_cameraExposureProfiles;
+    std::optional<std::array<libcamera::ControlValue, 4>>
+        m_cameraExposureProfiles;
     std::unique_ptr<libcamera::CameraConfiguration> m_config;
 
     std::optional<std::function<void(libcamera::Request *)>> m_onData;
 
+    int afState;
+
     CameraSettings m_settings{};
     bool running = false;
-
 
     void setControls(libcamera::Request *request);
 };

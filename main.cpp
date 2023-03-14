@@ -7,7 +7,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-enum class ProcessType_: int32_t {
+enum class ProcessType_ : int32_t {
     None = 0,
     Hsv,
     Gray,
@@ -16,37 +16,56 @@ enum class ProcessType_: int32_t {
 
 void test_res(int width, int height) {
     int rotation = 180;
-    Java_org_photonvision_raspi_LibCameraJNI_createCamera(nullptr, nullptr,
-                                                          width, height, rotation);
-    // Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 1);
-    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, (jint)ProcessType_::Hsv);
-    Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr, true, true);
+    Java_org_photonvision_raspi_LibCameraJNI_createCamera(
+        nullptr, nullptr, width, height, rotation);
+    // Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr,
+    // nullptr, 1);
+    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(
+        nullptr, nullptr, (jint)ProcessType_::Hsv);
+    Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr,
+                                                             true, true);
     Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
-    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 80 * 800);
-    Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr, 0.0);
-    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 20);
-    Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(nullptr, nullptr, true);
+    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr,
+                                                         80 * 800);
+    Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr,
+                                                           0.0);
+    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr,
+                                                           20);
+    Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(nullptr, nullptr,
+                                                             true);
 
     auto start = std::chrono::steady_clock::now();
 
-    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3))  {
-        bool ready = Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(nullptr, nullptr);
+    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3)) {
+        bool ready = Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(
+            nullptr, nullptr);
         if (ready) {
             static int i = 0;
 
-            cv::Mat color_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(nullptr, nullptr);
-            cv::Mat threshold_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(nullptr, nullptr);
+            cv::Mat color_mat =
+                *(cv::Mat *)
+                    Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(
+                        nullptr, nullptr);
+            cv::Mat threshold_mat =
+                *(cv::Mat *)
+                    Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(
+                        nullptr, nullptr);
 
-            uint64_t captureTime = Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(nullptr, nullptr);
-            uint64_t now = Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(nullptr, nullptr);
-            printf("now %lu capture %lu latency %f\n", now, captureTime, (double)(now - captureTime) / 1000000.0);
+            uint64_t captureTime =
+                Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(
+                    nullptr, nullptr);
+            uint64_t now =
+                Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(
+                    nullptr, nullptr);
+            printf("now %lu capture %lu latency %f\n", now, captureTime,
+                   (double)(now - captureTime) / 1000000.0);
 
             i++;
             static char arr[50];
-            snprintf(arr,sizeof(arr),"color_%i.png", i);
+            snprintf(arr, sizeof(arr), "color_%i.png", i);
             cv::imwrite(arr, color_mat);
-            snprintf(arr,sizeof(arr),"thresh_%i.png", i);
+            snprintf(arr, sizeof(arr), "thresh_%i.png", i);
             cv::imwrite(arr, threshold_mat);
         }
     }
