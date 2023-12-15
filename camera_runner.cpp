@@ -19,6 +19,9 @@ using latch = Latch;
 #include <libcamera/property_ids.h>
 #include <libcamera/control_ids.h>
 
+#include <sys/ioctl.h>
+#include <linux/dma-buf.h>
+
 using namespace std::chrono;
 using namespace std::chrono_literals;
 
@@ -84,11 +87,6 @@ void CameraRunner::start() {
                               .at(grabber.streamConfiguration().stream())
                               ->planes();
 
-            for (int i = 0; i < 3; i++) {
-                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << std::endl;
-                // std::cout << "Plane " << (i + 1) << " has fd " << planes[i].fd.get() << " with offset " << planes[i].offset << " and pitch " << static_cast<EGLint>(stride / 2) << std::endl;
-            }
-
             std::array<GlHsvThresholder::DmaBufPlaneData, 3> yuv_data{{
                 {planes[0].fd.get(), static_cast<EGLint>(planes[0].offset),
                  static_cast<EGLint>(stride)},
@@ -106,7 +104,6 @@ void CameraRunner::start() {
                                     encodingFromColorspace(colorspace),
                                     rangeFromColorspace(colorspace),
                                               type);
-
 
             if (out != 0) {
                 /*
@@ -177,6 +174,15 @@ void CameraRunner::start() {
             auto input_ptr = mmaped.at(data.fd);
             int bound = m_width * m_height;
 
+
+            {
+                struct dma_buf_sync dma_sync {};
+                dma_sync.flags = DMA_BUF_SYNC_START | DMA_BUF_SYNC_RW;
+                int ret = ::ioctl(data.fd, DMA_BUF_IOCTL_SYNC, &dma_sync);
+                if (ret)
+                    throw std::runtime_error("failed to start DMA buf sync");
+            }
+
             if (m_copyInput) {
                 for (int i = 0; i < bound; i++) {
                     std::memcpy(color_out_buf + i * 3, input_ptr + i * 4, 3);
@@ -187,6 +193,14 @@ void CameraRunner::start() {
                 for (int i = 0; i < bound; i++) {
                     processed_out_buf[i] = input_ptr[i * 4 + 3];
                 }
+            }
+            
+            {
+                struct dma_buf_sync dma_sync {};
+                dma_sync.flags = DMA_BUF_SYNC_END | DMA_BUF_SYNC_RW;
+                int ret = ::ioctl(data.fd, DMA_BUF_IOCTL_SYNC, &dma_sync);
+                if (ret)
+                    throw std::runtime_error("failed to start DMA buf sync");
             }
 
             m_thresholder.returnBuffer(data.fd);

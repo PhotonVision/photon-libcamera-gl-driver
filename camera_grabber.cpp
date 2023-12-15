@@ -122,21 +122,15 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     if (m_model != OV9281) {
         controls_.set(controls::AwbEnable, false); // AWB disabled
     }
-
-    controls_.set(controls::AwbEnable, true); // AWB Enable
-    controls_.set(controls::AwbMode, controls::AwbAuto); // AWB Enable
-
-
-    
     controls_.set(controls::AnalogueGain,
                  m_settings.analogGain); // Analog gain, min 1 max big number?
 
     if (m_model != OV9281) {
-        // controls_.set(controls::ColourGains,
-        //             libcamera::Span<const float, 2>{
-        //                 {m_settings.awbRedGain,
-        //                 m_settings.awbBlueGain}}); // AWB gains, red and blue,
-        //                                             // unknown range
+        controls_.set(controls::ColourGains,
+                    libcamera::Span<const float, 2>{
+                        {m_settings.awbRedGain,
+                        m_settings.awbBlueGain}}); // AWB gains, red and blue,
+                                                    // unknown range
     }
 
     // Note about brightness: -1 makes everything look deep fried, 0 is probably best for most things
@@ -186,6 +180,12 @@ void CameraGrabber::setControls(libcamera::Request *request) {
  
     if (m_model != OV7251 && m_model != OV9281) {
         controls_.set(controls::Sharpness, 1);
+    }
+
+    auto supportedNoise = controls_.get(controls::draft::NoiseReductionModeValues)
+    if (std::find(std::begin(supportedNoise), std::end(supportedNoise), controls::draft::NoiseReductionModeEnum::NoiseReductionModeOff) != std::end(supportedNoise)) {
+        // TODO test more noise reduction modes
+        controls_.set(controls::draft::NoiseReductionMode, controls::draft::NoiseReductionModeEnum::NoiseReductionModeOff);
     }
 }
 
