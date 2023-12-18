@@ -42,3 +42,7 @@ Or
 docker run -it --privileged --mount type=bind,source="$(pwd)",target=/opt/photon_sysroot_v2023.4.2/opt/photon-libcamera-gl-driver photon-libcamera-builder-entry:latest
 
 # git clone ${{ github.repositoryUrl }} && cd "$(basename "$_" .git)"
+
+
+rm -rf /var/lib/apt/lists/*
+locale-gen --purge POSTIX && echo 'Success!'
