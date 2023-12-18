@@ -13,7 +13,7 @@ jobs:
     steps:
     
     - uses: actions/checkout@v3
-    - uses: pguyot/arm-runner-action@v2
+    - uses: pguyot/arm-runner-action@HEAD
       with:
         base_image: raspi_4_bookworm:20230612
         cpu: cortex-a7
