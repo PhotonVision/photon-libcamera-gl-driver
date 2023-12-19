@@ -30,3 +30,19 @@ This should spit out the shared library into the build directory.
 
 Compile with `g++ -std=c++17 -o eglinfo eglinfo.c headless_opengl.cpp -lEGL -lGLESv2 -lgbm`, and then run with  `./eglinfo`
 
+## Chroot stuff
+
+Using our docker image and run with --privileged
+
+docker run -it --privileged --mount type=bind,source="$(pwd)",target=/opt/photon_sysroot_v2023.4.2/opt/photon-libcamera-gl-driver photon-libcamera-builder:latest
+/opt/photon_sysroot_v2023.4.2/opt/photon-libcamera-gl-driver/start_chroot.sh
+
+Or
+
+docker run -it --privileged --mount type=bind,source="$(pwd)",target=/opt/photon_sysroot_v2023.4.2/opt/photon-libcamera-gl-driver photon-libcamera-builder-entry:latest
+
+# git clone ${{ github.repositoryUrl }} && cd "$(basename "$_" .git)"
+
+
+rm -rf /var/lib/apt/lists/*
+locale-gen --purge POSTIX && echo 'Success!'

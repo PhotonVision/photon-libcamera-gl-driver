@@ -1,5 +1,7 @@
 .idea/
 .vscode
 build
+build-pi
 .cache/
 compile_commands.json
+photon_sysroot
