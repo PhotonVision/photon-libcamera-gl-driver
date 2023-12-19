@@ -19,7 +19,7 @@ jobs:
       id: cache
       with:
         path: $RUNNER_TEMP/photon_libcam_builder.img
-        key: ${{ hashFiles('**/test-cache.yml') }}-${{ hashFiles('**/*.sh') }}
+        key: ${{ hashFiles('**/*.yml') }}
     - uses: pguyot/arm-runner-action@HEAD
       id: install_deps
       if: steps.cache.outputs.cache-hit != 'true'
