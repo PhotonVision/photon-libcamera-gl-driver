@@ -39,7 +39,7 @@ jobs:
 
     - uses: pguyot/arm-runner-action@HEAD
       with:
-        base_image: file://$RUNNER_TEMP/test_cache.img
+        base_image: file://$RUNNER_TEMP/photon_libcam_builder.img
         cpu: cortex-a7
         image_additional_mb: 1500
         bind_mount_repository: true
