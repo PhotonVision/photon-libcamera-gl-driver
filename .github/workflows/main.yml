@@ -13,12 +13,37 @@ jobs:
     steps:
     
     - uses: actions/checkout@v3
+
+    # From https://github.com/pguyot/arm-runner-action/blob/main/.github/workflows/test-cache.yml
+    - uses: actions/cache@v3
+      id: cache
+      with:
+        path: $RUNNER_TEMP/photon_libcam_builder.img
+        key: ${{ hashFiles('**/test-cache.yml') }}-${{ hashFiles('**/*.sh') }}
+    - uses: pguyot/arm-runner-action@HEAD
+      id: install_deps
+      if: steps.cache.outputs.cache-hit != 'true'
+      with:
+        # we don't want to optimize as it's two-stage
+        optimize_image: no
+        image_additional_mb: 1500
+        base_image: https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
+        commands: |
+            apt-get update
+            apt-get install -y libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev default-jdk openjdk-17-jdk
+
+    - name: Move and rename image with dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        mv ${{ steps.install_deps.outputs.image }} $RUNNER_TEMP/photon_libcam_builder.img
+
     - uses: pguyot/arm-runner-action@HEAD
       with:
-        base_image: raspi_4_bookworm:20230612
+        base_image: file://$RUNNER_TEMP/test_cache.img
         cpu: cortex-a7
         image_additional_mb: 1500
         bind_mount_repository: true
+        # Update again anyways to pull down the latest libcamera et al
         commands: |
             apt-get update
             apt-get install -y libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev default-jdk openjdk-17-jdk
