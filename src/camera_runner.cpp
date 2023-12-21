@@ -123,8 +123,8 @@ void CameraRunner::start() {
             std::chrono::duration<double, std::milli> elapsedMillis =
                 steady_clock::now() - begintime;
             if (elapsedMillis > 0.9ms) {
-                // gpuTimeAvgMs =
-                //     approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
+                gpuTimeAvgMs =
+                    approxRollingAverage(gpuTimeAvgMs, elapsedMillis.count());
                 // std::cout << "GLProcess: " << elapsedMillis.count() << std::endl;
             }
 
@@ -212,13 +212,12 @@ void CameraRunner::start() {
             //     approxRollingAverage(copyTimeAvgMs, elapsedMillis.count());
             // std::cout << "Copy: " << copyTimeAvgMs << std::endl;
 
-            // auto now = steady_clock::now();
-            // std::chrono::duration<double, std::milli> elapsed =
-                // (now - lastTime);
-            // fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs, elapsed.count());
-            // printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs,
-            //        1000.0 / fpsTimeAvgMs);
-            // lastTime = now;
+            auto now = steady_clock::now();
+            std::chrono::duration<double, std::milli> elapsed =
+                (now - lastTime);
+            fpsTimeAvgMs = approxRollingAverage(fpsTimeAvgMs, elapsed.count());
+            // printf("Delta %.2f FPS: %.2f\n", fpsTimeAvgMs, 1000.0 / fpsTimeAvgMs);
+            lastTime = now;
         }
 
         for (const auto &[fd, pointer] : mmaped) {

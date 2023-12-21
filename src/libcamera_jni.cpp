@@ -23,8 +23,6 @@
 #include "headless_opengl.h"
 #include <optional>
 
-std::optional<HeadlessData> data;
-
 extern "C" {
 
 #include <jni.h>
@@ -34,22 +32,11 @@ static_assert(sizeof(void *) <= sizeof(jlong));
 
 JNIEXPORT jboolean
 Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *env, jclass) {
-    return static_cast<jboolean>(data);
+    // todo
+    return true;
 }
 
-JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_createContext(JNIEnv *env, jclass) {
-    if (!data) {
-        data = createHeadless();
-    }
-
-    return static_cast<jboolean>(data);
-}
-
-JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass,
-                                                      jint width, jint height,
-                                                      jint rotation) {
+JNIEXPORT jobjectArray JNICALL Java_org_photonvision_raspi_LibCameraJNI_getCameraNames(JNIEnv *env, jclass) {
 
     std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
 
@@ -59,51 +46,65 @@ Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass,
     });
     cameras.erase(rem, cameras.end());
 
-    if (cameras.empty()) {
-        runner = 0;
-        return false;
+    jobjectArray ret;
+    int i;
+
+    // https://stackoverflow.com/a/21768693
+    ret = (jobjectArray)env->NewObjectArray(cameras.size(),
+                                            env->FindClass("java/lang/String"),
+                                            NULL);
+    for (i = 0; i < cameras.size(); i++)
+        env->SetObjectArrayElement(ret, i,
+                                   env->NewStringUTF(cameras[i]->id().c_str()));
+
+    return (ret);
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_createCamera(JNIEnv *env, jclass, jstring name,
+                                                      jint width, jint height,
+                                                      jint rotation) {
+
+    std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
+
+    const char *c_name = env->GetStringUTFChars(name, 0);
+
+    for (auto& c : cameras) {
+        if (strcmp(c->id().c_str(), c_name) ==0) {
+            // Otherwise, just create the first camera left
+            return reinterpret_cast<jlong>(new CameraRunner(width, height, rotation, cameras[0]));
+        }
     }
 
-    // Otherwise, just create the first camera left
-    runner = new CameraRunner(width, height, rotation, cameras[0]);
-    return true;
+    env->ReleaseStringUTFChars(name, c_name);
+
+    return 0;
 }
 
 JNIEXPORT jint Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
-    JNIEnv *env, jclass clazz) {
+    JNIEnv *env, jclass clazz, jlong runner_) {
 
-    bool runner_exists = runner != 0;
-    if (!runner_exists) {
-        Java_org_photonvision_raspi_LibCameraJNI_createCamera(env, clazz,
-                                                      320, 240, 30);
-    }
-
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
-        return 0;
+        return false;
     }
-   
-    jint model = runner->model();
 
-    if (!runner_exists) {
-        Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(env, clazz);
-    }
+    jint model = runner->model();
 
     return model;
 }
 
-
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_startCamera(JNIEnv *, jclass) {
-    if (!runner) {
-        return false;
-    }
+Java_org_photonvision_raspi_LibCameraJNI_startCamera(JNIEnv *, jclass, jlong runner_) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
 
     runner->start();
     return true;
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_stopCamera(JNIEnv *, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_stopCamera(JNIEnv *, jclass, jlong runner_) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -113,7 +114,8 @@ Java_org_photonvision_raspi_LibCameraJNI_stopCamera(JNIEnv *, jclass) {
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(JNIEnv *env, jclass, jlong runner_) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -124,11 +126,12 @@ Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(JNIEnv *env, jclass) {
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setThresholds(JNIEnv *env, jclass,
+Java_org_photonvision_raspi_LibCameraJNI_setThresholds(JNIEnv *env, jclass, jlong runner_,
                                                        jdouble hl, jdouble sl,
                                                        jdouble vl, jdouble hu,
                                                        jdouble su, jdouble vu,
                                                        jboolean hueInverted) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -141,7 +144,8 @@ Java_org_photonvision_raspi_LibCameraJNI_setThresholds(JNIEnv *env, jclass,
 }
 
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setExposure(
-    JNIEnv *env, jclass, jint exposure) {
+    JNIEnv *env, jclass, jlong runner_, jint exposure) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -150,8 +154,10 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setExposure(
     return true;
 }
 
-JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
-    JNIEnv *env, jclass, jboolean doAutoExposure) {
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
+    JNIEnv *env, jclass, jlong runner_, jboolean doAutoExposure) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -161,8 +167,9 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAutoExpos
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setBrightness(JNIEnv *env, jclass,
+Java_org_photonvision_raspi_LibCameraJNI_setBrightness(JNIEnv *env, jclass, jlong runner_,
                                                        jdouble brightness) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -172,11 +179,12 @@ Java_org_photonvision_raspi_LibCameraJNI_setBrightness(JNIEnv *env, jclass,
 }
 
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
-    JNIEnv *env, jclass, jdouble red, jdouble blue) {
+    JNIEnv *env, jclass, jlong runner_, jdouble red, jdouble blue) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
-    
+
     printf("Setting red %f blue %f\n", (float)red, (float)blue);
 
     runner->cameraGrabber().cameraSettings().awbRedGain = red;
@@ -185,8 +193,9 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *env, jclass,
+Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *env, jclass, jlong runner_,
                                                        jdouble analog) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -196,7 +205,8 @@ Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *env, jclass,
 }
 
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
-    JNIEnv *env, jclass, jint rotationOrdinal) {
+    JNIEnv *env, jclass, jlong runner_, jint rotationOrdinal) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -206,9 +216,11 @@ JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setRotation(
     return true;
 }
 
-
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jboolean copyIn, jboolean copyOut) {
+Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jlong runner_,
+                                                         jboolean copyIn,
+                                                         jboolean copyOut) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -217,57 +229,81 @@ Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(JNIEnv *, jclass, jbool
     return true;
 }
 
-static MatPair pair = {};
 
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env, jclass) {
-    return pair.captureTimestamp;
-}
-
-JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env,
+                                                               jclass) {
     timespec ts;
     clock_gettime(CLOCK_BOOTTIME, &ts);
     uint64_t now_nsec = (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
     return (jlong)now_nsec;
 }
 
-
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass) {
+Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass, jlong runner_) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         // NULL
         return false;
     }
 
-    pair = runner->outgoing.take();
-    return true;
+    MatPair *pair = new MatPair();
+    *pair = runner->outgoing.take();
+    return reinterpret_cast<jlong>(pair);
 }
 
 JNIEXPORT jlong JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *env, jclass) {
-    if (!runner) {
+Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *env, jclass, jlong pair_) {
+    MatPair *pair = reinterpret_cast<MatPair*>(pair_);
+    if (!pair) {
         // NULL
         return 0;
     }
 
-    return reinterpret_cast<jlong>(new cv::Mat(std::move(pair.color)));
+    return reinterpret_cast<jlong>(new cv::Mat(std::move(pair->color)));
 }
 
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
-                                                            jclass) {
-    if (!runner) {
+                                                            jclass, jlong pair_) {
+    MatPair *pair = reinterpret_cast<MatPair*>(pair_);
+    if (!pair) {
         // NULL
         return 0;
     }
 
-    return reinterpret_cast<jlong>(new cv::Mat(std::move(pair.processed)));
+    return reinterpret_cast<jlong>(new cv::Mat(std::move(pair->processed)));
+}
+
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *env,
+                                                             jclass, jlong pair_) {
+    MatPair *pair = reinterpret_cast<MatPair*>(pair_);
+    if (!pair) {
+        // NULL
+        return 0;
+    }
+
+    return pair->captureTimestamp;
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_releasePair(JNIEnv *env,
+                                                             jclass, jlong pair_) {
+    MatPair *pair = reinterpret_cast<MatPair*>(pair_);
+    if (!pair) {
+        // NULL
+        return false;
+    }
+
+    delete pair;
+    return true;
 }
 
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
-                                                            jint idx) {
+                                                           jint idx, jlong runner_) {
+    CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;
     }
@@ -278,8 +314,13 @@ Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
 }
 
 JNIEXPORT jint JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass) {
-    return pair.frameProcessingType;
+Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass, jlong pair_) {
+    MatPair *pair = reinterpret_cast<MatPair*>(pair_);
+    if (!pair) {
+        // NULL
+        return 0;
+    }
+    return pair->frameProcessingType;
 }
 
 } // extern "C"

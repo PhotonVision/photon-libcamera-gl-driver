@@ -30,11 +30,11 @@ add_library(photonlibcamera SHARED
         src/dma_buf_alloc.cpp
         src/gl_hsv_thresholder.cpp
         src/libcamera_opengl_utility.cpp
-        src/libcamera_jni.cpp
         src/camera_manager.cpp
         src/camera_runner.cpp
         src/camera_model.cpp
         src/headless_opengl.cpp
+        src/libcamera_jni.cpp
 )
 target_compile_definitions(photonlibcamera PUBLIC EGL_NO_X11=1)
 target_include_directories(photonlibcamera PUBLIC include ${OPENGL_INCLUDE_DIRS} ${LIBDRM_INCLUDE_DIRS} ${LIBCAMERA_INCLUDE_DIRS}

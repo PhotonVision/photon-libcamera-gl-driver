@@ -72,7 +72,7 @@ class GlHsvThresholder {
     GLuint m_min_max_framebuffer = 0;
     std::vector<GLuint> m_programs = {};
 
-    HeadlessData m_status{};
+    HeadlessData m_status;
     EGLDisplay m_display;
     EGLContext m_context;
 

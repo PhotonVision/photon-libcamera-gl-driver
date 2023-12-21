@@ -79,6 +79,7 @@ GlHsvThresholder::GlHsvThresholder(int width, int height)
     m_context = m_status.context;
     m_display = m_status.display;
 
+    printf("Created with display %lu ctx %lu\n", m_display, m_context);
 }
 
 GlHsvThresholder::~GlHsvThresholder() {
@@ -305,7 +306,7 @@ int GlHsvThresholder::testFrame(
             // std::cout << "yes framebuffer" << std::endl;
             m_renderable.pop();
         } else {
-            std::cout << "no framebuffer, skipping" << std::endl;
+            // std::cout << "no framebuffer, skipping" << std::endl;
             return 0;
         }
     }
