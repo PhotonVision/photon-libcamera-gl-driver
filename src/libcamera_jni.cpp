@@ -20,8 +20,10 @@
 
 #include "camera_manager.h"
 #include "camera_runner.h"
+#include "headless_opengl.h"
+#include <optional>
 
-static CameraRunner *runner = nullptr;
+std::optional<HeadlessData> data;
 
 extern "C" {
 
@@ -32,8 +34,16 @@ static_assert(sizeof(void *) <= sizeof(jlong));
 
 JNIEXPORT jboolean
 Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *env, jclass) {
-    // TODO
-    return true;
+    return static_cast<jboolean>(data);
+}
+
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_createContext(JNIEnv *env, jclass) {
+    if (!data) {
+        data = createHeadless();
+    }
+
+    return static_cast<jboolean>(data);
 }
 
 JNIEXPORT jboolean JNICALL

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.1)
+cmake_minimum_required(VERSION 3.18)
 project(libcamera_meme)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -25,18 +25,19 @@ endif ()
 SET(FAST_FLAGS "-Ofast -ftree-vectorize -fPIC")
 add_definitions(${FAST_FLAGS})
 
-add_library(photonlibcamera SHARED concurrent_blocking_queue.h
-        camera_grabber.cpp dma_buf_alloc.cpp
-        gl_hsv_thresholder.cpp
-        libcamera_opengl_utility.cpp
-        libcamera_jni.cpp
-        camera_manager.cpp
-        camera_runner.cpp
-        camera_model.cpp
-        headless_opengl.cpp
+add_library(photonlibcamera SHARED 
+        src/camera_grabber.cpp 
+        src/dma_buf_alloc.cpp
+        src/gl_hsv_thresholder.cpp
+        src/libcamera_opengl_utility.cpp
+        src/libcamera_jni.cpp
+        src/camera_manager.cpp
+        src/camera_runner.cpp
+        src/camera_model.cpp
+        src/headless_opengl.cpp
 )
 target_compile_definitions(photonlibcamera PUBLIC EGL_NO_X11=1)
-target_include_directories(photonlibcamera PUBLIC ${OPENGL_INCLUDE_DIRS} ${LIBDRM_INCLUDE_DIRS} ${LIBCAMERA_INCLUDE_DIRS}
+target_include_directories(photonlibcamera PUBLIC include ${OPENGL_INCLUDE_DIRS} ${LIBDRM_INCLUDE_DIRS} ${LIBCAMERA_INCLUDE_DIRS}
         ${LIBGBM_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
 target_link_libraries(photonlibcamera PUBLIC OpenGL::GL OpenGL::EGL Threads::Threads ${LIBCAMERA_LINK_LIBRARIES}
         ${LIBGBM_LINK_LIBRARIES} ${OpenCV_LIBS} ${LIBDRM_LINK_LIBRARIES})
