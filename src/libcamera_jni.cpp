@@ -243,8 +243,7 @@ JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass, jlong runner_) {
     CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
-        // NULL
-        return false;
+        return NULL;
     }
 
     MatPair *pair = new MatPair();
@@ -256,8 +255,7 @@ JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(JNIEnv *env, jclass, jlong pair_) {
     MatPair *pair = reinterpret_cast<MatPair*>(pair_);
     if (!pair) {
-        // NULL
-        return 0;
+        return NULL;
     }
 
     return reinterpret_cast<jlong>(new cv::Mat(std::move(pair->color)));
@@ -268,8 +266,7 @@ Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(JNIEnv *env,
                                                             jclass, jlong pair_) {
     MatPair *pair = reinterpret_cast<MatPair*>(pair_);
     if (!pair) {
-        // NULL
-        return 0;
+        return NULL;
     }
 
     return reinterpret_cast<jlong>(new cv::Mat(std::move(pair->processed)));
@@ -301,8 +298,8 @@ Java_org_photonvision_raspi_LibCameraJNI_releasePair(JNIEnv *env,
 }
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass,
-                                                           jint idx, jlong runner_) {
+Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *env, jclass, jlong runner_,
+                                                           jint idx) {
     CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {
         return false;

@@ -126,7 +126,7 @@ JNIEXPORT jint JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getGpuProcessType(JNIEnv *, jclass, jlong);
 
 JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *, jclass, jint, jlong);
+Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(JNIEnv *, jclass, jlong, jint);
 
 
 JNIEXPORT jboolean JNICALL
