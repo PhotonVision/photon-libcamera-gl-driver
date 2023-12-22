@@ -37,6 +37,9 @@ using latch = Latch;
 #include <sys/mman.h>
 #include <unistd.h>
 
+using steady_clock = std::chrono::steady_clock;
+using namespace std::literals::chrono_literals;
+
 static double approxRollingAverage(double avg, double new_sample) {
     avg -= avg / 50;
     avg += new_sample / 50;
@@ -103,6 +106,7 @@ void CameraRunner::start() {
                 {planes[2].fd.get(), static_cast<EGLint>(planes[2].offset),
                  static_cast<EGLint>(stride / 2)},
             }};
+
 
             auto begintime = steady_clock::now();
 
