@@ -17,8 +17,9 @@
 
 #pragma once
 
+// clang-format off
+
 static constexpr const char *VERTEX_SOURCE =
-        // clang-format off
         "#version 100\n"
         ""
         "attribute vec2 vertex;"
@@ -28,10 +29,9 @@ static constexpr const char *VERTEX_SOURCE =
         "   texcoord = 0.5 * (vertex + 1.0);"
         "   gl_Position = vec4(vertex, 0.0, 1.0);"
         "}";
-        // clang-format on
+
 
 static constexpr const char *NONE_FRAGMENT_SOURCE =
-        // clang-format off
         "#version 100\n"
         "#extension GL_OES_EGL_image_external : require\n"
         ""
@@ -46,10 +46,9 @@ static constexpr const char *NONE_FRAGMENT_SOURCE =
         "    vec3 color = texture2D(tex, texcoord).rgb;"
         "    gl_FragColor = vec4(color.bgr, 0);"
         "}";
-        // clang-format on
+
 
 static constexpr const char *HSV_FRAGMENT_SOURCE =
-        // clang-format off
         "#version 100\n"
         "#extension GL_OES_EGL_image_external : require\n"
         ""
@@ -90,10 +89,9 @@ static constexpr const char *HSV_FRAGMENT_SOURCE =
         "  vec3 col = texture2D(tex, texcoord).rgb;"
         "  gl_FragColor = vec4(col.bgr, int(inRange(rgb2hsv(col))));"
         "}";
-        // clang-format on
+
 
 static constexpr const char *GRAY_FRAGMENT_SOURCE =
-        // clang-format off
         "#version 100\n"
         "#extension GL_OES_EGL_image_external : require\n"
         ""
@@ -111,10 +109,9 @@ static constexpr const char *GRAY_FRAGMENT_SOURCE =
         "    float gammaGray = sqrt(gray);"
         "    gl_FragColor = vec4(color.bgr, gammaGray);"
         "}";
-        // clang-format on
+
 
 static constexpr const char *TILING_FRAGMENT_SOURCE =
-        // clang-format off
         "#version 100\n"
         ""
         "precision lowp float;"
@@ -137,10 +134,9 @@ static constexpr const char *TILING_FRAGMENT_SOURCE =
         "  }"
         "  gl_FragColor = vec4(max_so_far, min_so_far, 0.0, 0.0);"
         "}";
-        // clang-format on
+
 
 static constexpr const char *THRESHOLDING_FRAGMENT_SOURCE =
-        // clang-format off
         "#version 100\n"
         ""
         "precision lowp float;"
@@ -172,4 +168,5 @@ static constexpr const char *THRESHOLDING_FRAGMENT_SOURCE =
         "  }"
         "  gl_FragColor = vec4(color.bgr, output_);"
         "}";
-        // clang-format on
+
+// clang-format on
