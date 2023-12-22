@@ -31,7 +31,7 @@ class CameraGrabber {
     void setOnData(std::function<void(libcamera::Request *)> onData);
     void resetOnData();
 
-    inline const CameraModel model() { return m_model; }
+    inline CameraModel model() const { return m_model; }
 
     inline CameraSettings &cameraSettings() { return m_settings; }
 

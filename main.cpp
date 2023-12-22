@@ -7,6 +7,18 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 
+#include "camera_manager.h"
+
+#include <chrono>
+#include <iostream>
+#include <thread>
+
+#include "headless_opengl.h"
+#include "glerror.h"
+
+#define GLERROR() glerror(__LINE__)
+#define EGLERROR() eglerror(__LINE__)
+
 enum class ProcessType_: int32_t {
     None = 0,
     Hsv,
@@ -15,61 +27,75 @@ enum class ProcessType_: int32_t {
 };
 
 void test_res(int width, int height) {
-    int rotation = 180;
-    Java_org_photonvision_raspi_LibCameraJNI_createCamera(nullptr, nullptr,
-                                                          width, height, rotation);
-    // Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, 1);
-    Java_org_photonvision_raspi_LibCameraJNI_setGpuProcessType(nullptr, nullptr, (jint)ProcessType_::Hsv);
-    Java_org_photonvision_raspi_LibCameraJNI_setFramesToCopy(nullptr, nullptr, true, true);
-    Java_org_photonvision_raspi_LibCameraJNI_startCamera(nullptr, nullptr);
 
-    Java_org_photonvision_raspi_LibCameraJNI_setExposure(nullptr, nullptr, 80 * 800);
-    Java_org_photonvision_raspi_LibCameraJNI_setBrightness(nullptr, nullptr, 0.0);
-    Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(nullptr, nullptr, 20);
-    Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(nullptr, nullptr, true);
+    std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
 
-    auto start = std::chrono::steady_clock::now();
+    // Yeet all USB cameras (I hope)
+    auto rem = std::remove_if(cameras.begin(), cameras.end(), [](auto &cam) {
+        return cam->id().find("/usb") != std::string::npos;
+    });
+    cameras.erase(rem, cameras.end());
 
-    while (std::chrono::steady_clock::now() - start < std::chrono::seconds(3))  {
-        bool ready = Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(nullptr, nullptr);
-        if (ready) {
-            static int i = 0;
+    for (const auto& cam : cameras) {
+        printf("Camera at: %s\n", cam->id().c_str());
+    }
 
-            cv::Mat color_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeColorFrame(nullptr, nullptr);
-            cv::Mat threshold_mat = *(cv::Mat*)Java_org_photonvision_raspi_LibCameraJNI_takeProcessedFrame(nullptr, nullptr);
+    std::vector<CameraRunner*> runners;
 
-            uint64_t captureTime = Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(nullptr, nullptr);
-            uint64_t now = Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(nullptr, nullptr);
-            printf("now %lu capture %lu latency %f\n", now, captureTime, (double)(now - captureTime) / 1000000.0);
+    int rotation = 0;
 
-            i++;
-            static char arr[50];
-            snprintf(arr,sizeof(arr),"color_%i.png", i);
-            cv::imwrite(arr, color_mat);
-            snprintf(arr,sizeof(arr),"thresh_%i.png", i);
-            cv::imwrite(arr, threshold_mat);
+    for (auto& c : cameras) {
+        auto r = new CameraRunner(width, height, rotation, c);
+        runners.push_back(r);
+        r->start();
+        r->setCopyOptions(true, true);
+        r->requestShaderIdx((int)ProcessType::Gray);
+
+        r->cameraGrabber().cameraSettings().exposureTimeUs = 8000;
+        r->cameraGrabber().cameraSettings().analogGain = 3;
+        r->cameraGrabber().cameraSettings().brightness = 0.3;
+
+        printf("Started %s!\n", c->id().c_str());
+    }
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    for (int i = 0; i < 20; i++) {
+        int j = 0;
+        for (auto r : runners) {
+            auto pair = r->outgoing.take();
+            auto color_mat = cv::Mat(std::move(pair.color));
+            auto processed_mat = cv::Mat(std::move(pair.processed));
+
+            if (i % 30 == 0) {
+                printf("saving cam %i idx %i\n", j, i);
+                static char arr[50];
+                snprintf(arr,sizeof(arr),"color_cam%i_%i_%ix%i.png", j, i, width, height);
+                cv::imwrite(arr, color_mat);
+                snprintf(arr,sizeof(arr),"thresh_cam%i_%i_%ix%i.png", j, i, width, height);
+                cv::imwrite(arr, processed_mat);
+            }
+
+            color_mat.release();
+            processed_mat.release();
+
+            j++;
         }
     }
 
-    Java_org_photonvision_raspi_LibCameraJNI_stopCamera(nullptr, nullptr);
-    Java_org_photonvision_raspi_LibCameraJNI_destroyCamera(nullptr, nullptr);
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    printf("Destroying all!\n");
+    for (auto& r : runners) {
+        r->stop();
+        delete r;
+    }
 }
 
 int main() {
-    // test_res(1920, 1080);
-    test_res(320, 240);
-    // test_res(640, 480);
-    // test_res(960, 720);
-    // // test_res(2592, 1944);
-    // test_res(2592/2, 1944/2);
-    // test_res(1920, 1080);
-    // test_res(320, 240);
-    // test_res(640, 480);
-    // test_res(960, 720);
-    // // test_res(2592, 1944);
-    // test_res(2592/2, 1944/2);
+    
+    for (int i = 0; i < 100; i++) {
+        test_res(1280, 800);
+        test_res(1280/2, 800/2);
+        test_res(640, 480);
+    }
 
     std::cout << "Done" << std::endl;
 

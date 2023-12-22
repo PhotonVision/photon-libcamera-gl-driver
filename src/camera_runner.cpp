@@ -148,7 +148,7 @@ void CameraRunner::start() {
             mmaped.emplace(fd, static_cast<unsigned char *>(mmap_ptr));
         }
 
-        double copyTimeAvgMs = 0;
+        // double copyTimeAvgMs = 0;
         double fpsTimeAvgMs = 0;
 
         start_frame_grabber.count_down();
@@ -246,7 +246,7 @@ void CameraRunner::stop() {
     threshold.join();
 
     // push sentinel value to stop display thread
-    gpu_queue.push({-1, ProcessType::None});
+    gpu_queue.push({-1, ProcessType::None, 0});
     display.join();
 
     printf("stopped all\n");

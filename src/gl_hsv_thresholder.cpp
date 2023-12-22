@@ -15,7 +15,7 @@
 GLuint make_shader(GLenum type, const char *source) {
     auto shader = glCreateShader(type);
 
-    void *ctx = eglGetCurrentContext();
+    // void *ctx = eglGetCurrentContext();
     // printf("Shader idx: %i context ptr: %lu\n", (int) shader, (size_t)ctx);
 
     if (!shader) {
@@ -79,7 +79,7 @@ GlHsvThresholder::GlHsvThresholder(int width, int height)
     m_context = m_status.context;
     m_display = m_status.display;
 
-    printf("Created with display %lu ctx %lu\n", m_display, m_context);
+    printf("Created with display %lu ctx %lu\n", (unsigned long)m_display, (unsigned long)m_context);
 }
 
 GlHsvThresholder::~GlHsvThresholder() {
@@ -87,18 +87,21 @@ GlHsvThresholder::~GlHsvThresholder() {
         glDeleteProgram(program);
 
     glDeleteBuffers(1, &m_quad_vbo);
-    for (const auto [key, value]: m_framebuffers) {
+    for (const auto& [key, value]: m_framebuffers) {
         glDeleteFramebuffers(1, &value);
     }
     destroyHeadless(m_status);
 }
 
-static void on_gl_error(EGLenum error,const char *command,EGLint messageType,EGLLabelKHR threadLabel,EGLLabelKHR objectLabel,const char* message)
-{
-
-    printf("Error111: %s\n", message);
-
-}
+// static void on_gl_error(EGLenum error,const char *command,EGLint messageType,EGLLabelKHR threadLabel,EGLLabelKHR objectLabel,const char* message)
+// {
+//     (void) error;
+//     (void) command;
+//     (void) messageType;
+//     (void) threadLabel;
+//     (void) objectLabel;
+//     printf("Error111: %s\n", message);
+// }
 
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     static auto glEGLImageTargetTexture2DOES =
@@ -108,14 +111,14 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
     static auto eglDestroyImageKHR =
         (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
-    static auto glDebugMessageCallbackKHR =
-            (PFNEGLDEBUGMESSAGECONTROLKHRPROC)eglGetProcAddress("glDebugMessageCallbackKHR");
 
     if (!eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, m_context)) {
         throw std::runtime_error("failed to bind egl context");
     }
     EGLERROR();
 
+    // static auto glDebugMessageCallbackKHR =
+    //         (PFNEGLDEBUGMESSAGECONTROLKHRPROC)eglGetProcAddress("glDebugMessageCallbackKHR");
     // glEnable(GL_DEBUG_OUTPUT_KHR);
     // GLERROR();
     // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR);

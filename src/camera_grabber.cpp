@@ -69,7 +69,7 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
     for (const auto &buffer : m_buf_allocator.buffers(stream)) {
         auto request = m_camera->createRequest();
 
-        auto &controls = request->controls();
+        // auto &controls = request->controls();
         // controls.set(libcamera::controls::FrameDurationLimits,
         // {static_cast<int64_t>(8333), static_cast<int64_t>(8333)});
         // controls.set(libcamera::controls::ExposureTime, 10000);

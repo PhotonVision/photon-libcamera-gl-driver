@@ -37,7 +37,7 @@ class CameraRunner {
 
     inline CameraGrabber &cameraGrabber() { return grabber; }
     inline GlHsvThresholder &thresholder() { return m_thresholder; }
-    inline const CameraModel model() { return grabber.model(); }
+    inline CameraModel model() const { return grabber.model(); }
     void setCopyOptions(bool copyInput, bool copyOutput);
 
     // Note: all following functions must be protected by mutual exclusion.

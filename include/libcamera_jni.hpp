@@ -14,7 +14,7 @@ extern "C" {
  * Signature: ()Ljava/lang/String;
  */
 JNIEXPORT jint JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(JNIEnv *, jclass, jlong);
+Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(JNIEnv *, jclass, jstring);
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
@@ -90,14 +90,6 @@ Java_org_photonvision_raspi_LibCameraJNI_setAnalogGain(JNIEnv *, jclass, jlong, 
 
 JNIEXPORT jboolean JNICALL Java_org_photonvision_raspi_LibCameraJNI_setAwbGain(
     JNIEnv *, jclass, jlong, jdouble red, jdouble blue);
-
-/*
- * Class:     org_photonvision_raspi_LibCameraJNI
- * Method:    setRotation
- * Signature: (I)Z
- */
-JNIEXPORT jboolean JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_setRotation(JNIEnv *, jclass, jlong, jint);
 
 JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *, jclass);
