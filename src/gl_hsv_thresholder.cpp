@@ -57,6 +57,7 @@ GLuint make_shader(GLenum type, const char *source) {
         glGetShaderInfoLog(shader, log_size, nullptr, out.data());
 
         glDeleteShader(shader);
+        printf("Shader:\n%s\n", source);
         throw std::runtime_error("failed to compile shader with error: " + out);
     }
 
