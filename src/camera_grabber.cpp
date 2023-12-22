@@ -1,19 +1,37 @@
-#include "camera_grabber.h"
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-#include <iostream>
-#include <stdexcept>
+#include "camera_grabber.h"
 
 #include <libcamera/control_ids.h>
 #include <libcamera/property_ids.h>
 
+#include <iostream>
+#include <stdexcept>
+
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
                              int width, int height, int rotation)
-    : m_buf_allocator(camera), m_camera(std::move(camera)), m_cameraExposureProfiles(std::nullopt) {
+    : m_buf_allocator(camera), m_camera(std::move(camera)),
+      m_cameraExposureProfiles(std::nullopt) {
 
     if (m_camera->acquire()) {
         throw std::runtime_error("failed to acquire camera");
     }
- 
+
     // Determine model
     auto &cprp = m_camera->properties();
     auto model = cprp.get(libcamera::properties::Model);
@@ -23,27 +41,30 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
         m_model = Unknown;
     }
 
-    std::cout << "Model " << m_model << std::endl;   
+    std::cout << "Model " << m_model << std::endl;
 
     auto config = m_camera->generateConfiguration(
         {libcamera::StreamRole::VideoRecording});
-    
+
     // print active arrays
-    if (m_camera->properties().contains(libcamera::properties::PIXEL_ARRAY_ACTIVE_AREAS)) {
-        printf("Active areas:\n");
-        auto rects = m_camera->properties().get(libcamera::properties::PixelArrayActiveAreas);
+    if (m_camera->properties().contains(
+            libcamera::properties::PIXEL_ARRAY_ACTIVE_AREAS)) {
+        std::printf("Active areas:\n");
+        auto rects = m_camera->properties().get(
+            libcamera::properties::PixelArrayActiveAreas);
         if (rects.has_value()) {
-            for(const auto rect : rects.value()) {
+            for (const auto rect : rects.value()) {
                 std::cout << rect.toString() << std::endl;
             }
         }
-    } else 
-        printf("No active areas\n");
+    } else {
+        std::printf("No active areas??\n");
+    }
 
     config->at(0).size.width = width;
     config->at(0).size.height = height;
 
-    printf("Rotation = %i\n", rotation);
+    std::printf("Rotation = %i\n", rotation);
     if (rotation == 180) {
         config->orientation = libcamera::Orientation::Rotate180;
     } else {
@@ -123,32 +144,34 @@ void CameraGrabber::setControls(libcamera::Request *request) {
         controls_.set(controls::AwbEnable, false); // AWB disabled
     }
     controls_.set(controls::AnalogueGain,
-                 m_settings.analogGain); // Analog gain, min 1 max big number?
+                  m_settings.analogGain); // Analog gain, min 1 max big number?
 
     if (m_model != OV9281) {
         controls_.set(controls::ColourGains,
-                    libcamera::Span<const float, 2>{
-                        {m_settings.awbRedGain,
-                        m_settings.awbBlueGain}}); // AWB gains, red and blue,
-                                                    // unknown range
+                      libcamera::Span<const float, 2>{
+                          {m_settings.awbRedGain,
+                           m_settings.awbBlueGain}}); // AWB gains, red and
+                                                      // blue, unknown range
     }
 
-    // Note about brightness: -1 makes everything look deep fried, 0 is probably best for most things
+    // Note about brightness: -1 makes everything look deep fried, 0 is probably
+    // best for most things
     controls_.set(libcamera::controls::Brightness,
-                m_settings.brightness); // -1 to 1, 0 means unchanged
+                  m_settings.brightness); // -1 to 1, 0 means unchanged
     controls_.set(controls::Contrast,
-                m_settings.contrast); // Nominal 1
+                  m_settings.contrast); // Nominal 1
 
     if (m_model != OV9281) {
         controls_.set(controls::Saturation,
-                m_settings.saturation); // Nominal 1, 0 would be greyscale
+                      m_settings.saturation); // Nominal 1, 0 would be greyscale
     }
 
     if (m_settings.doAutoExposure) {
         controls_.set(controls::AeEnable,
-                    true); // Auto exposure disabled
+                      true); // Auto exposure disabled
 
-        controls_.set(controls::AeMeteringMode, controls::MeteringCentreWeighted);
+        controls_.set(controls::AeMeteringMode,
+                      controls::MeteringCentreWeighted);
         if (m_model == OV9281) {
             controls_.set(controls::AeExposureMode, controls::ExposureNormal);
         } else {
@@ -159,25 +182,24 @@ void CameraGrabber::setControls(libcamera::Request *request) {
         // seconds * 1e6 = uS
         constexpr const int MIN_FRAME_TIME = 1e6 / 250;
         constexpr const int MAX_FRAME_TIME = 1e6 / 15;
-        controls_.set(
-            libcamera::controls::FrameDurationLimits,
-            libcamera::Span<const int64_t, 2>{
-                {MIN_FRAME_TIME, MAX_FRAME_TIME}});
+        controls_.set(libcamera::controls::FrameDurationLimits,
+                      libcamera::Span<const int64_t, 2>{
+                          {MIN_FRAME_TIME, MAX_FRAME_TIME}});
     } else {
         controls_.set(controls::AeEnable,
-                    false); // Auto exposure disabled
+                      false); // Auto exposure disabled
         controls_.set(controls::ExposureTime,
-                    m_settings.exposureTimeUs); // in microseconds
+                      m_settings.exposureTimeUs); // in microseconds
         controls_.set(
             libcamera::controls::FrameDurationLimits,
             libcamera::Span<const int64_t, 2>{
                 {m_settings.exposureTimeUs,
-                m_settings.exposureTimeUs}}); // Set default to zero, we have
-                                            // specified the exposure time
+                 m_settings.exposureTimeUs}}); // Set default to zero, we have
+                                               // specified the exposure time
     }
 
     controls_.set(controls::ExposureValue, 0);
- 
+
     if (m_model != OV7251 && m_model != OV9281) {
         controls_.set(controls::Sharpness, 1);
     }
@@ -202,7 +224,6 @@ void CameraGrabber::stop() {
     running = false;
     m_camera->stop();
 }
-
 
 void CameraGrabber::setOnData(
     std::function<void(libcamera::Request *)> onData) {

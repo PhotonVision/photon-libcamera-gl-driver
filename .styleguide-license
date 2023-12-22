@@ -14,17 +14,3 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
-#pragma once
-
-// These headers are weird for some reason
-
-// clang-format off
-#include <libcamera/color_space.h>
-
-#include <EGL/egl.h>
-
-// clang-format on
-
-EGLint rangeFromColorspace(const libcamera::ColorSpace &colorSpace);
-EGLint encodingFromColorspace(const libcamera::ColorSpace &colorSpace);

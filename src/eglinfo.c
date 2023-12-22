@@ -1,5 +1,22 @@
-#include <stdlib.h>
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 
 // adjustments to paths might be needed
@@ -7,17 +24,11 @@
 #include <EGL/eglplatform.h>
 #include <GLES2/gl2.h>
 
-static EGLint const attribute_list[] = {
-    EGL_RED_SIZE, 1,
-    EGL_GREEN_SIZE, 1,
-    EGL_BLUE_SIZE, 1,
-    EGL_NONE
-};
+static EGLint const attribute_list[] = {EGL_RED_SIZE,  1, EGL_GREEN_SIZE, 1,
+                                        EGL_BLUE_SIZE, 1, EGL_NONE};
 
-static EGLint const context_attribute_list[] = {
-    EGL_CONTEXT_CLIENT_VERSION, 2,
-    EGL_NONE
-};
+static EGLint const context_attribute_list[] = {EGL_CONTEXT_CLIENT_VERSION, 2,
+                                                EGL_NONE};
 
 struct gl_limit {
     GLint name;
@@ -25,28 +36,25 @@ struct gl_limit {
     int num_args;
 };
 #define EXPAND(x) x, #x
-struct gl_limit limits[] = {
-    {EXPAND(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS), 1},
-    {EXPAND(GL_MAX_CUBE_MAP_TEXTURE_SIZE), 1},
-    {EXPAND(GL_MAX_FRAGMENT_UNIFORM_VECTORS), 1},
-    {EXPAND(GL_MAX_RENDERBUFFER_SIZE), 1},
-    {EXPAND(GL_MAX_TEXTURE_IMAGE_UNITS), 1},
-    {EXPAND(GL_MAX_TEXTURE_SIZE), 1},
-    {EXPAND(GL_MAX_VARYING_VECTORS), 1},
-    {EXPAND(GL_MAX_VERTEX_ATTRIBS), 1},
-    {EXPAND(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS), 1},
-    {EXPAND(GL_MAX_VERTEX_UNIFORM_VECTORS), 1},
-    {EXPAND(GL_MAX_VIEWPORT_DIMS), 2},
-    {0, NULL}
-};
+struct gl_limit limits[] = {{EXPAND(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS), 1},
+                            {EXPAND(GL_MAX_CUBE_MAP_TEXTURE_SIZE), 1},
+                            {EXPAND(GL_MAX_FRAGMENT_UNIFORM_VECTORS), 1},
+                            {EXPAND(GL_MAX_RENDERBUFFER_SIZE), 1},
+                            {EXPAND(GL_MAX_TEXTURE_IMAGE_UNITS), 1},
+                            {EXPAND(GL_MAX_TEXTURE_SIZE), 1},
+                            {EXPAND(GL_MAX_VARYING_VECTORS), 1},
+                            {EXPAND(GL_MAX_VERTEX_ATTRIBS), 1},
+                            {EXPAND(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS), 1},
+                            {EXPAND(GL_MAX_VERTEX_UNIFORM_VECTORS), 1},
+                            {EXPAND(GL_MAX_VIEWPORT_DIMS), 2},
+                            {0, NULL}};
 
 #include "headless_opengl.h"
 
-int main(int argc, char ** argv)
-{
+int main(int argc, char **argv) {
 
     struct HeadlessData status = createHeadless();
-    
+
     EGLDisplay display = status.display;
     // EGLConfig config;
     EGLContext context = status.context;
@@ -97,7 +105,6 @@ int main(int argc, char ** argv)
             printf("    %s = %d\n", limits[i].string, param[0]);
         else
             printf("    %s = %d, %d\n", limits[i].string, param[0], param[1]);
-
     }
 
     return EXIT_SUCCESS;

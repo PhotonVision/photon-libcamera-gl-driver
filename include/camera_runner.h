@@ -1,4 +1,31 @@
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
+
+#include <libcamera/camera.h>
+
+#include <atomic>
+#include <memory>
+#include <string>
+#include <thread>
+#include <vector>
+
+#include <opencv2/core.hpp>
 
 #include "blocking_future.h"
 #include "camera_grabber.h"
@@ -7,24 +34,16 @@
 #include "gl_hsv_thresholder.h"
 #include "libcamera_opengl_utility.h"
 
-#include <atomic>
-#include <libcamera/camera.h>
-#include <memory>
-#include <string>
-#include <thread>
-
-#include <opencv2/core.hpp>
-
 struct MatPair {
     cv::Mat color;
     cv::Mat processed;
-    long captureTimestamp; // In libcamera time units, hopefully uS? TODO actually implement
+    int64_t captureTimestamp;    // In libcamera time units, hopefully uS? TODO
+                                 // actually implement
     int32_t frameProcessingType; // enum value of shader run on the image
 
     MatPair() = default;
     explicit MatPair(int width, int height)
-        : color(height, width, CV_8UC3),
-          processed(height, width, CV_8UC1) {}
+        : color(height, width, CV_8UC3), processed(height, width, CV_8UC1) {}
 };
 
 // Note: destructing this class without calling `stop` if `start` was called
@@ -55,9 +74,7 @@ class CameraRunner {
 
     void requestShaderIdx(int idx);
 
-
   private:
-
     struct GpuQueueData {
         int fd;
         ProcessType type;
@@ -80,7 +97,6 @@ class CameraRunner {
 
     std::thread threshold;
     std::thread display;
-
 
     std::atomic<int> m_shaderIdx = 0;
 

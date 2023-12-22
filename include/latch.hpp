@@ -1,7 +1,24 @@
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #pragma once
 
-#include <cstddef>
 #include <condition_variable>
+#include <cstddef>
 #include <mutex>
 
 // A poor substitute for C++20's latch
@@ -9,12 +26,12 @@
 // exposes a similar API
 
 class Latch {
-public:
-    explicit Latch(ptrdiff_t expected): expected(expected) {};
+  public:
+    explicit Latch(std::ptrdiff_t expected) : expected(expected) {}
 
     ~Latch() = default;
-    Latch(const Latch&) = delete;
-    Latch& operator=(const Latch&) = delete;
+    Latch(const Latch &) = delete;
+    Latch &operator=(const Latch &) = delete;
 
     void count_down() {
         std::unique_lock lock(mut);
@@ -40,8 +57,9 @@ public:
             cv.wait(lock, [this] { return expected == 0; });
         }
     }
-private:
-    ptrdiff_t expected;
+
+  private:
+    std::ptrdiff_t expected;
     std::condition_variable cv;
     std::mutex mut;
 };

@@ -1,13 +1,32 @@
-#include "gl_hsv_thresholder.h"
-#include "glerror.h"
-#include "gl_shader_source.h"
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
 
-#include <EGL/eglext.h>
-#include <GLES2/gl2ext.h>
+#include "gl_hsv_thresholder.h"
+
 #include <libdrm/drm_fourcc.h>
 
 #include <iostream>
 #include <stdexcept>
+
+#include <EGL/eglext.h>
+#include <GLES2/gl2ext.h>
+
+#include "gl_shader_source.h"
+#include "glerror.h"
 
 #define GLERROR() glerror(__LINE__)
 #define EGLERROR() eglerror(__LINE__)
@@ -16,7 +35,8 @@ GLuint make_shader(GLenum type, const char *source) {
     auto shader = glCreateShader(type);
 
     // void *ctx = eglGetCurrentContext();
-    // printf("Shader idx: %i context ptr: %lu\n", (int) shader, (size_t)ctx);
+    // std::printf("Shader idx: %i context ptr: %lu\n", (int) shader,
+    // (size_t)ctx);
 
     if (!shader) {
         throw std::runtime_error("failed to create shader");
@@ -78,29 +98,29 @@ GlHsvThresholder::GlHsvThresholder(int width, int height)
     m_status = createHeadless();
     m_context = m_status.context;
     m_display = m_status.display;
-
-    printf("Created with display %lu ctx %lu\n", (unsigned long)m_display, (unsigned long)m_context);
 }
 
 GlHsvThresholder::~GlHsvThresholder() {
-    for (auto& program : m_programs)
+    for (auto &program : m_programs)
         glDeleteProgram(program);
 
     glDeleteBuffers(1, &m_quad_vbo);
-    for (const auto& [key, value]: m_framebuffers) {
+    for (const auto &[key, value] : m_framebuffers) {
         glDeleteFramebuffers(1, &value);
     }
     destroyHeadless(m_status);
 }
 
-// static void on_gl_error(EGLenum error,const char *command,EGLint messageType,EGLLabelKHR threadLabel,EGLLabelKHR objectLabel,const char* message)
+// static void on_gl_error(EGLenum error,const char *command,EGLint
+// messageType,EGLLabelKHR threadLabel,EGLLabelKHR objectLabel,const char*
+// message)
 // {
 //     (void) error;
 //     (void) command;
 //     (void) messageType;
 //     (void) threadLabel;
 //     (void) objectLabel;
-//     printf("Error111: %s\n", message);
+//     std::printf("Error111: %s\n", message);
 // }
 
 void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
@@ -169,7 +189,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, image);
         GLERROR();
 
-        eglDestroyImageKHR(m_display, image); 
+        eglDestroyImageKHR(m_display, image);
         GLERROR();
 
         GLuint framebuffer;
@@ -220,7 +240,8 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         GLERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, nullptr);
         GLERROR();
 
         m_grayscale_texture = grayscale_texture;
@@ -232,10 +253,12 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         GLERROR();
         glBindFramebuffer(GL_FRAMEBUFFER, grayscale_buffer);
         GLERROR();
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_grayscale_texture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, m_grayscale_texture, 0);
         GLERROR();
 
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
+            GL_FRAMEBUFFER_COMPLETE) {
             throw std::runtime_error("failed to complete grayscale_buffer");
         }
 
@@ -256,7 +279,8 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         GLERROR();
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
         GLERROR();
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width / 4, m_height / 4, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_width / 4, m_height / 4, 0,
+                     GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         GLERROR();
 
         m_min_max_texture = min_max_texture;
@@ -268,10 +292,12 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
         GLERROR();
         glBindFramebuffer(GL_FRAMEBUFFER, min_max_framebuffer);
         GLERROR();
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_min_max_texture, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                               GL_TEXTURE_2D, m_min_max_texture, 0);
         GLERROR();
 
-        if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) !=
+            GL_FRAMEBUFFER_COMPLETE) {
             throw std::runtime_error("failed to complete grayscale_buffer");
         }
 
@@ -280,7 +306,8 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
 }
 
 void GlHsvThresholder::release() {
-    if (!eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
+    if (!eglMakeCurrent(m_display, EGL_NO_SURFACE, EGL_NO_SURFACE,
+                        EGL_NO_CONTEXT)) {
         throw std::runtime_error("failed to bind egl context");
     }
 }
@@ -353,7 +380,6 @@ int GlHsvThresholder::testFrame(
         throw std::runtime_error("failed to import fd " +
                                  std::to_string(yuv_plane_data[0].fd));
     }
-
 
     GLuint texture;
     glGenTextures(1, &texture);

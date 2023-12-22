@@ -1,5 +1,21 @@
+/*
+ * Copyright (C) Photon Vision.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include "headless_opengl.h"
-#include "glerror.h"
 
 #include <fcntl.h>
 #include <gbm.h>
@@ -8,6 +24,8 @@
 #include <vector>
 
 #include <EGL/eglext.h>
+
+#include "glerror.h"
 
 // The following code related to DRM/GBM was adapted from the following sources:
 // https://github.com/eyelash/tutorials/blob/master/drm-gbm.c
@@ -40,10 +58,8 @@ static const EGLint configAttribs[] = {EGL_RED_SIZE,
                                        EGL_NONE};
 
 static const EGLint contextAttribs[] = {
-    EGL_CONTEXT_CLIENT_VERSION, 2,
-    EGL_CONTEXT_FLAGS_KHR, EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR,
-    EGL_NONE
-};
+    EGL_CONTEXT_CLIENT_VERSION, 2, EGL_CONTEXT_FLAGS_KHR,
+    EGL_CONTEXT_OPENGL_DEBUG_BIT_KHR, EGL_NONE};
 
 HeadlessData createHeadless() {
     std::vector<std::string> paths = {"/dev/dri/card1", "/dev/dri/card0"};
@@ -83,7 +99,7 @@ HeadlessData createHeadless() {
     eglBindAPI(EGL_OPENGL_ES_API);
     EGLERROR();
 
-    printf("Initialized EGL version: %d.%d\n", major, minor);
+    std::printf("Initialized EGL version: %d.%d\n", major, minor);
 
     EGLint count;
     EGLint numConfigs;
