@@ -239,7 +239,7 @@ Java_org_photonvision_raspi_LibCameraJNI_getLibcameraTimestamp(JNIEnv *env,
     return (jlong)now_nsec;
 }
 
-JNIEXPORT jboolean JNICALL
+JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *env, jclass, jlong runner_) {
     CameraRunner *runner = reinterpret_cast<CameraRunner*>(runner_);
     if (!runner) {

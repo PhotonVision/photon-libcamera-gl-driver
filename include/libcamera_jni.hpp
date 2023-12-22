@@ -110,7 +110,7 @@ Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *, jclass, j
  * Method:    grabFrame
  * Signature: (Z)J
  */
-JNIEXPORT jboolean JNICALL
+JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame(JNIEnv *, jclass, jlong);
 
 JNIEXPORT jlong JNICALL
