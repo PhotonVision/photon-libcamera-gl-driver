@@ -39,6 +39,8 @@ enum class ProcessType : int32_t {
     Hsv,
     Gray,
     Adaptive,
+    Gray_passthrough,
+    NUM_PROCESS_TYPES
 };
 
 class GlHsvThresholder {

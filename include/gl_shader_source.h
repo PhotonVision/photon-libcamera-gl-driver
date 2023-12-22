@@ -91,6 +91,24 @@ static constexpr const char *HSV_FRAGMENT_SOURCE =
         "}";
 
 
+static constexpr const char *GRAY_PASSTHROUGH_FRAGMENT_SOURCE =
+        "#version 100\n"
+        "#extension GL_OES_EGL_image_external : require\n"
+        ""
+        "precision lowp float;"
+        "precision lowp int;"
+        ""
+        "varying vec2 texcoord;"
+        ""
+        "uniform samplerExternalOES tex;"
+        ""
+        "void main(void) {"
+        // We get in (gray, gray, gray), I think. So just copy the R channel
+        "    vec3 gray_gray_gray = texture2D(tex, texcoord).rgb;"
+        "    gl_FragColor = vec4(gray_gray_gray.bgr, gray_gray_gray[0]);"
+        "}";
+
+
 static constexpr const char *GRAY_FRAGMENT_SOURCE =
         "#version 100\n"
         "#extension GL_OES_EGL_image_external : require\n"
