@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "LibCameraJNI",
+            "request": "launch",
+            "mainClass": "org.photonvision.raspi.LibCameraJNI",
+            "projectName": "photon-libcamera-gl-driver_ef1a9c31"
+        },
+        {
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
@@ -29,6 +36,5 @@
             ],
             "preLaunchTask": "Build libcamera_meme"
         }
-
     ]
 }
