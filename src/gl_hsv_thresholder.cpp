@@ -316,7 +316,7 @@ void GlHsvThresholder::release() {
 
 int GlHsvThresholder::testFrame(
     const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-    EGLint encoding, EGLint range, ProcessType type) {
+    EGLint encoding, EGLint range, ProcessType type, bool useGrayScalePassThrough) {
     static auto glEGLImageTargetTexture2DOES =
         (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress(
             "glEGLImageTargetTexture2DOES");
@@ -404,11 +404,11 @@ int GlHsvThresholder::testFrame(
         initial_program = m_programs[0];
     } else if (type == ProcessType::Hsv) {
         initial_program = m_programs[1];
+    } else if (type == ProcessType::Gray && useGrayScalePassThrough) {
+         initial_program = m_programs[5];
     } else if (type == ProcessType::Gray || type == ProcessType::Adaptive) {
         initial_program = m_programs[2];
-    } else if (type == ProcessType::Gray_passthrough) {
-        initial_program = m_programs[5];
-    }
+    } 
 
     glUseProgram(initial_program);
     GLERROR();

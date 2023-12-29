@@ -102,4 +102,5 @@ class CameraRunner {
 
     std::atomic<bool> m_copyInput;
     std::atomic<bool> m_copyOutput;
+    bool useGrayScalePassThrough;
 };

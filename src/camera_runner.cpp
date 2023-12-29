@@ -47,6 +47,8 @@ static double approxRollingAverage(double avg, double new_sample) {
     return avg;
 }
 
+
+
 CameraRunner::CameraRunner(int width, int height, int rotation,
                            std::shared_ptr<libcamera::Camera> cam)
     : m_camera(std::move(cam)), m_width(width), m_height(height),
@@ -55,6 +57,8 @@ CameraRunner::CameraRunner(int width, int height, int rotation,
 
     grabber.setOnData(
         [&](libcamera::Request *request) { camera_queue.push(request); });
+
+    useGrayScalePassThrough = isGrayScale(grabber.model());
 
     fds = {allocer.alloc_buf_fd(m_width * m_height * 4),
            allocer.alloc_buf_fd(m_width * m_height * 4),
@@ -114,7 +118,7 @@ void CameraRunner::start() {
 
             int out = m_thresholder.testFrame(
                 yuv_data, encodingFromColorspace(colorspace),
-                rangeFromColorspace(colorspace), type);
+                rangeFromColorspace(colorspace), type, useGrayScalePassThrough);
 
             if (out != 0) {
                 /*

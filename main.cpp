@@ -44,7 +44,7 @@ void test_res(int width, int height) {
         runners.push_back(r);
         r->start();
         r->setCopyOptions(true, true);
-        r->requestShaderIdx((int)ProcessType::Gray_passthrough);
+        r->requestShaderIdx((int)ProcessType::Gray);
 
         r->cameraGrabber().cameraSettings().exposureTimeUs = 100000;
         r->cameraGrabber().cameraSettings().analogGain = 4;

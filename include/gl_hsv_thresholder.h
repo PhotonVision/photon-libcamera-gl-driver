@@ -39,7 +39,6 @@ enum class ProcessType : int32_t {
     Hsv,
     Gray,
     Adaptive,
-    Gray_passthrough,
     NUM_PROCESS_TYPES
 };
 
@@ -60,7 +59,7 @@ class GlHsvThresholder {
     void returnBuffer(int fd);
     int testFrame(
         const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-        EGLint encoding, EGLint range, ProcessType type);
+        EGLint encoding, EGLint range, ProcessType type, bool useGrayScalePassThrough);
 
     /**
      * @brief Set the Hsv Thresholds range, on [0..1]
