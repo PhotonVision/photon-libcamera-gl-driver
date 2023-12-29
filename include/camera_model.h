@@ -32,4 +32,4 @@ enum CameraModel {
     };
 CameraModel stringToModel(const std::string &model);
 bool isGrayScale(CameraModel model);
-CameraModel grayScaleCameras[] = {OV9281};
+static const CameraModel grayScaleCameras[] = {OV9281};
