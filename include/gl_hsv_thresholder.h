@@ -50,7 +50,7 @@ class GlHsvThresholder {
         EGLint pitch;
     };
 
-    explicit GlHsvThresholder(int width, int height);
+    explicit GlHsvThresholder(int width, int height, CameraModel model);
     ~GlHsvThresholder();
 
     void start(const std::vector<int> &output_buf_fds);
@@ -59,7 +59,7 @@ class GlHsvThresholder {
     void returnBuffer(int fd);
     int testFrame(
         const std::array<GlHsvThresholder::DmaBufPlaneData, 3> &yuv_plane_data,
-        EGLint encoding, EGLint range, ProcessType type, bool useGrayScalePassThrough);
+        EGLint encoding, EGLint range, ProcessType type);
 
     /**
      * @brief Set the Hsv Thresholds range, on [0..1]
@@ -78,6 +78,7 @@ class GlHsvThresholder {
   private:
     int m_width;
     int m_height;
+    bool useGrayScalePassThrough;
 
     std::unordered_map<int, GLuint> m_framebuffers; // (dma_buf fd, framebuffer)
     std::queue<int> m_renderable;

@@ -53,12 +53,10 @@ CameraRunner::CameraRunner(int width, int height, int rotation,
                            std::shared_ptr<libcamera::Camera> cam)
     : m_camera(std::move(cam)), m_width(width), m_height(height),
       grabber(m_camera, m_width, m_height, rotation),
-      m_thresholder(m_width, m_height), allocer("/dev/dma_heap/linux,cma") {
+      m_thresholder(m_width, m_height, grabber.model()), allocer("/dev/dma_heap/linux,cma") {
 
     grabber.setOnData(
         [&](libcamera::Request *request) { camera_queue.push(request); });
-
-    useGrayScalePassThrough = isGrayScale(grabber.model());
 
     fds = {allocer.alloc_buf_fd(m_width * m_height * 4),
            allocer.alloc_buf_fd(m_width * m_height * 4),
