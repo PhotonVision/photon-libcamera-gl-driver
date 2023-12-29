@@ -57,10 +57,9 @@ ext.outputsFolder = file("$buildDir/outputs")
 println("Building for $nativeName")
 
 tasks.register('copyNativeLibrary', Sync) {
-    from "${projectDir}/cmake_build/bin/"
-    from "${projectDir}/cmake_build/lib/"
+    from "${projectDir}/cmake_build/"
     into "${outputsFolder}/nativelibraries/${nativeName}/"
-    include "**/*.dll", "**/*.so"
+    include "**/*.so"
 
     // And flatten, since windows is stupid
     eachFile {
