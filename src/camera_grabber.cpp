@@ -79,7 +79,8 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
         throw std::runtime_error("failed to configure stream");
     }
 
-    std::cout << "Selected configuration: " << config->at(0).toString() << std::endl;
+    std::cout << "Selected configuration: " << config->at(0).toString()
+              << std::endl;
 
     auto stream = config->at(0).stream();
     if (m_buf_allocator.allocate(stream) < 0) {
@@ -190,12 +191,10 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                       false); // Auto exposure disabled
         controls_.set(controls::ExposureTime,
                       m_settings.exposureTimeUs); // in microseconds
-        controls_.set(
-            libcamera::controls::FrameDurationLimits,
-            libcamera::Span<const int64_t, 2>{
-                {m_settings.exposureTimeUs,
-                 m_settings.exposureTimeUs}}); // Set default to zero, we have
-                                               // specified the exposure time
+        controls_.set(libcamera::controls::FrameDurationLimits,
+                      libcamera::Span<const int64_t, 2>{
+                          {1, 80000}}); // Set default to zero, we have
+                                        // specified the exposure time
     }
 
     controls_.set(controls::ExposureValue, 0);

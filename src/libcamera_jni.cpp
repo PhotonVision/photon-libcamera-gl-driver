@@ -121,27 +121,28 @@ JNIEXPORT jint Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
 
     const char *c_name = env->GetStringUTFChars(name, 0);
 
-    // printf("Got in name: %s\n", c_name);
+    // std::printf("Got in name: %s\n", c_name);
 
     jint model_enum = Unknown;
     for (auto &c : cameras) {
         // Find the camera we want to be talking about
         if (std::strcmp(c->id().c_str(), c_name) == 0) {
-            
+
             // Determine model
             auto &cprp = c->properties();
             auto model = cprp.get(libcamera::properties::Model);
-            // printf("Checking camera at path %s w/model %s\n", c->id().c_str(), model.value().c_str());
+            // std::printf("Checking camera at path %s w/model %s\n",
+            // c->id().c_str(), model.value().c_str());
             if (model) {
-                model_enum = reinterpret_cast<CameraModel>(stringToModel(model.value()));
+                model_enum =
+                    reinterpret_cast<CameraModel>(stringToModel(model.value()));
             }
 
             break;
         }
     }
 
-    // printf("Got model %i\n", model_enum);
-    
+    // std::printf("Got model %i\n", model_enum);
 
     env->ReleaseStringUTFChars(name, c_name);
 
@@ -362,7 +363,7 @@ Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame
         return 0;
     }
 
-    MatPair *pair = new MatPair();
+    MatPair *pair = new MatPair(void);
     *pair = runner->outgoing.take();
     return reinterpret_cast<jlong>(pair);
 }

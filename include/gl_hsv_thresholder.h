@@ -33,9 +33,7 @@
 #include <GLES2/gl2.h>
 
 #include "camera_model.h"
-
 #include "headless_opengl.h"
-
 
 enum class ProcessType : int32_t {
     None = 0,

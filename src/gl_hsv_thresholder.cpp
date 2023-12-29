@@ -17,8 +17,6 @@
 
 #include "gl_hsv_thresholder.h"
 
-#include "camera_model.h"
-
 #include <libdrm/drm_fourcc.h>
 
 #include <iostream>
@@ -27,6 +25,7 @@
 #include <EGL/eglext.h>
 #include <GLES2/gl2ext.h>
 
+#include "camera_model.h"
 #include "gl_shader_source.h"
 #include "glerror.h"
 
@@ -59,7 +58,7 @@ GLuint make_shader(GLenum type, const char *source) {
         glGetShaderInfoLog(shader, log_size, nullptr, out.data());
 
         glDeleteShader(shader);
-        printf("Shader:\n%s\n", source);
+        std::printf("Shader:\n%s\n", source);
         throw std::runtime_error("failed to compile shader with error: " + out);
     }
 
@@ -153,10 +152,11 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     m_programs.reserve((int)ProcessType::NUM_PROCESS_TYPES);
     m_programs[0] = make_program(VERTEX_SOURCE, NONE_FRAGMENT_SOURCE);
     m_programs[1] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
-    if(useGrayScalePassThrough){
+    if (useGrayScalePassThrough) {
         m_programs[2] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
     } else {
-        m_programs[2] = make_program(VERTEX_SOURCE, GRAY_PASSTHROUGH_FRAGMENT_SOURCE);
+        m_programs[2] =
+            make_program(VERTEX_SOURCE, GRAY_PASSTHROUGH_FRAGMENT_SOURCE);
     }
     m_programs[3] = make_program(VERTEX_SOURCE, TILING_FRAGMENT_SOURCE);
     m_programs[4] = make_program(VERTEX_SOURCE, THRESHOLDING_FRAGMENT_SOURCE);
@@ -412,7 +412,7 @@ int GlHsvThresholder::testFrame(
         initial_program = m_programs[1];
     } else if (type == ProcessType::Gray || type == ProcessType::Adaptive) {
         initial_program = m_programs[2];
-    } 
+    }
 
     glUseProgram(initial_program);
     GLERROR();
