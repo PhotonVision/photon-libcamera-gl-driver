@@ -83,10 +83,10 @@ public class LibCameraJNI {
     /**
      * Creates a new runner with a given width/height/fps
      *
-     * @param the path / name of the camera as given from libcamera.
+     * @param name the path / name of the camera as given from libcamera.
      * @param width Camera video mode width in pixels
      * @param height Camera video mode height in pixels
-     * @param fps Camera video mode FPS
+     * @param rotation Rotation in degrees
      * @return the runner pointer for the camera.
      */
     public static native long createCamera(String name, int width, int height, int rotation);
@@ -164,11 +164,14 @@ public class LibCameraJNI {
      */
     public static native boolean setGpuProcessType(long r_ptr, int type);
 
+    /**
+     * @return GPU process type
+     */
     public static native int getGpuProcessType(long p_ptr);
 
-    /** Release a pair pointer back to the libcamera driver code to be filled again */
+    /** Release a pair pointer back to the libcamera driver code to be filled again @return true on success */
     public static native boolean releasePair(long p_ptr);
 
-    /** Get an array containing the names/ids/paths of all connected CSI cameras from libcamera. */
+    /** Get an array containing the names/ids/paths of all connected CSI cameras from libcamera. @return All connected CSI cameras' paths */
     public static native String[] getCameraNames();
 }

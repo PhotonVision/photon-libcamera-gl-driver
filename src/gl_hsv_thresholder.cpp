@@ -57,7 +57,7 @@ GLuint make_shader(GLenum type, const char *source) {
         glGetShaderInfoLog(shader, log_size, nullptr, out.data());
 
         glDeleteShader(shader);
-        printf("Shader:\n%s\n", source);
+        std::printf("Shader:\n%s\n", source);
         throw std::runtime_error("failed to compile shader with error: " + out);
     }
 
@@ -153,7 +153,8 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     m_programs[2] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
     m_programs[3] = make_program(VERTEX_SOURCE, TILING_FRAGMENT_SOURCE);
     m_programs[4] = make_program(VERTEX_SOURCE, THRESHOLDING_FRAGMENT_SOURCE);
-    m_programs[5] = make_program(VERTEX_SOURCE, GRAY_PASSTHROUGH_FRAGMENT_SOURCE);
+    m_programs[5] =
+        make_program(VERTEX_SOURCE, GRAY_PASSTHROUGH_FRAGMENT_SOURCE);
 
     for (auto fd : output_buf_fds) {
         GLuint out_tex;

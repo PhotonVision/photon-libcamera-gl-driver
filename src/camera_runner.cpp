@@ -107,7 +107,6 @@ void CameraRunner::start() {
                  static_cast<EGLint>(stride / 2)},
             }};
 
-
             auto begintime = steady_clock::now();
 
             auto type = static_cast<ProcessType>(m_shaderIdx.load());

@@ -79,7 +79,8 @@ CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
         throw std::runtime_error("failed to configure stream");
     }
 
-    std::cout << "Selected configuration: " << config->at(0).toString() << std::endl;
+    std::cout << "Selected configuration: " << config->at(0).toString()
+              << std::endl;
 
     auto stream = config->at(0).stream();
     if (m_buf_allocator.allocate(stream) < 0) {

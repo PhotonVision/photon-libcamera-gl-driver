@@ -26,8 +26,8 @@ SET(FAST_FLAGS "-Ofast -ftree-vectorize -fPIC")
 add_definitions(${FAST_FLAGS})
 
 
-add_library(photonlibcamera SHARED 
-        src/camera_grabber.cpp 
+add_library(photonlibcamera SHARED
+        src/camera_grabber.cpp
         src/dma_buf_alloc.cpp
         src/gl_hsv_thresholder.cpp
         src/libcamera_opengl_utility.cpp
