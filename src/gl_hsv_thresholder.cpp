@@ -17,6 +17,8 @@
 
 #include "gl_hsv_thresholder.h"
 
+#include "camera_model.h"
+
 #include <libdrm/drm_fourcc.h>
 
 #include <iostream>

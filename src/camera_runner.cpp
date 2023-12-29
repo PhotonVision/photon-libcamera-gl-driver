@@ -116,7 +116,7 @@ void CameraRunner::start() {
 
             int out = m_thresholder.testFrame(
                 yuv_data, encodingFromColorspace(colorspace),
-                rangeFromColorspace(colorspace), type, useGrayScalePassThrough);
+                rangeFromColorspace(colorspace), type);
 
             if (out != 0) {
                 /*
