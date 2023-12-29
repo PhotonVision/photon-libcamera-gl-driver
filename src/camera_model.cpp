@@ -18,6 +18,8 @@
 #include "camera_model.h"
 
 #include <cstring>
+#include <algorithm>
+using namespace std;
 
 CameraModel stringToModel(const std::string &model) {
     std::printf("Checking model: %s\n", model.c_str());
@@ -38,4 +40,13 @@ CameraModel stringToModel(const std::string &model) {
         return Disconnected;
     else
         return Unknown;
+}
+
+bool isGrayScale(CameraModel model)
+{
+    if(std::find(std::begin(grayScaleCameras), std::end(grayScaleCameras), model)) {
+        return true;
+    } else {
+        return false;
+    }
 }

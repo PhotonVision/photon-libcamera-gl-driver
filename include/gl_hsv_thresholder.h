@@ -32,14 +32,16 @@
 #include <EGL/egl.h>
 #include <GLES2/gl2.h>
 
+#include "camera_model.h"
+
 #include "headless_opengl.h"
+
 
 enum class ProcessType : int32_t {
     None = 0,
     Hsv,
     Gray,
     Adaptive,
-    Gray_passthrough,
     NUM_PROCESS_TYPES
 };
 
@@ -51,7 +53,7 @@ class GlHsvThresholder {
         EGLint pitch;
     };
 
-    explicit GlHsvThresholder(int width, int height);
+    explicit GlHsvThresholder(int width, int height, CameraModel model);
     ~GlHsvThresholder();
 
     void start(const std::vector<int> &output_buf_fds);
@@ -79,6 +81,7 @@ class GlHsvThresholder {
   private:
     int m_width;
     int m_height;
+    bool useGrayScalePassThrough;
 
     std::unordered_map<int, GLuint> m_framebuffers; // (dma_buf fd, framebuffer)
     std::queue<int> m_renderable;

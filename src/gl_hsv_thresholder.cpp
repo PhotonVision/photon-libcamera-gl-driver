@@ -17,6 +17,8 @@
 
 #include "gl_hsv_thresholder.h"
 
+#include "camera_model.h"
+
 #include <libdrm/drm_fourcc.h>
 
 #include <iostream>
@@ -94,9 +96,10 @@ GLuint make_program(const char *vertex_source, const char *fragment_source) {
     return program;
 }
 
-GlHsvThresholder::GlHsvThresholder(int width, int height)
+GlHsvThresholder::GlHsvThresholder(int width, int height, CameraModel model)
     : m_width(width), m_height(height) {
     m_status = createHeadless();
+    useGrayScalePassThrough = isGrayScale(model);
     m_context = m_status.context;
     m_display = m_status.display;
 }
@@ -150,10 +153,13 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     m_programs.reserve((int)ProcessType::NUM_PROCESS_TYPES);
     m_programs[0] = make_program(VERTEX_SOURCE, NONE_FRAGMENT_SOURCE);
     m_programs[1] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
-    m_programs[2] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
+    if(useGrayScalePassThrough){
+        m_programs[2] = make_program(VERTEX_SOURCE, GRAY_FRAGMENT_SOURCE);
+    } else {
+        m_programs[2] = make_program(VERTEX_SOURCE, GRAY_PASSTHROUGH_FRAGMENT_SOURCE);
+    }
     m_programs[3] = make_program(VERTEX_SOURCE, TILING_FRAGMENT_SOURCE);
     m_programs[4] = make_program(VERTEX_SOURCE, THRESHOLDING_FRAGMENT_SOURCE);
-    m_programs[5] = make_program(VERTEX_SOURCE, GRAY_PASSTHROUGH_FRAGMENT_SOURCE);
 
     for (auto fd : output_buf_fds) {
         GLuint out_tex;
@@ -406,9 +412,7 @@ int GlHsvThresholder::testFrame(
         initial_program = m_programs[1];
     } else if (type == ProcessType::Gray || type == ProcessType::Adaptive) {
         initial_program = m_programs[2];
-    } else if (type == ProcessType::Gray_passthrough) {
-        initial_program = m_programs[5];
-    }
+    } 
 
     glUseProgram(initial_program);
     GLERROR();
