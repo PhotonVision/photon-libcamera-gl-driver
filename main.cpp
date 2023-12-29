@@ -43,7 +43,7 @@ void test_res(int width, int height) {
     cameras.erase(rem, cameras.end());
 
     for (const auto &cam : cameras) {
-        std::printf("Camera at: %s\n", cam->id().c_str());
+        printf("Camera at: %s\n", cam->id().c_str());
     }
 
     std::vector<CameraRunner *> runners;
@@ -61,7 +61,7 @@ void test_res(int width, int height) {
         r->cameraGrabber().cameraSettings().analogGain = 4;
         r->cameraGrabber().cameraSettings().brightness = 0.0;
 
-        std::printf("Started %s!\n", c->id().c_str());
+        printf("Started %s!\n", c->id().c_str());
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -79,17 +79,17 @@ void test_res(int width, int height) {
                 Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(
                     nullptr, NULL, (long int)&pair);
 
-            std::printf("now %li then %li dt %i\n", now, then, now - then);
+            printf("now %li then %li dt %i\n", now, then, now - then);
 
             if (i % 30 == 0) {
-                std::printf("saving cam %i idx %i\n", j, i);
+                printf("saving cam %i idx %i\n", j, i);
                 cv::Mat bgr;
                 cv::cvtColor(processed_mat, bgr, cv::COLOR_GRAY2BGR);
                 static char arr[50];
-                std::snprintf(arr, sizeof(arr), "color_cam%i_%i_%ix%i.png", j,
+                snprintf(arr, sizeof(arr), "color_cam%i_%i_%ix%i.png", j,
                               i, width, height);
                 cv::imwrite(arr, color_mat);
-                std::snprintf(arr, sizeof(arr), "thresh_cam%i_%i_%ix%i.png", j,
+                snprintf(arr, sizeof(arr), "thresh_cam%i_%i_%ix%i.png", j,
                               i, width, height);
                 cv::imwrite(arr, bgr);
             }
@@ -101,7 +101,7 @@ void test_res(int width, int height) {
         }
     }
 
-    std::printf("Destroying all!\n");
+    printf("Destroying all!\n");
     for (auto &r : runners) {
         r->stop();
         delete r;

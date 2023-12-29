@@ -193,8 +193,9 @@ void CameraGrabber::setControls(libcamera::Request *request) {
                       m_settings.exposureTimeUs); // in microseconds
         controls_.set(libcamera::controls::FrameDurationLimits,
                       libcamera::Span<const int64_t, 2>{
-                          {1, 80000}}); // Set default to zero, we have
-                                        // specified the exposure time
+                          {m_settings.exposureTimeUs,
+                           m_settings.exposureTimeUs}}); // Set default to zero, we have
+                                                         // specified the exposure time
     }
 
     controls_.set(controls::ExposureValue, 0);

@@ -70,7 +70,7 @@ static constexpr const char *HSV_FRAGMENT_SOURCE =
         ""
         "  float O = t.x - min(t.w, t.y);"
         "  const float n = 1.0e-10;"
-        "  return vec3(std::abs(t.z + (t.w - t.y) / (6.0 * O + n)), O / (t.x + n), "
+        "  return vec3(abs(t.z + (t.w - t.y) / (6.0 * O + n)), O / (t.x + n), "
         "t.x);"
         "}"
         ""
@@ -122,9 +122,9 @@ static constexpr const char *GRAY_FRAGMENT_SOURCE =
         ""
         "void main(void) {"
         "    vec3 gammaColor = texture2D(tex, texcoord).rgb;"
-        "    vec3 color = std::pow(gammaColor, vec3(2.0));"
+        "    vec3 color = pow(gammaColor, vec3(2.0));"
         "    float gray = dot(color, vec3(0.2126, 0.7152, 0.0722));"
-        "    float gammaGray = std::sqrt(gray);"
+        "    float gammaGray = sqrt(gray);"
         "    gl_FragColor = vec4(color.bgr, gammaGray);"
         "}";
 

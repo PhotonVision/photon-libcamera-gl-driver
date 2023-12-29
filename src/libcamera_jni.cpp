@@ -142,7 +142,7 @@ JNIEXPORT jint Java_org_photonvision_raspi_LibCameraJNI_getSensorModelRaw(
         }
     }
 
-    // std::printf("Got model %i\n", model_enum);
+    // printf("Got model %i\n", model_enum);
 
     env->ReleaseStringUTFChars(name, c_name);
 
@@ -363,7 +363,7 @@ Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame
         return 0;
     }
 
-    MatPair *pair = new MatPair(void);
+    MatPair *pair = new MatPair();
     *pair = runner->outgoing.take();
     return reinterpret_cast<jlong>(pair);
 }
