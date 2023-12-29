@@ -1,11 +1,12 @@
 name: Build driver
+
 on:
   push:
-    branches:
-      - 'master'
-      - 'releases/**'
+    branches: [ "master" ]
+    tags:
+      - 'v*'
   pull_request:
-  workflow_dispatch:
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -13,28 +14,52 @@ jobs:
     steps:
 
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Fetch tags
+      run: git fetch --tags --force
+    - run: git describe --tags
+
+    - name: Install Java 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+
     - uses: pguyot/arm-runner-action@v2
       with:
-        base_image: raspios_lite_arm64:latest
+        base_image: https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
         cpu: cortex-a7
         image_additional_mb: 1500
         bind_mount_repository: true
         commands: |
             apt-get update
             apt-get install -y libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev default-jdk openjdk-17-jdk
-            cmake -B build-pi -DCMAKE_BUILD_TYPE=Release
-            cmake --build build-pi -j 4
+            cmake -B cmake_build -DCMAKE_BUILD_TYPE=Release
+            cmake --build cmake_build -j 4
 
     - run: find .
 
-    - uses: actions/upload-artifact@master
+    - run: |
+        chmod +x gradlew
+        ./gradlew build ${{ (startsWith(github.event_name, 'push') && 'publish') || '' }} -PArchOverride=linuxarm64
+      env:
+        ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
+
+    - uses: actions/upload-artifact@v4
+      name: Upload jar
+      with:
+        name: libmrcal-jar-pi
+        path: ${{ github.workspace }}/build/libs/*.jar
+    - uses: actions/upload-artifact@v4
       with:
         name: libcamera-driver
-        path: build-pi/*.so
-    - uses: actions/upload-artifact@master
+        path: cmake_build/*.so
+    - uses: actions/upload-artifact@v4
       with:
         name: libcamera-meme
-        path: build-pi/libcamera_meme
+        path: cmake_build/libcamera_meme
 
     # Push to dev release on pushes to master
     - uses: pyTooling/Actions/releaser@r0
@@ -43,14 +68,14 @@ jobs:
         tag: 'Dev'
         rm: true
         files: |
-          build-pi/*.so
+          cmake_build/*.so
       if: github.event_name == 'push'
 
     # Push to actual release, if tagged
     - uses: softprops/action-gh-release@v1
       with:
         files: |
-          build-pi/*.so
+          cmake_build/*.so
       if: startsWith(github.ref, 'refs/tags/v')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

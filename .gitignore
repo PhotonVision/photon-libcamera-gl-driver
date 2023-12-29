@@ -5,3 +5,6 @@ build
 compile_commands.json
 photon_sysroot*
 build-pi/*
+cmake_build/*
+.gradle/*
+*.jar
