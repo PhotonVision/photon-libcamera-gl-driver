@@ -37,6 +37,11 @@ template <typename T> class BlockingFuture {
         std::unique_lock<std::mutex> lock(m_mutex);
         m_cond.wait_for(lock, std::chrono::seconds(1), [&] { return m_data.has_value(); });
 
+        if(!m_data.has_value())
+        {
+          return NULL;
+        }
+
         auto item = std::move(m_data.value());
         m_data.reset();
         return item;
