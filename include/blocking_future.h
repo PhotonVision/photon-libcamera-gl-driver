@@ -45,7 +45,7 @@ template <typename T> class BlockingFuture {
         return item;
     }
 
-    std::optional<T> take(const chrono::duration<_Rep, _Period>& _max_time) {
+    std::optional<T> take(const std::chrono::duration<_Rep, _Period>& _max_time) {
         std::unique_lock<std::mutex> lock(m_mutex);
 
         std::optional<T> ret;
