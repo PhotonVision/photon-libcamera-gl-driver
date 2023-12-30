@@ -363,9 +363,17 @@ Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame
         return 0;
     }
 
-    MatPair *pair = new MatPair();
-    *pair = runner->outgoing.take();
-    return reinterpret_cast<jlong>(pair);
+    //If the camera has not found a frame in less than 1 seconds return no frame.
+    std::optional<MatPair> mat =  runner->outgoing.take(std::chrono::seconds(1));
+    if(mat.has_value())
+    {
+        MatPair *pair = new MatPair();
+        *pair = mat.value();
+        return reinterpret_cast<jlong>(pair);
+    }
+    return 0;
+    
+
 }
 
 /*

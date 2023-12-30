@@ -35,16 +35,28 @@ template <typename T> class BlockingFuture {
 
     T take() {
         std::unique_lock<std::mutex> lock(m_mutex);
-        m_cond.wait_for(lock, std::chrono::seconds(1), [&] { return m_data.has_value(); });
-
-        if(!m_data.has_value())
-        {
-          return new T();
-        }
+        m_cond.wait_for(lock, [&] { return m_data.has_value(); });
 
         auto item = std::move(m_data.value());
         m_data.reset();
         return item;
+    }
+
+    std::optional<T> take(const chrono::duration<_Rep, _Period>& _max_time) {
+        std::unique_lock<std::mutex> lock(m_mutex);
+
+        std::optional<T> ret;
+
+        m_cond.wait_for(lock, _max_time, [&] { return m_data.has_value(); });
+        
+        if(m_data.has_value())
+        {
+          auto item = std::move(m_data.value());
+          m_data.reset();
+          return item;
+        }
+        return {};
+
     }
 
   private:
