@@ -21,6 +21,7 @@
 #include <mutex>
 #include <optional>
 #include <utility>
+#include <__msvc_chrono.hpp>
 
 template <typename T> class BlockingFuture {
   public:
