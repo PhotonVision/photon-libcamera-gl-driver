@@ -39,7 +39,7 @@ template <typename T> class BlockingFuture {
 
         if(!m_data.has_value())
         {
-          return NULL;
+          return 0;
         }
 
         auto item = std::move(m_data.value());
