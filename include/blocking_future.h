@@ -21,7 +21,7 @@
 #include <mutex>
 #include <optional>
 #include <utility>
-using namespace std::chrono_literals;
+#include <chrono>
 
 template <typename T> class BlockingFuture {
   public:
