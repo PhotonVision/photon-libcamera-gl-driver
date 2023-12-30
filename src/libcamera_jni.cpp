@@ -365,9 +365,6 @@ Java_org_photonvision_raspi_LibCameraJNI_awaitNewFrame
 
     MatPair *pair = new MatPair();
     *pair = runner->outgoing.take();
-    if (pair == NULL) {
-        return 0;
-    }
     return reinterpret_cast<jlong>(pair);
 }
 

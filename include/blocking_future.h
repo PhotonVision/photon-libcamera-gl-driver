@@ -39,7 +39,7 @@ template <typename T> class BlockingFuture {
 
         if(!m_data.has_value())
         {
-          return 0;
+          return new MatPair();
         }
 
         auto item = std::move(m_data.value());
