@@ -20,8 +20,6 @@
 #include <algorithm>
 #include <cstring>
 
-using namespace std;
-
 static const CameraModel grayScaleCameras[] = {OV9281};
 
 CameraModel stringToModel(const std::string &model) {
@@ -47,5 +45,5 @@ CameraModel stringToModel(const std::string &model) {
 
 bool isGrayScale(CameraModel model) {
     return std::find(std::begin(grayScaleCameras), std::end(grayScaleCameras),
-                  model) != std::end(grayScaleCameras);
+                     model) != std::end(grayScaleCameras);
 }
