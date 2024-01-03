@@ -96,7 +96,8 @@ GLuint make_program(const char *vertex_source, const char *fragment_source) {
 }
 
 GlHsvThresholder::GlHsvThresholder(int width, int height, CameraModel model)
-    : m_width(width), m_height(height) {
+    : m_width(width), m_height(height), useGrayScalePassThrough(isGrayScale(model)) {
+
     m_status = createHeadless();
     useGrayScalePassThrough = isGrayScale(model);
     m_context = m_status.context;
