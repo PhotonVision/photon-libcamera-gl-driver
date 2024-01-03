@@ -57,8 +57,7 @@ template <typename T> class BlockingFuture {
           m_data.reset();
           return item;
         }
-        return {};
-
+        return std::nullopt;
     }
 
   private:
