@@ -17,13 +17,6 @@
 
 package org.photonvision.raspi;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 public class LibCameraJNI {
     public enum SensorModel {
         Disconnected,
