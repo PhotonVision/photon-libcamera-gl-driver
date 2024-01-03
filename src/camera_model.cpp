@@ -20,8 +20,6 @@
 #include <algorithm>
 #include <cstring>
 
-using namespace std;
-
 static const CameraModel grayScaleCameras[] = {OV9281};
 
 CameraModel stringToModel(const std::string &model) {

@@ -33,7 +33,6 @@
 #define EGLERROR() eglerror(__LINE__)
 
 void test_res(int width, int height) {
-
     std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();
 
     // Yeet all USB cameras (I hope)
@@ -109,7 +108,6 @@ void test_res(int width, int height) {
 }
 
 int main() {
-
     for (int i = 0; i < 1; i++) {
         test_res(1280, 800);
         // test_res(1280/2, 800/2);

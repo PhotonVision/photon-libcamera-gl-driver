@@ -19,6 +19,7 @@ modifiableFileExclude {
   \.webp$
   \.ico$
   gradlew
+  /include/gl_shader_source\.h$
 }
 
 includeProject {
