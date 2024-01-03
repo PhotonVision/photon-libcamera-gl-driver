@@ -17,11 +17,11 @@
 
 #pragma once
 
+#include <chrono>
 #include <condition_variable>
 #include <mutex>
 #include <optional>
 #include <utility>
-#include <chrono>
 
 using namespace std::chrono_literals;
 
@@ -50,12 +50,11 @@ template <typename T> class BlockingFuture {
         std::optional<T> ret;
 
         m_cond.wait_for(lock, _max_time, [&] { return m_data.has_value(); });
-        
-        if(m_data.has_value())
-        {
-          auto item = std::move(m_data.value());
-          m_data.reset();
-          return item;
+
+        if (m_data.has_value()) {
+            auto item = std::move(m_data.value());
+            m_data.reset();
+            return item;
         }
         return std::nullopt;
     }

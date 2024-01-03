@@ -58,7 +58,7 @@ GLuint make_shader(GLenum type, const char *source) {
         glGetShaderInfoLog(shader, log_size, nullptr, out.data());
 
         glDeleteShader(shader);
-        printf("Shader:\n%s\n", source);
+        std::printf("Shader:\n%s\n", source);
         throw std::runtime_error("failed to compile shader with error: " + out);
     }
 
@@ -96,7 +96,8 @@ GLuint make_program(const char *vertex_source, const char *fragment_source) {
 }
 
 GlHsvThresholder::GlHsvThresholder(int width, int height, CameraModel model)
-    : m_width(width), m_height(height), useGrayScalePassThrough(isGrayScale(model)) {
+    : m_width(width), m_height(height),
+      useGrayScalePassThrough(isGrayScale(model)) {
 
     m_status = createHeadless();
     m_context = m_status.context;

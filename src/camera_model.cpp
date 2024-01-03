@@ -45,5 +45,5 @@ CameraModel stringToModel(const std::string &model) {
 
 bool isGrayScale(CameraModel model) {
     return std::find(std::begin(grayScaleCameras), std::end(grayScaleCameras),
-                  model) != std::end(grayScaleCameras);
+                     model) != std::end(grayScaleCameras);
 }
