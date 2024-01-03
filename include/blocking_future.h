@@ -23,8 +23,6 @@
 #include <optional>
 #include <utility>
 
-using namespace std::chrono_literals;
-
 template <typename T> class BlockingFuture {
   public:
     BlockingFuture() = default;
