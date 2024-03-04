@@ -10,10 +10,39 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL)
-find_package(OpenCV REQUIRED)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
 pkg_check_modules(LIBCAMERA REQUIRED libcamera)
 pkg_check_modules(LIBGBM REQUIRED gbm)
+
+set(OPENCV_YEAR "frc2024")
+set(OPENCV_VERSION "4.8.0-2")
+# also valid: windowsx86-64
+
+# type can be "", "debug", "static", or "staticdebug"
+set(OPENCV_TYPE "")
+set(OPENCV_ARCH "linuxarm64")
+
+# Download opencv, and save the path
+include(FetchContent)
+FetchContent_Declare(
+    opencv_lib
+    URL https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-${OPENCV_ARCH}${OPENCV_TYPE}.zip
+)
+FetchContent_MakeAvailable(opencv_lib)
+
+# download OpenCV headers
+FetchContent_Declare(
+    opencv_header
+    URL https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-headers.zip
+)
+FetchContent_MakeAvailable(opencv_header)
+
+file(GLOB_RECURSE OPENCV_LIB_PATH
+  "${opencv_lib_SOURCE_DIR}/**/*.lib"
+  "${opencv_lib_SOURCE_DIR}/**/*.so*"
+)
+SET(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
+message("Depending on opencv ${OPENCV_LIB_PATH} / ${OPENCV_INCLUDE_PATH}")
 
 find_package(JNI)
 if(JNI_FOUND)
@@ -47,7 +76,7 @@ target_include_directories(
         ${LIBDRM_INCLUDE_DIRS}
         ${LIBCAMERA_INCLUDE_DIRS}
         ${LIBGBM_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
+        ${OPENCV_INCLUDE_PATH}
         ${JNI_INCLUDE_DIRS}
 )
 target_link_libraries(
@@ -58,7 +87,7 @@ target_link_libraries(
         Threads::Threads
         ${LIBCAMERA_LINK_LIBRARIES}
         ${LIBGBM_LINK_LIBRARIES}
-        ${OpenCV_LIBS}
+        ${OPENCV_LIB_PATH}
         ${LIBDRM_LINK_LIBRARIES}
 )
 target_compile_options(photonlibcamera PRIVATE -Wall -Wextra -Wpedantic -Werror)
@@ -71,7 +100,7 @@ target_include_directories(
         ${LIBDRM_INCLUDE_DIRS}
         ${LIBCAMERA_INCLUDE_DIRS}
         ${LIBGBM_INCLUDE_DIRS}
-        ${OpenCV_INCLUDE_DIRS}
+        ${OPENCV_INCLUDE_PATH}
         ${JNI_INCLUDE_DIRS}
 )
 target_link_libraries(libcamera_meme photonlibcamera)

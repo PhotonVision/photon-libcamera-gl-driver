@@ -35,6 +35,7 @@ jobs:
         bind_mount_repository: true
         commands: |
             apt-get update
+            apt show libcamera*
             apt-get install -y libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev default-jdk openjdk-17-jdk
             cmake -B cmake_build -DCMAKE_BUILD_TYPE=Release
             cmake --build cmake_build -j 4
