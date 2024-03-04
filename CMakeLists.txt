@@ -76,8 +76,12 @@ target_include_directories(
         ${LIBDRM_INCLUDE_DIRS}
         ${LIBCAMERA_INCLUDE_DIRS}
         ${LIBGBM_INCLUDE_DIRS}
-        ${OPENCV_INCLUDE_PATH}
         ${JNI_INCLUDE_DIRS}
+)
+target_include_directories(
+    photonlibcamera
+    SYSTEM PUBLIC
+    ${OPENCV_INCLUDE_PATH}
 )
 target_link_libraries(
     photonlibcamera
@@ -100,7 +104,11 @@ target_include_directories(
         ${LIBDRM_INCLUDE_DIRS}
         ${LIBCAMERA_INCLUDE_DIRS}
         ${LIBGBM_INCLUDE_DIRS}
-        ${OPENCV_INCLUDE_PATH}
         ${JNI_INCLUDE_DIRS}
+)
+target_include_directories(
+    libcamera_meme
+    SYSTEM PUBLIC
+    ${OPENCV_INCLUDE_PATH}
 )
 target_link_libraries(libcamera_meme photonlibcamera)
