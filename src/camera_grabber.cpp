@@ -206,17 +206,17 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     }
 }
 
-void CameraGrabber::startAndQueue() {
+boolean CameraGrabber::startAndQueue() {
     running = true;
     if (m_camera->start()) {
-        throw std::runtime_error("failed to start camera");
+        return false;// failed to start camera
     }
 
     // TODO: HANDLE THIS BETTER
     for (auto &request : m_requests) {
         setControls(request.get());
         if (m_camera->queueRequest(request.get()) < 0) {
-            throw std::runtime_error("failed to queue request");
+            return false; // failed to queue request
         }
     }
 }
