@@ -75,7 +75,7 @@ void CameraRunner::setCopyOptions(bool copyIn, bool copyOut) {
     m_copyOutput = copyOut;
 }
 
-boolean CameraRunner::start() {
+bool CameraRunner::start() {
     unsigned int stride = grabber.streamConfiguration().stride;
 
     latch start_frame_grabber{2};
