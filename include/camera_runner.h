@@ -64,7 +64,7 @@ class CameraRunner {
 
     // Note: start and stop are not reenterant. Starting and stopping a camera
     // repeatedly should work, but has not been thoroughly tested.
-    void start();
+    bool start();
     void stop();
 
     // Note: this is public but is a footgun. Destructing this class while a
