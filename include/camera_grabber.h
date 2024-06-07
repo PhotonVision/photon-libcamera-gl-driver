@@ -55,7 +55,7 @@ class CameraGrabber {
 
     // Note: these 3 functions must be protected by mutual exclusion.
     // Failure to do so will result in UB.
-    void startAndQueue();
+    bool startAndQueue();
     void stop();
     void requeueRequest(libcamera::Request *request);
 

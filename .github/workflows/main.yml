@@ -29,7 +29,7 @@ jobs:
 
     - uses: pguyot/arm-runner-action@v2
       with:
-        base_image: https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2023-12-11/2023-12-11-raspios-bookworm-arm64-lite.img.xz
+        base_image: https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-03-15/2024-03-15-raspios-bookworm-arm64-lite.img.xz
         cpu: cortex-a7
         image_additional_mb: 1500
         bind_mount_repository: true

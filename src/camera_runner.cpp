@@ -75,7 +75,7 @@ void CameraRunner::setCopyOptions(bool copyIn, bool copyOut) {
     m_copyOutput = copyOut;
 }
 
-void CameraRunner::start() {
+bool CameraRunner::start() {
     unsigned int stride = grabber.streamConfiguration().stride;
 
     latch start_frame_grabber{2};
@@ -242,7 +242,7 @@ void CameraRunner::start() {
 
     {
         std::lock_guard<std::mutex> lock{camera_stop_mutex};
-        grabber.startAndQueue();
+        return grabber.startAndQueue();
     }
 }
 
