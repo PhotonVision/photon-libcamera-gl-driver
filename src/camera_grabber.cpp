@@ -206,7 +206,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     }
 }
 
-boolean CameraGrabber::startAndQueue() {
+bool CameraGrabber::startAndQueue() {
     running = true;
     if (m_camera->start()) {
         return false;// failed to start camera
