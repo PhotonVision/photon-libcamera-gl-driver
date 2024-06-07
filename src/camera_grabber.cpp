@@ -219,6 +219,7 @@ bool CameraGrabber::startAndQueue() {
             return false; // failed to queue request
         }
     }
+    return true;
 }
 
 void CameraGrabber::stop() {
