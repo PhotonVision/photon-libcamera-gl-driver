@@ -178,26 +178,20 @@ void CameraGrabber::setControls(libcamera::Request *request) {
         } else {
             controls_.set(controls::AeExposureMode, controls::ExposureShort);
         }
-
-        // 1/fps=seconds
-        // seconds * 1e6 = uS
-        constexpr const int MIN_FRAME_TIME = 1e6 / 250;
-        constexpr const int MAX_FRAME_TIME = 1e6 / 15;
-        controls_.set(libcamera::controls::FrameDurationLimits,
-                      libcamera::Span<const int64_t, 2>{
-                          {MIN_FRAME_TIME, MAX_FRAME_TIME}});
     } else {
         controls_.set(controls::AeEnable,
                       false); // Auto exposure disabled
         controls_.set(controls::ExposureTime,
                       m_settings.exposureTimeUs); // in microseconds
-        controls_.set(
-            libcamera::controls::FrameDurationLimits,
-            libcamera::Span<const int64_t, 2>{
-                {m_settings.exposureTimeUs,
-                 m_settings.exposureTimeUs}}); // Set default to zero, we have
-                                               // specified the exposure time
     }
+
+    // 1/fps=seconds
+    // seconds * 1e6 = uS
+    constexpr const int MIN_FRAME_TIME = 1e6 / 120;
+    constexpr const int MAX_FRAME_TIME = 1e6 / 1;
+    controls_.set(libcamera::controls::FrameDurationLimits,
+                    libcamera::Span<const int64_t, 2>{
+                        {MIN_FRAME_TIME, MAX_FRAME_TIME}});
 
     controls_.set(controls::ExposureValue, 0);
 

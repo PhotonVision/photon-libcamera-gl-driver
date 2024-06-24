@@ -23,7 +23,6 @@
 static const CameraModel grayScaleCameras[] = {OV9281};
 
 CameraModel stringToModel(const std::string &model) {
-    std::printf("Checking model: %s\n", model.c_str());
     const char *famname = model.c_str();
     if (!strcmp(famname, "ov5647"))
         return OV5647;
