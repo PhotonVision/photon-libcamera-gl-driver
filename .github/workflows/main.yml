@@ -2,81 +2,77 @@ name: Build driver
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
     tags:
-      - 'v*'
+      - "v*"
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      - name: Fetch tags
+        run: git fetch --tags --force
+      - run: git describe --tags
 
-    - name: Fetch tags
-      run: git fetch --tags --force
-    - run: git describe --tags
+      - name: Install Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
 
-    - name: Install Java 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: 17
-        distribution: temurin
-
-    - uses: pguyot/arm-runner-action@v2
-      with:
-        base_image: https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-07-04/2024-07-04-raspios-bookworm-arm64-lite.img.xz
-        cpu: cortex-a7
-        image_additional_mb: 1500
-        bind_mount_repository: true
-        commands: |
-            apt-get update
-            apt show libcamera*
-            apt-get install -y libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev default-jdk openjdk-17-jdk
+      - uses: pguyot/arm-runner-action@v2
+        with:
+          base_image: https://github.com/PhotonVision/photon-image-modifier/releases/download/v2025.0.0-beta-6/photonvision_raspi_dev.img.xz
+          cpu: cortex-a7
+          image_additional_mb: 1500
+          bind_mount_repository: true
+          commands: |
             cmake -B cmake_build -DCMAKE_BUILD_TYPE=Release
             cmake --build cmake_build -j 4
 
-    - run: find .
+      - run: find .
 
-    - run: |
-        chmod +x gradlew
-        ./gradlew build ${{ (startsWith(github.event_name, 'push') && 'publish') || '' }} -PArchOverride=linuxarm64
-      env:
-        ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
+      - run: |
+          chmod +x gradlew
+          ./gradlew build ${{ (startsWith(github.event_name, 'push') && 'publish') || '' }} -PArchOverride=linuxarm64
+        env:
+          ARTIFACTORY_API_KEY: ${{ secrets.ARTIFACTORY_API_KEY }}
 
-    - uses: actions/upload-artifact@v4
-      name: Upload jar
-      with:
-        name: libmrcal-jar-pi
-        path: ${{ github.workspace }}/build/libs/*.jar
-    - uses: actions/upload-artifact@v4
-      with:
-        name: libcamera-driver
-        path: cmake_build/*.so
-    - uses: actions/upload-artifact@v4
-      with:
-        name: libcamera-meme
-        path: cmake_build/libcamera_meme
+      - uses: actions/upload-artifact@v4
+        name: Upload jar
+        with:
+          name: libmrcal-jar-pi
+          path: ${{ github.workspace }}/build/libs/*.jar
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libcamera-driver
+          path: cmake_build/*.so
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libcamera-meme
+          path: cmake_build/libcamera_meme
 
-    # Push to dev release on pushes to master
-    - uses: pyTooling/Actions/releaser@r0
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        tag: 'Dev'
-        rm: true
-        files: |
-          cmake_build/*.so
-      if: github.event_name == 'push'
+      # Push to dev release on pushes to master
+      - uses: pyTooling/Actions/releaser@r0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: "Dev"
+          rm: true
+          files: |
+            cmake_build/*.so
+        if: github.event_name == 'push'
 
-    # Push to actual release, if tagged
-    - uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          cmake_build/*.so
-      if: startsWith(github.ref, 'refs/tags/v')
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # Push to actual release, if tagged
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            cmake_build/*.so
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
