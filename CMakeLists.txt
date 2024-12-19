@@ -14,8 +14,8 @@ pkg_check_modules(LIBDRM REQUIRED libdrm)
 pkg_check_modules(LIBCAMERA REQUIRED libcamera)
 pkg_check_modules(LIBGBM REQUIRED gbm)
 
-set(OPENCV_YEAR "frc2024")
-set(OPENCV_VERSION "4.8.0-2")
+set(OPENCV_YEAR "frc2025")
+set(OPENCV_VERSION "4.10.0-3")
 # also valid: windowsx86-64
 
 # type can be "", "debug", "static", or "staticdebug"
