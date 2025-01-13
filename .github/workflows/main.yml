@@ -28,7 +28,7 @@ jobs:
 
       - uses: pguyot/arm-runner-action@v2
         with:
-          base_image: https://github.com/PhotonVision/photon-image-modifier/releases/download/Dev/photonvision_raspi_dev.img.xz
+          base_image: https://github.com/PhotonVision/photon-image-modifier/releases/download/v2025.0.2/photonvision_raspi_dev.img.xz
           cpu: cortex-a7
           image_additional_mb: 1500
           bind_mount_repository: true
