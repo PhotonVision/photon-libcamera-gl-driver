@@ -33,6 +33,7 @@ jobs:
           image_additional_mb: 1500
           bind_mount_repository: true
           commands: |
+            apt-get update && apt-get install -y gcc g++
             cmake -B cmake_build -DCMAKE_BUILD_TYPE=Release
             cmake --build cmake_build -j 4
 
