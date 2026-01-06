@@ -188,7 +188,7 @@ bool CameraRunner::start() {
             int bound = m_width * m_height;
 
             {
-                struct dma_buf_sync dma_sync {};
+                struct dma_buf_sync dma_sync{};
                 dma_sync.flags = DMA_BUF_SYNC_START | DMA_BUF_SYNC_RW;
                 int ret = ::ioctl(data.fd, DMA_BUF_IOCTL_SYNC, &dma_sync);
                 if (ret)
@@ -208,7 +208,7 @@ bool CameraRunner::start() {
             }
 
             {
-                struct dma_buf_sync dma_sync {};
+                struct dma_buf_sync dma_sync{};
                 dma_sync.flags = DMA_BUF_SYNC_END | DMA_BUF_SYNC_RW;
                 int ret = ::ioctl(data.fd, DMA_BUF_IOCTL_SYNC, &dma_sync);
                 if (ret)

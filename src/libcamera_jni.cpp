@@ -159,7 +159,6 @@ Java_org_photonvision_raspi_LibCameraJNI_startCamera
 {
     CameraRunner *runner = reinterpret_cast<CameraRunner *>(runner_);
 
-    
     return runner->start();
 }
 
