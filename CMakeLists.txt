@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.24)
 project(libcamera_meme)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -47,12 +47,7 @@ file(
 set(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
 message("Depending on opencv ${OPENCV_LIB_PATH} / ${OPENCV_INCLUDE_PATH}")
 
-find_package(JNI)
-if(JNI_FOUND)
-    # Fixes odd AWT dependency
-    set(JNI_INCLUDE_DIRS ${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
-    message(STATUS "JNI_INCLUDE_DIRS=${JNI_INCLUDE_DIRS}")
-endif()
+find_package(JNI REQUIRED COMPONENTS JVM)
 
 set(FAST_FLAGS "-Ofast -ftree-vectorize -fPIC")
 add_definitions(${FAST_FLAGS})
