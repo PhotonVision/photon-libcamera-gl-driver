@@ -20,8 +20,10 @@
 #include <libcamera/control_ids.h>
 #include <libcamera/property_ids.h>
 
+#include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
                              int width, int height, int rotation)

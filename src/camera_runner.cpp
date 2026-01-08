@@ -18,9 +18,12 @@
 #include "camera_runner.h"
 
 #include <chrono>
+#include <cstdio>
 #include <cstring>
 #include <iostream>
-#include <thread>
+#include <memory>
+#include <unordered_map>
+#include <utility>
 
 #ifdef __cpp_lib_latch
 #include <latch>

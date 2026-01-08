@@ -37,6 +37,9 @@
 #include <libcamera/property_ids.h>
 
 #include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "camera_manager.h"
 #include "camera_model.h"

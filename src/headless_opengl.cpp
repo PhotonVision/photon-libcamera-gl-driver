@@ -21,6 +21,8 @@
 #include <gbm.h>
 #include <unistd.h>
 
+#include <cstdio>
+#include <string>
 #include <vector>
 
 #include <EGL/eglext.h>

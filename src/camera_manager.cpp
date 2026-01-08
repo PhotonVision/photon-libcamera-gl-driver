@@ -17,6 +17,8 @@
 
 #include "camera_manager.h"
 
+#include <vector>
+
 std::vector<std::shared_ptr<libcamera::Camera>> GetAllCameraIDs() {
     static libcamera::CameraManager *camera_manager;
     if (!camera_manager) {

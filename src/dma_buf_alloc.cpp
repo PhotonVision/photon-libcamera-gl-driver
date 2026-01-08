@@ -24,6 +24,7 @@
 #include <unistd.h>
 
 #include <stdexcept>
+#include <string>
 
 DmaBufAlloc::DmaBufAlloc(const std::string &heap_name) {
     int heap_fd = open(heap_name.c_str(), O_RDWR, 0);
