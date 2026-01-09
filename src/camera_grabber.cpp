@@ -20,8 +20,10 @@
 #include <libcamera/control_ids.h>
 #include <libcamera/property_ids.h>
 
+#include <cstdio>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 CameraGrabber::CameraGrabber(std::shared_ptr<libcamera::Camera> camera,
                              int width, int height, int rotation)
@@ -189,9 +191,9 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     // seconds * 1e6 = uS
     constexpr const int MIN_FRAME_TIME = 1e6 / 120;
     constexpr const int MAX_FRAME_TIME = 1e6 / 1;
-    controls_.set(libcamera::controls::FrameDurationLimits,
-                    libcamera::Span<const int64_t, 2>{
-                        {MIN_FRAME_TIME, MAX_FRAME_TIME}});
+    controls_.set(
+        libcamera::controls::FrameDurationLimits,
+        libcamera::Span<const int64_t, 2>{{MIN_FRAME_TIME, MAX_FRAME_TIME}});
 
     controls_.set(controls::ExposureValue, 0);
 
@@ -203,7 +205,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
 bool CameraGrabber::startAndQueue() {
     running = true;
     if (m_camera->start()) {
-        return false;// failed to start camera
+        return false; // failed to start camera
     }
 
     // TODO: HANDLE THIS BETTER

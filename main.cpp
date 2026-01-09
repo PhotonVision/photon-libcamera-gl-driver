@@ -16,8 +16,11 @@
  */
 
 #include <chrono>
-#include <iostream>
+#include <cstdio>
+#include <string>
 #include <thread>
+#include <utility>
+#include <vector>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -54,7 +57,7 @@ void test_res(int width, int height) {
         runners.push_back(r);
         r->start();
         r->setCopyOptions(true, true);
-        r->requestShaderIdx((int)ProcessType::Gray);
+        r->requestShaderIdx(static_cast<int>(ProcessType::Gray));
 
         r->cameraGrabber().cameraSettings().exposureTimeUs = 100000;
         r->cameraGrabber().cameraSettings().analogGain = 4;
@@ -76,7 +79,7 @@ void test_res(int width, int height) {
                     nullptr, NULL);
             auto then =
                 Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(
-                    nullptr, NULL, (long int)&pair);
+                    nullptr, NULL, reinterpret_cast<int64_t>(&pair));
 
             std::printf("now %li then %li dt %i\n", now, then, now - then);
 
@@ -114,7 +117,7 @@ int main() {
         // test_res(640, 480);
     }
 
-    std::cout << "Done" << std::endl;
+    std::printf("Done\n");
 
     return 0;
 }

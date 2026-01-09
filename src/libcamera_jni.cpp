@@ -37,6 +37,9 @@
 #include <libcamera/property_ids.h>
 
 #include <optional>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "camera_manager.h"
 #include "camera_model.h"
@@ -159,7 +162,6 @@ Java_org_photonvision_raspi_LibCameraJNI_startCamera
 {
     CameraRunner *runner = reinterpret_cast<CameraRunner *>(runner_);
 
-    
     return runner->start();
 }
 

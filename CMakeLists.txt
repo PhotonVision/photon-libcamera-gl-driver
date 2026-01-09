@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.24)
 project(libcamera_meme)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -26,30 +26,28 @@ set(OPENCV_ARCH "linuxarm64")
 include(FetchContent)
 FetchContent_Declare(
     opencv_lib
-    URL https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-${OPENCV_ARCH}${OPENCV_TYPE}.zip
+    URL
+        https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-${OPENCV_ARCH}${OPENCV_TYPE}.zip
 )
 FetchContent_MakeAvailable(opencv_lib)
 
 # download OpenCV headers
 FetchContent_Declare(
     opencv_header
-    URL https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-headers.zip
+    URL
+        https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-headers.zip
 )
 FetchContent_MakeAvailable(opencv_header)
 
-file(GLOB_RECURSE OPENCV_LIB_PATH
-  "${opencv_lib_SOURCE_DIR}/**/*.lib"
-  "${opencv_lib_SOURCE_DIR}/**/*.so*"
+file(
+    GLOB_RECURSE OPENCV_LIB_PATH
+    "${opencv_lib_SOURCE_DIR}/**/*.lib"
+    "${opencv_lib_SOURCE_DIR}/**/*.so*"
 )
-SET(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
+set(OPENCV_INCLUDE_PATH ${opencv_header_SOURCE_DIR})
 message("Depending on opencv ${OPENCV_LIB_PATH} / ${OPENCV_INCLUDE_PATH}")
 
-find_package(JNI)
-if(JNI_FOUND)
-    # Fixes odd AWT dependency
-    set(JNI_INCLUDE_DIRS ${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
-    message(STATUS "JNI_INCLUDE_DIRS=${JNI_INCLUDE_DIRS}")
-endif()
+find_package(JNI REQUIRED COMPONENTS JVM)
 
 set(FAST_FLAGS "-Ofast -ftree-vectorize -fPIC")
 add_definitions(${FAST_FLAGS})
@@ -78,11 +76,7 @@ target_include_directories(
         ${LIBGBM_INCLUDE_DIRS}
         ${JNI_INCLUDE_DIRS}
 )
-target_include_directories(
-    photonlibcamera
-    SYSTEM PUBLIC
-    ${OPENCV_INCLUDE_PATH}
-)
+target_include_directories(photonlibcamera SYSTEM PUBLIC ${OPENCV_INCLUDE_PATH})
 target_link_libraries(
     photonlibcamera
     PUBLIC
@@ -106,9 +100,5 @@ target_include_directories(
         ${LIBGBM_INCLUDE_DIRS}
         ${JNI_INCLUDE_DIRS}
 )
-target_include_directories(
-    libcamera_meme
-    SYSTEM PUBLIC
-    ${OPENCV_INCLUDE_PATH}
-)
+target_include_directories(libcamera_meme SYSTEM PUBLIC ${OPENCV_INCLUDE_PATH})
 target_link_libraries(libcamera_meme photonlibcamera)

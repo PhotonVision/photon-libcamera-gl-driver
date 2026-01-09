@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <string>
 
 static const CameraModel grayScaleCameras[] = {OV9281};
 

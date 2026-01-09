@@ -19,8 +19,10 @@
 
 #include <libdrm/drm_fourcc.h>
 
-#include <iostream>
+#include <cstdio>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 #include <EGL/eglext.h>
 #include <GLES2/gl2ext.h>
@@ -150,7 +152,7 @@ void GlHsvThresholder::start(const std::vector<int> &output_buf_fds) {
     // glDebugMessageCallbackKHR(on_gl_error, nullptr);
     // GLERROR();
 
-    m_programs.reserve((int)ProcessType::NUM_PROCESS_TYPES);
+    m_programs.reserve(static_cast<int>(ProcessType::NUM_PROCESS_TYPES));
     m_programs[0] = make_program(VERTEX_SOURCE, NONE_FRAGMENT_SOURCE);
     m_programs[1] = make_program(VERTEX_SOURCE, HSV_FRAGMENT_SOURCE);
     if (useGrayScalePassThrough) {
@@ -342,10 +344,8 @@ int GlHsvThresholder::testFrame(
         std::scoped_lock lock(m_renderable_mutex);
         if (!m_renderable.empty()) {
             framebuffer_fd = m_renderable.front();
-            // std::cout << "yes framebuffer" << std::endl;
             m_renderable.pop();
         } else {
-            // std::cout << "no framebuffer, skipping" << std::endl;
             return 0;
         }
     }
