@@ -37,6 +37,8 @@ CameraModel stringToModel(const std::string &model) {
         return OV9281;
     else if (!strcmp(famname, "ov7251"))
         return OV7251;
+    else if (!strcmp(famname, "ov9782"))
+        return OV9782;
     else if (!strcmp(famname, "Disconnected"))
         return Disconnected;
     else

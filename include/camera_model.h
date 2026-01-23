@@ -28,6 +28,7 @@ enum CameraModel {
     IMX477, // Picam HQ
     OV9281,
     OV7251,
+    OV9782,
     Unknown
 };
 CameraModel stringToModel(const std::string &model);
