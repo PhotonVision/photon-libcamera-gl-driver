@@ -35,6 +35,8 @@ CameraModel stringToModel(const std::string &model) {
         return IMX477;
     else if (!strcmp(famname, "ov9281"))
         return OV9281;
+    else if (!strcmp(famname, "ov9782"))
+        return OV9782;
     else if (!strcmp(famname, "ov7251"))
         return OV7251;
     else if (!strcmp(famname, "ov9782"))
