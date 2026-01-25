@@ -17,12 +17,63 @@ cmake_extra_args="${CMAKE_EXTRA_ARGS:-}"
 gradle_extra_args="${GRADLE_EXTRA_ARGS:-}"
 clean_build="${CLEAN_BUILD:-0}"
 sysroot_mode="${SYSROOT_MODE:-libcamera}"
+use_docker="${USE_DOCKER:-1}"
 
 if [ "${clean_build}" = "1" ]; then
   rm -rf "${repo_root}/cmake_build" || true
 fi
 
 mkdir -p "${maven_local_repo}"
+
+if [ "${use_docker}" != "1" ]; then
+  export DEBIAN_FRONTEND=noninteractive
+  export PKG_CONFIG_SYSROOT_DIR="${sysroot_dir}"
+  export PKG_CONFIG_PATH="${sysroot_dir}/usr/lib/aarch64-linux-gnu/pkgconfig:${sysroot_dir}/usr/lib/pkgconfig:${sysroot_dir}/usr/share/pkgconfig:${sysroot_dir}/usr/local/lib/aarch64-linux-gnu/pkgconfig:${sysroot_dir}/usr/local/lib/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+  if [ -z "${JAVA_HOME:-}" ]; then
+    arch="$(dpkg --print-architecture 2>/dev/null || true)"
+    if [ "${arch}" = "amd64" ]; then
+      export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-amd64"
+    else
+      export JAVA_HOME="/usr/lib/jvm/java-17-openjdk-arm64"
+    fi
+  else
+    export JAVA_HOME="${JAVA_HOME}"
+  fi
+  git config --global --add safe.directory "${repo_root}"
+
+  build_dir="${repo_root}/cmake_build"
+  cmake_args=(
+    -B "${build_dir}"
+    -S "${repo_root}"
+    -DOpenGL_GL_PREFERENCE=GLVND
+    -DBUILD_CAMERA_MEME=OFF
+  )
+  if [ "${sysroot_mode}" = "full" ]; then
+    cmake_args+=(
+      -DCMAKE_SYSROOT="${sysroot_dir}"
+      -DCMAKE_FIND_ROOT_PATH="${sysroot_dir}"
+      -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY
+      -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY
+      -DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=ONLY
+      -DCMAKE_PREFIX_PATH="${sysroot_dir}/usr;${sysroot_dir}/usr/local"
+    )
+  else
+    cmake_args+=(
+      -DCMAKE_LIBRARY_PATH="${sysroot_dir}/usr/lib/aarch64-linux-gnu:${sysroot_dir}/usr/local/lib/aarch64-linux-gnu"
+      -DCMAKE_INCLUDE_PATH="${sysroot_dir}/usr/include:${sysroot_dir}/usr/local/include"
+    )
+  fi
+  cmake "${cmake_args[@]}" ${cmake_extra_args}
+  cmake --build "${build_dir}" -j"$(nproc)"
+
+  cd "${repo_root}"
+  ./gradlew --no-daemon \
+    -Dmaven.repo.local="${maven_local_repo}" \
+    build publishToMavenLocal \
+    -PArchOverride=linuxarm64 \
+    ${gradle_extra_args}
+  exit 0
+fi
 
 docker run --rm --platform="${docker_platform}" \
   -v "${repo_root}:/work" \
