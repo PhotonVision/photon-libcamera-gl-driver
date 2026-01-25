@@ -11,7 +11,7 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
-pkg_check_modules(LIBCAMERA REQUIRED libcamera)
+pkg_check_modules(LIBCAMERA REQUIRED libcamera>=0.6)
 pkg_check_modules(LIBGBM REQUIRED gbm)
 
 set(OPENCV_YEAR "frc2025")
@@ -90,15 +90,18 @@ target_link_libraries(
 )
 target_compile_options(photonlibcamera PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
-add_executable(libcamera_meme main.cpp)
-target_include_directories(
-    libcamera_meme
-    PUBLIC
-        ${OPENGL_INCLUDE_DIRS}
-        ${LIBDRM_INCLUDE_DIRS}
-        ${LIBCAMERA_INCLUDE_DIRS}
-        ${LIBGBM_INCLUDE_DIRS}
-        ${JNI_INCLUDE_DIRS}
-)
-target_include_directories(libcamera_meme SYSTEM PUBLIC ${OPENCV_INCLUDE_PATH})
-target_link_libraries(libcamera_meme photonlibcamera)
+option(BUILD_CAMERA_MEME "Build the libcamera_meme test binary" ON)
+if (BUILD_CAMERA_MEME)
+    add_executable(libcamera_meme main.cpp)
+    target_include_directories(
+        libcamera_meme
+        PUBLIC
+            ${OPENGL_INCLUDE_DIRS}
+            ${LIBDRM_INCLUDE_DIRS}
+            ${LIBCAMERA_INCLUDE_DIRS}
+            ${LIBGBM_INCLUDE_DIRS}
+            ${JNI_INCLUDE_DIRS}
+    )
+    target_include_directories(libcamera_meme SYSTEM PUBLIC ${OPENCV_INCLUDE_PATH})
+    target_link_libraries(libcamera_meme photonlibcamera)
+endif ()

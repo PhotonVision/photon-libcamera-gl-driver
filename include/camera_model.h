@@ -18,6 +18,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 enum CameraModel {
@@ -31,5 +32,5 @@ enum CameraModel {
     OV9782,
     Unknown
 };
-CameraModel stringToModel(const std::string &model);
+CameraModel stringToModel(std::string_view model);
 bool isGrayScale(CameraModel model);
