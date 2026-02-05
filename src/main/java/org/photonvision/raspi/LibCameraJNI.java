@@ -114,6 +114,9 @@ public class LibCameraJNI {
     // Exposure time, in microseconds
     public static native boolean setExposure(long r_ptr, int exposureUs);
 
+    // Saturation
+    public static native boolean setSaturation(long r_ptr, int saturation);
+
     // Set brightness on [-1, 1]
     public static native boolean setBrightness(long r_ptr, double brightness);
 
