@@ -98,6 +98,15 @@ Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
+ * Method:    setSaturation
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setSaturation(JNIEnv *, jclass, jlong,
+                                                       jint);
+
+/*
+ * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    setBrightness
  * Signature: (I)Z
  */
