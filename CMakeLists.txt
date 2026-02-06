@@ -11,7 +11,24 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
-pkg_check_modules(LIBCAMERA REQUIRED libcamera>=0.6)
+
+# Some downstream builds (e.g. OV9782 on Raspberry Pi images) may require newer
+# libcamera packages, but we keep the build compatible with older libcamera-dev
+# by default to avoid breaking existing environments.
+option(REQUIRE_LIBCAMERA_0_6 "Require libcamera >= 0.6 (enforced via pkg-config)" OFF)
+set(LIBCAMERA_MIN_VERSION "0.6" CACHE STRING "Minimum libcamera version when REQUIRE_LIBCAMERA_0_6 is ON")
+if (REQUIRE_LIBCAMERA_0_6)
+    pkg_check_modules(LIBCAMERA REQUIRED "libcamera>=${LIBCAMERA_MIN_VERSION}")
+else ()
+    pkg_check_modules(LIBCAMERA REQUIRED libcamera)
+    if (DEFINED LIBCAMERA_VERSION AND LIBCAMERA_VERSION VERSION_LESS "0.6")
+        message(
+            WARNING
+            "Found libcamera ${LIBCAMERA_VERSION}. Some downstream targets/workflows may require libcamera >= 0.6. "
+            "To enforce a minimum, configure with -DREQUIRE_LIBCAMERA_0_6=ON (and optionally -DLIBCAMERA_MIN_VERSION=0.6)."
+        )
+    endif ()
+endif ()
 pkg_check_modules(LIBGBM REQUIRED gbm)
 
 set(OPENCV_YEAR "frc2025")
