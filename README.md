@@ -9,8 +9,15 @@ We use CMake for our builds. The build should output both a shared library, `lib
 ```
 sudo apt-get update
 sudo apt-get install -y default-jdk libopencv-dev libegl1-mesa-dev libcamera-dev cmake build-essential libdrm-dev libgbm-dev openjdk-17-jdk
-
 git clone https://github.com/PhotonVision/photon-libcamera-gl-driver.git
+```
+
+Note: Some downstream targets/workflows (including OV9782 on Raspberry Pi images) may
+require libcamera >= 0.6. By default, this project will build against whatever
+`libcamera-dev` you have installed; to enforce >= 0.6 at configure time, pass:
+
+```
+cmake -B cmake_build -S . -DREQUIRE_LIBCAMERA_0_6=ON
 ```
 
 Build with the following cmake commands:
@@ -20,7 +27,18 @@ cd photon-libcamera-gl-driver
 mkdir cmake_build
 cmake -B cmake_build -S .
 cmake --build cmake_build
-./gradlew build publishtomavenlocal
+./gradlew build publishToMavenLocal
+```
+
+## Arm64 build with sysroot (Docker)
+
+If you are building on an x86_64 host and need an arm64 JNI that links against
+libcamera (often >= 0.6) from a target rootfs, run:
+
+```
+SYSROOT_DIR=/path/to/target/rootfs \
+  MAVEN_LOCAL_REPO=/path/to/m2 \
+  tools/build_arm64_jni.sh
 ```
 
 ## Running eglinfo

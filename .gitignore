@@ -4,7 +4,10 @@ build
 .cache/
 compile_commands.json
 photon_sysroot*
+local_sysroot_*
+sysroot*/
 build-pi/*
 cmake_build/*
 .gradle/*
 *.jar
+.m2-arm64/

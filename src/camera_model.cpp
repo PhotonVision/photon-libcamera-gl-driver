@@ -20,24 +20,26 @@
 #include <algorithm>
 #include <cstring>
 #include <string>
+#include <string_view>
 
-static const CameraModel grayScaleCameras[] = {OV9281};
+static const CameraModel grayScaleCameras[] = {OV9281, OV7251};
 
-CameraModel stringToModel(const std::string &model) {
-    const char *famname = model.c_str();
-    if (!strcmp(famname, "ov5647"))
+CameraModel stringToModel(std::string_view model) {
+    if (model == "ov5647")
         return OV5647;
-    else if (!strcmp(famname, "imx219"))
+    else if (model == "imx219")
         return IMX219;
-    else if (!strcmp(famname, "imx708"))
+    else if (model == "imx708")
         return IMX708;
-    else if (!strcmp(famname, "imx477"))
+    else if (model == "imx477")
         return IMX477;
-    else if (!strcmp(famname, "ov9281"))
+    else if (model == "ov9281")
         return OV9281;
-    else if (!strcmp(famname, "ov7251"))
+    else if (model == "ov9782")
+        return OV9782;
+    else if (model == "ov7251")
         return OV7251;
-    else if (!strcmp(famname, "Disconnected"))
+    else if (model == "Disconnected")
         return Disconnected;
     else
         return Unknown;
