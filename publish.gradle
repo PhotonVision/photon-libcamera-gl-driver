@@ -5,29 +5,24 @@ def artifactGroupId = 'org.photonvision'
 def baseArtifactId = "photon-libcamera-gl-driver"
 
 def license = file("$rootDir/LICENSE")
-def externalLicenses = file("$rootDir/ExternalLicenses")
 
 task nativeLibraryJar(type: Jar, dependsOn: copyNativeLibrary) {
     archiveClassifier = nativeName
     from outputsFolder
     from license
-    from externalLicenses
 }
 build.dependsOn nativeLibraryJar
 
 jar {
     from license
-    from externalLicenses
 }
 
 sourcesJar {
     from license
-    from externalLicenses
 }
 
 javadocJar {
     from license
-    from externalLicenses
 }
 
 publishing {
