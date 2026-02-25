@@ -4,11 +4,26 @@ def nativeName = wpilibTools.platformMapper.wpilibClassifier;
 def artifactGroupId = 'org.photonvision'
 def baseArtifactId = "photon-libcamera-gl-driver"
 
+def license = file("$rootDir/LICENSE")
+
 task nativeLibraryJar(type: Jar, dependsOn: copyNativeLibrary) {
     archiveClassifier = nativeName
     from outputsFolder
+    from license
 }
 build.dependsOn nativeLibraryJar
+
+jar {
+    from license
+}
+
+sourcesJar {
+    from license
+}
+
+javadocJar {
+    from license
+}
 
 publishing {
     repositories {
