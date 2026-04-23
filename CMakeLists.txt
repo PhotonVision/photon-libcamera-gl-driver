@@ -11,7 +11,11 @@ find_package(Threads REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenGL REQUIRED COMPONENTS OpenGL EGL)
 pkg_check_modules(LIBDRM REQUIRED libdrm)
-pkg_check_modules(LIBCAMERA REQUIRED libcamera)
+
+# we now require libcamera 0.6
+set(LIBCAMERA_MIN_VERSION "0.6" CACHE STRING "Minimum libcamera version")
+pkg_check_modules(LIBCAMERA REQUIRED "libcamera>=${LIBCAMERA_MIN_VERSION}")
+
 pkg_check_modules(LIBGBM REQUIRED gbm)
 
 set(OPENCV_YEAR "frc2025")
