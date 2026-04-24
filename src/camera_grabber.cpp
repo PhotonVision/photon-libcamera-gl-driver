@@ -146,8 +146,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     const auto &control_info = m_camera->controls();
     const bool has_awb =
         control_info.find(&controls::AwbEnable) != control_info.end();
-    const bool is_mono_sensor =
-        (m_model == OV7251) || (m_model == OV9281 && !has_awb);
+    const bool is_mono_sensor = isGrayScale(m_model);
 
     if (has_awb) {
         controls_.set(controls::AwbEnable, !is_mono_sensor);
@@ -155,8 +154,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     controls_.set(controls::AnalogueGain,
                   m_settings.analogGain); // Analog gain, min 1 max big number?
 
-    if (!is_mono_sensor &&
-        control_info.find(&controls::ColourGains) != control_info.end()) {
+    if (control_info.find(&controls::ColourGains) != control_info.end()) {
         controls_.set(controls::ColourGains,
                       libcamera::Span<const float, 2>{
                           {m_settings.awbRedGain,
@@ -171,8 +169,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     controls_.set(controls::Contrast,
                   m_settings.contrast); // Nominal 1
 
-    if (!is_mono_sensor &&
-        control_info.find(&controls::Saturation) != control_info.end()) {
+    if (control_info.find(&controls::Saturation) != control_info.end()) {
         controls_.set(controls::Saturation,
                       m_settings.saturation); // Nominal 1, 0 would be greyscale
     }
@@ -205,8 +202,7 @@ void CameraGrabber::setControls(libcamera::Request *request) {
 
     controls_.set(controls::ExposureValue, 0);
 
-    if (!is_mono_sensor &&
-        control_info.find(&controls::Sharpness) != control_info.end()) {
+    if (control_info.find(&controls::Sharpness) != control_info.end()) {
         controls_.set(controls::Sharpness, 1);
     }
 }
