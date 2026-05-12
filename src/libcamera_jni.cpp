@@ -429,6 +429,26 @@ Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
+ * Method:    getFrameExposureTimeUs
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getFrameExposureTimeUs
+  (JNIEnv *, jclass, jlong pair_)
+{
+    MatPair *pair = reinterpret_cast<MatPair *>(pair_);
+    if (!pair) {
+        return 0;
+    }
+
+    // 0 means libcamera did not populate ExposureTime metadata for this
+    // frame. Consumers should treat 0 as "unknown" and not attempt the
+    // SOE -> mid-exposure timestamp correction.
+    return static_cast<jlong>(pair->exposureTimeUs);
+}
+
+/*
+ * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    releasePair
  * Signature: (J)Z
  */
