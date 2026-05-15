@@ -441,9 +441,6 @@ Java_org_photonvision_raspi_LibCameraJNI_getFrameExposureTimeUs
         return 0;
     }
 
-    // 0 means libcamera did not populate ExposureTime metadata for this
-    // frame. Consumers should treat 0 as "unknown" and not attempt the
-    // SOE -> mid-exposure timestamp correction.
     return static_cast<jlong>(pair->exposureTimeUs);
 }
 
