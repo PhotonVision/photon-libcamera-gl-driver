@@ -132,9 +132,7 @@ bool CameraRunner::start() {
                         .get(libcamera::controls::SensorTimestamp)
                         .value_or(0));
 
-                // libcamera reports ExposureTime in microseconds. value_or(0)
-                // signals "metadata not available" to the Java consumer, which
-                // then leaves the published timestamp uncorrected.
+                // https://libcamera.org/api-html/namespacelibcamera_1_1controls.html#a4e1ca45653b62cd969d4d67a741076eb
                 int32_t exposureTimeUs = static_cast<int32_t>(
                     request->metadata()
                         .get(libcamera::controls::ExposureTime)
