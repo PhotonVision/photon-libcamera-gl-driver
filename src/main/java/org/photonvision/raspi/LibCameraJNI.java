@@ -127,6 +127,14 @@ public class LibCameraJNI {
     public static native long getFrameCaptureTime(long p_ptr);
 
     /**
+     * Get the integration time (exposure window length) for this frame, as reported by libcamera's
+     * ExposureTime control. Units are microseconds. Returns 0 when libcamera did not populate the
+     * metadata for this frame; consumers should treat 0 as "unknown" and leave timestamps
+     * uncorrected.
+     */
+    public static native long getFrameExposureTimeUs(long p_ptr);
+
+    /**
      * Get the current time, in the same timebase as libcamera gives the frame capture time. Units are
      * nanoseconds.
      */

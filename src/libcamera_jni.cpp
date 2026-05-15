@@ -429,6 +429,23 @@ Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
+ * Method:    getFrameExposureTimeUs
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getFrameExposureTimeUs
+  (JNIEnv *, jclass, jlong pair_)
+{
+    MatPair *pair = reinterpret_cast<MatPair *>(pair_);
+    if (!pair) {
+        return 0;
+    }
+
+    return static_cast<jlong>(pair->exposureTimeUs);
+}
+
+/*
+ * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    releasePair
  * Signature: (J)Z
  */

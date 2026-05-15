@@ -125,6 +125,10 @@ JNIEXPORT jlong JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_getFrameCaptureTime(JNIEnv *, jclass,
                                                              jlong);
 
+JNIEXPORT jlong JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_getFrameExposureTimeUs(JNIEnv *,
+                                                                jclass, jlong);
+
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    grabFrame

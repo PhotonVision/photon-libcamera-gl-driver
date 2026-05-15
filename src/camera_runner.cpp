@@ -132,7 +132,13 @@ bool CameraRunner::start() {
                         .get(libcamera::controls::SensorTimestamp)
                         .value_or(0));
 
-                gpu_queue.push({out, type, sensorTimestamp});
+                // https://libcamera.org/api-html/namespacelibcamera_1_1controls.html#a4e1ca45653b62cd969d4d67a741076eb
+                int32_t exposureTimeUs = static_cast<int32_t>(
+                    request->metadata()
+                        .get(libcamera::controls::ExposureTime)
+                        .value_or(0));
+
+                gpu_queue.push({out, type, sensorTimestamp, exposureTimeUs});
             }
 
             std::chrono::duration<double, std::milli> elapsedMillis =
@@ -181,6 +187,7 @@ bool CameraRunner::start() {
             // Save the current shader idx
             mat_pair.frameProcessingType = static_cast<int32_t>(data.type);
             mat_pair.captureTimestamp = data.captureTimestamp;
+            mat_pair.exposureTimeUs = data.exposureTimeUs;
 
             uint8_t *processed_out_buf = mat_pair.processed.data;
             uint8_t *color_out_buf = mat_pair.color.data;
@@ -262,7 +269,7 @@ void CameraRunner::stop() {
     threshold.join();
 
     // push sentinel value to stop display thread
-    gpu_queue.push({-1, ProcessType::None, 0});
+    gpu_queue.push({-1, ProcessType::None, 0, 0});
     display.join();
 
     std::printf("stopped all\n");

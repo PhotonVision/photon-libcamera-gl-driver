@@ -40,6 +40,10 @@ struct MatPair {
     int64_t captureTimestamp;    // In libcamera time units, hopefully uS? TODO
                                  // actually implement
     int32_t frameProcessingType; // enum value of shader run on the image
+    // Per-frame exposure integration time in microseconds, as reported by
+    // libcamera::controls::ExposureTime. 0 means the metadata was not
+    // available for this frame; consumers should leave timestamps uncorrected.
+    int32_t exposureTimeUs;
 
     MatPair() = default;
     explicit MatPair(int width, int height)
@@ -79,6 +83,7 @@ class CameraRunner {
         int fd;
         ProcessType type;
         uint64_t captureTimestamp;
+        int32_t exposureTimeUs;
     };
 
     std::thread m_threshold;
