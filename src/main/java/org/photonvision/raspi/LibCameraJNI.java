@@ -52,13 +52,23 @@ public class LibCameraJNI {
     }
 
     public static SensorModel getSensorModel(long r_ptr) {
-        int model = getSensorModelRaw(r_ptr);
-        return SensorModel.values()[model];
+        try {
+            int model = getSensorModelRaw(r_ptr);
+            return SensorModel.values()[model];
+        } catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
+            return SensorModel.Disconnected;
+        }
     }
 
     public static SensorModel getSensorModel(String name) {
-        int model = getSensorModelRaw(name);
-        return SensorModel.values()[model];
+        try {
+            int model = getSensorModelRaw(name);
+            return SensorModel.values()[model];
+        } catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
+            return SensorModel.Disconnected;
+        }
     }
 
     public static boolean isSupported() {
