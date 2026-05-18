@@ -61,4 +61,8 @@ tasks.register('copyNativeLibrary', Sync) {
     publish.dependsOn it
 }
 
+wrapper {
+    gradleVersion = '9.4.0'
+}
+
 apply from: "publish.gradle"
