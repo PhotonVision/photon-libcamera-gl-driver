@@ -61,11 +61,11 @@ Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *, jclass) {
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
- * Method:    getCameraNames
+ * Method:    getCameraNamesRaw
  * Signature: ()[Ljava/lang/Object;
  */
 JNIEXPORT jobjectArray JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getCameraNames
+Java_org_photonvision_raspi_LibCameraJNI_getCameraNamesRaw
   (JNIEnv *env, jclass)
 {
     std::vector<std::shared_ptr<libcamera::Camera>> cameras = GetAllCameraIDs();

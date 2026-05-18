@@ -184,5 +184,15 @@ public class LibCameraJNI {
     public static native boolean releasePair(long p_ptr);
 
     /** Get an array containing the names/ids/paths of all connected CSI cameras from libcamera. @return All connected CSI cameras' paths */
-    public static native String[] getCameraNames();
+    public static String[] getCameraNames() {
+        try {
+            return getCameraNamesRaw();
+        } catch (UnsatisfiedLinkError e) {
+            e.printStackTrace();
+            return new String[0];
+        }
+    }
+
+    /** Get an array containing the names/ids/paths of all connected CSI cameras from libcamera. @return All connected CSI cameras' paths */
+    public static native String[] getCameraNamesRaw();
 }

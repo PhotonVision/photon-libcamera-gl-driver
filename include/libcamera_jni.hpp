@@ -44,11 +44,11 @@ Java_org_photonvision_raspi_LibCameraJNI_isLibraryWorking(JNIEnv *, jclass);
 
 /*
  * Class:     test
- * Method:    getCameraNames
+ * Method:    getCameraNamesRaw
  * Signature: ()[Ljava/lang/String;
  */
 JNIEXPORT jobjectArray JNICALL
-Java_org_photonvision_raspi_LibCameraJNI_getCameraNames(JNIEnv *, jclass);
+Java_org_photonvision_raspi_LibCameraJNI_getCameraNamesRaw(JNIEnv *, jclass);
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
