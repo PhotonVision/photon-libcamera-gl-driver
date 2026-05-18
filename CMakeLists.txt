@@ -18,8 +18,7 @@ pkg_check_modules(LIBCAMERA REQUIRED "libcamera>=${LIBCAMERA_MIN_VERSION}")
 
 pkg_check_modules(LIBGBM REQUIRED gbm)
 
-set(OPENCV_YEAR "frc2025")
-set(OPENCV_VERSION "4.10.0-3")
+set(OPENCV_VERSION "2027-4.13.0-3")
 # also valid: windowsx86-64
 
 # type can be "", "debug", "static", or "staticdebug"
@@ -31,7 +30,7 @@ include(FetchContent)
 FetchContent_Declare(
     opencv_lib
     URL
-        https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-${OPENCV_ARCH}${OPENCV_TYPE}.zip
+        https://frcmaven.wpi.edu/artifactory/release/org/wpilib/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-${OPENCV_ARCH}${OPENCV_TYPE}.zip
 )
 FetchContent_MakeAvailable(opencv_lib)
 
@@ -39,7 +38,7 @@ FetchContent_MakeAvailable(opencv_lib)
 FetchContent_Declare(
     opencv_header
     URL
-        https://frcmaven.wpi.edu/artifactory/release/edu/wpi/first/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-headers.zip
+        https://frcmaven.wpi.edu/artifactory/release/org/wpilib/thirdparty/${OPENCV_YEAR}/opencv/opencv-cpp/${OPENCV_VERSION}/opencv-cpp-${OPENCV_VERSION}-headers.zip
 )
 FetchContent_MakeAvailable(opencv_header)
 
