@@ -188,7 +188,6 @@ public class LibCameraJNI {
         try {
             return getCameraNamesRaw();
         } catch (UnsatisfiedLinkError e) {
-            e.printStackTrace();
             return new String[0];
         }
     }
