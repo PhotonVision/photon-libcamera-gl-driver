@@ -117,6 +117,9 @@ public class LibCameraJNI {
     // Exposure time, in microseconds
     public static native boolean setExposure(long r_ptr, int exposureUs);
 
+    // Saturation
+    public static native boolean setSaturation(long r_ptr, float saturation);
+
     // Set brightness on [-1, 1]
     public static native boolean setBrightness(long r_ptr, double brightness);
 
@@ -128,6 +131,14 @@ public class LibCameraJNI {
      * the frame capture time. Units are nanoseconds.
      */
     public static native long getFrameCaptureTime(long p_ptr);
+
+    /**
+     * Get the integration time (exposure window length) for this frame, as reported by libcamera's
+     * ExposureTime control. Units are microseconds. Returns 0 when libcamera did not populate the
+     * metadata for this frame; consumers should treat 0 as "unknown" and leave timestamps
+     * uncorrected.
+     */
+    public static native long getFrameExposureTimeUs(long p_ptr);
 
     /**
      * Get the current time, in the same timebase as libcamera gives the frame capture time. Units are

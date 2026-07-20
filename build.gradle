@@ -1,7 +1,7 @@
 plugins {
     id "java"
-    id 'org.photonvision.tools.WpilibTools' version '2.3.1-photon'
-    id "edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin" version "2020.2"
+    id 'org.photonvision.tools.WpilibTools' version '4.1.1-photon'
+    id "org.wpilib.WPILibRepositoriesPlugin" version "2027.0.0"
     id "com.diffplug.spotless" version "8.1.0"
 }
 
@@ -11,6 +11,7 @@ allprojects {
         mavenLocal()
         maven { url = "https://maven.photonvision.org/repository/internal/" }
     }
+    wpilibRepositories.use2027Repos()
     wpilibRepositories.addAllReleaseRepositories(it)
     wpilibRepositories.addAllDevelopmentRepositories(it)
 }
@@ -24,8 +25,8 @@ ext {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 tasks.withType(JavaCompile) {
@@ -58,6 +59,10 @@ tasks.register('copyNativeLibrary', Sync) {
 
     build.dependsOn it
     publish.dependsOn it
+}
+
+wrapper {
+    gradleVersion = '9.4.0'
 }
 
 apply from: "publish.gradle"
