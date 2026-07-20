@@ -264,11 +264,11 @@ Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    setSaturation
- * Signature: (JI)Z
+ * Signature: (JF)Z
  */
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setSaturation
-  (JNIEnv *, jclass, jlong runner_, jint saturation)
+  (JNIEnv *, jclass, jlong runner_, jfloat saturation)
 {
     CameraRunner *runner = reinterpret_cast<CameraRunner *>(runner_);
     if (!runner) {

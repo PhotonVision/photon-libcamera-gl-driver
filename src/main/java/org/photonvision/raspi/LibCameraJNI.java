@@ -115,7 +115,7 @@ public class LibCameraJNI {
     public static native boolean setExposure(long r_ptr, int exposureUs);
 
     // Saturation
-    public static native boolean setSaturation(long r_ptr, int saturation);
+    public static native boolean setSaturation(long r_ptr, float saturation);
 
     // Set brightness on [-1, 1]
     public static native boolean setBrightness(long r_ptr, double brightness);

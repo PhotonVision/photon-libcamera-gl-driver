@@ -103,7 +103,7 @@ Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
  */
 JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setSaturation(JNIEnv *, jclass, jlong,
-                                                       jint);
+                                                       jfloat);
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
