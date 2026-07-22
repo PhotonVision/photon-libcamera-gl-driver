@@ -36,6 +36,7 @@ struct CameraSettings {
     float awbBlueGain = 1.5;
     float saturation = 1;
     bool doAutoExposure = false;
+    bool doAutoWhiteBalance = false;
     // float digitalGain = 100;
 };
 

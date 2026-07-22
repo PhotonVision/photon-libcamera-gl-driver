@@ -147,14 +147,17 @@ void CameraGrabber::setControls(libcamera::Request *request) {
     const bool has_awb =
         control_info.find(&controls::AwbEnable) != control_info.end();
     const bool is_mono_sensor = isGrayScale(m_model);
+    const bool enable_auto_white_balance =
+        m_settings.doAutoWhiteBalance && !is_mono_sensor;
 
     if (has_awb) {
-        controls_.set(controls::AwbEnable, !is_mono_sensor);
+        controls_.set(controls::AwbEnable, enable_auto_white_balance);
     }
     controls_.set(controls::AnalogueGain,
                   m_settings.analogGain); // Analog gain, min 1 max big number?
 
-    if (control_info.find(&controls::ColourGains) != control_info.end()) {
+    if (!enable_auto_white_balance &&
+        control_info.find(&controls::ColourGains) != control_info.end()) {
         controls_.set(controls::ColourGains,
                       libcamera::Span<const float, 2>{
                           {m_settings.awbRedGain,

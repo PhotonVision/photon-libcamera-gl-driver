@@ -114,6 +114,8 @@ public class LibCameraJNI {
 
     public static native boolean setAutoExposure(long r_ptr, boolean doAutoExposure);
 
+    public static native boolean setAutoWhiteBalance(long r_ptr, boolean doAutoWhiteBalance);
+
     // Exposure time, in microseconds
     public static native boolean setExposure(long r_ptr, int exposureUs);
 
