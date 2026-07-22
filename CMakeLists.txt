@@ -94,7 +94,7 @@ target_link_libraries(
 target_compile_options(photonlibcamera PRIVATE -Wall -Wextra -Wpedantic -Werror)
 
 option(BUILD_CAMERA_MEME "Build the libcamera_meme test binary" ON)
-if (BUILD_CAMERA_MEME)
+if(BUILD_CAMERA_MEME)
     add_executable(libcamera_meme main.cpp)
     target_include_directories(
         libcamera_meme
@@ -105,6 +105,10 @@ if (BUILD_CAMERA_MEME)
             ${LIBGBM_INCLUDE_DIRS}
             ${JNI_INCLUDE_DIRS}
     )
-    target_include_directories(libcamera_meme SYSTEM PUBLIC ${OPENCV_INCLUDE_PATH})
+    target_include_directories(
+        libcamera_meme
+        SYSTEM
+        PUBLIC ${OPENCV_INCLUDE_PATH}
+    )
     target_link_libraries(libcamera_meme photonlibcamera)
-endif ()
+endif()
