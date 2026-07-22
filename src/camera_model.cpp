@@ -35,6 +35,8 @@ CameraModel stringToModel(std::string_view model) {
         return IMX477;
     else if (model == "ov9281")
         return OV9281;
+    else if (model == "ov9782")
+        return OV9782;
     else if (model == "ov7251")
         return OV7251;
     else if (model == "Disconnected")

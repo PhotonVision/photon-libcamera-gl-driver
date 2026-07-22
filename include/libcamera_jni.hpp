@@ -96,6 +96,10 @@ JNIEXPORT jboolean JNICALL
 Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure(
     JNIEnv *env, jclass, jlong, jboolean doAutoExposure);
 
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setAutoWhiteBalance(
+    JNIEnv *env, jclass, jlong, jboolean doAutoWhiteBalance);
+
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    setSaturation

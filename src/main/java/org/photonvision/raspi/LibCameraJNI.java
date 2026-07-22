@@ -26,6 +26,7 @@ public class LibCameraJNI {
         IMX477, // Picam HQ
         OV9281,
         OV7251,
+        OV9782,
         Unknown;
 
         public String getFriendlyName() {
@@ -44,6 +45,8 @@ public class LibCameraJNI {
                     return "OV9281";
                 case OV7251:
                     return "OV7251";
+                case OV9782:
+                    return "OV9782";
                 case Unknown:
                 default:
                     return "Unknown Camera";
@@ -110,6 +113,8 @@ public class LibCameraJNI {
             boolean hueInverted);
 
     public static native boolean setAutoExposure(long r_ptr, boolean doAutoExposure);
+
+    public static native boolean setAutoWhiteBalance(long r_ptr, boolean doAutoWhiteBalance);
 
     // Exposure time, in microseconds
     public static native boolean setExposure(long r_ptr, int exposureUs);

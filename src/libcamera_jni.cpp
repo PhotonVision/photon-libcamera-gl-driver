@@ -263,6 +263,25 @@ Java_org_photonvision_raspi_LibCameraJNI_setAutoExposure
 
 /*
  * Class:     org_photonvision_raspi_LibCameraJNI
+ * Method:    setAutoWhiteBalance
+ * Signature: (JZ)Z
+ */
+JNIEXPORT jboolean JNICALL
+Java_org_photonvision_raspi_LibCameraJNI_setAutoWhiteBalance
+  (JNIEnv *, jclass, jlong runner_, jboolean doAutoWhiteBalance)
+{
+    CameraRunner *runner = reinterpret_cast<CameraRunner *>(runner_);
+    if (!runner) {
+        return false;
+    }
+
+    runner->cameraGrabber().cameraSettings().doAutoWhiteBalance =
+        doAutoWhiteBalance;
+    return true;
+}
+
+/*
+ * Class:     org_photonvision_raspi_LibCameraJNI
  * Method:    setSaturation
  * Signature: (JF)Z
  */

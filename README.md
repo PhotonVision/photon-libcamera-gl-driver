@@ -13,6 +13,8 @@ sudo apt-get install -y default-jdk libopencv-dev libegl1-mesa-dev libcamera-dev
 git clone https://github.com/PhotonVision/photon-libcamera-gl-driver.git
 ```
 
+This project requires libcamera >= 0.6.
+
 Build with the following cmake commands:
 
 ```
@@ -20,7 +22,18 @@ cd photon-libcamera-gl-driver
 mkdir cmake_build
 cmake -B cmake_build -S .
 cmake --build cmake_build
-./gradlew build publishtomavenlocal
+./gradlew build publishToMavenLocal
+```
+
+## Arm64 build with sysroot (Docker)
+
+If you are building on an x86_64 host and need an arm64 JNI that links against
+libcamera (often >= 0.6) from a target rootfs, run:
+
+```
+SYSROOT_DIR=/path/to/target/rootfs \
+  MAVEN_LOCAL_REPO=/path/to/m2 \
+  tools/build_arm64_jni.sh
 ```
 
 ## Running eglinfo
