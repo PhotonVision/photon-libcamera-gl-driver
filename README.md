@@ -13,13 +13,7 @@ sudo apt-get install -y default-jdk libopencv-dev libegl1-mesa-dev libcamera-dev
 git clone https://github.com/PhotonVision/photon-libcamera-gl-driver.git
 ```
 
-Note: Some downstream targets/workflows (including OV9782 on Raspberry Pi images) may
-require libcamera >= 0.6. By default, this project will build against whatever
-`libcamera-dev` you have installed; to enforce >= 0.6 at configure time, pass:
-
-```
-cmake -B cmake_build -S . -DREQUIRE_LIBCAMERA_0_6=ON
-```
+This project requires libcamera >= 0.6.
 
 Build with the following cmake commands:
 

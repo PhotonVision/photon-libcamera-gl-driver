@@ -88,9 +88,11 @@ if [ "${build_docker_image}" = "1" ]; then
 fi
 
 docker run --rm --platform="${docker_platform}" \
+  --user "$(id -u):$(id -g)" \
   -v "${repo_root}:/work" \
   -v "${sysroot_dir}:/sysroot:ro" \
   -v "${maven_local_repo}:/work/.m2-arm64" \
+  -e HOME=/tmp \
   -e "SYSROOT_MODE=${sysroot_mode}" \
   -e "CMAKE_EXTRA_ARGS=${cmake_extra_args}" \
   -e "GRADLE_EXTRA_ARGS=${gradle_extra_args}" \
